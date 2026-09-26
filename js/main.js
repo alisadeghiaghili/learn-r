@@ -310,6 +310,7 @@ function showHelp() {
         "Write R code in the editor and Run. The Environment and Plot tabs show state after every stroke.",
         "Commands: levels · hint · undo · reset · sandbox · next · prev · help",
         "Golf: match or beat par. Undo removes the last stroke. Reset restarts the level.",
+        "R logo © The R Foundation, CC BY-SA 4.0.",
       ].join("\n\n"),
       actions: [{ label: "Close", id: "close", primary: true }],
     },

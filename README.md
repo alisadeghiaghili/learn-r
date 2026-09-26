@@ -80,3 +80,8 @@ strokes) is intentionally deferred.
 ## License
 
 MIT
+
+The R logo (`assets/Rlogo.svg`, `assets/Rlogo.png`) is © The R Foundation,
+distributed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Source: https://www.r-project.org/logo/
+

@@ -98,16 +98,10 @@ textarea:focus-visible {
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
+  display: block;
+  width: 32px;
+  height: 25px;
+  object-fit: contain;
 }
 
 .brand-name {

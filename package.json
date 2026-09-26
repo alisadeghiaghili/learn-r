@@ -1,0 +1,12 @@
+{
+  "name": "learn-r",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive R sandbox and level game in the browser",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/checks.test.js",
+    "smoke": "node scripts/smoke.mjs",
+    "start": "python -m http.server 5177"
+  }
+}

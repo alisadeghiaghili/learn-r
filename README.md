@@ -4,6 +4,8 @@ Interactive R sandbox and level game in the browser. Real R via WebAssembly.
 Inspired by [learnGitBranching](https://github.com/pcottle/learnGitBranching):
 a command loop, a live visualization of state, and golf-scored levels.
 
+**Live:** https://alisadeghiaghili.github.io/learn-r/
+
 The visualization subject is R's environment — objects, types, and plots —
 not a git graph.
 

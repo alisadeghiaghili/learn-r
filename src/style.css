@@ -824,6 +824,11 @@ body {
   color: var(--haze);
 }
 
+[hidden],
+.boot[hidden] {
+  display: none !important;
+}
+
 /* Boot screen */
 .boot {
   position: fixed;

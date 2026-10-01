@@ -42,7 +42,11 @@ export class App {
         if (bootEl) bootEl.style.width = `${Math.round(p * 100)}%`;
       });
       const bootCard = document.querySelector<HTMLElement>('#boot');
-      if (bootCard) bootCard.hidden = true;
+      if (bootCard) {
+        bootCard.hidden = true;
+        bootCard.style.display = 'none';
+        bootCard.remove();
+      }
     } catch (err) {
       console.error('Failed to initialize WebR', err);
       const title = document.querySelector<HTMLElement>('.boot-title');

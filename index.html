@@ -1,105 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>learn-r — interactive R sandbox and levels</title>
-  <meta name="description" content="Learn R by manipulating a live environment. Sandbox, levels, and golf scoring in the browser." />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="assets/Rlogo.png" />
-  <link rel="stylesheet" href="styles/main.css" />
-</head>
-<body>
-  <div id="app" class="app">
-    <header class="topbar">
-      <div class="brand">
-        <img class="brand-mark" src="assets/Rlogo.svg" width="32" height="25" alt="R" />
-        <span class="brand-name">learn-r</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>LearnR — Interactive R Tutorial and Sandbox</title>
+    <meta
+      name="description"
+      content="Learn R programming through an interactive sandbox and levels: vectors, indexing, logic, lists, data frames, functions, pipe, and graphics in WebAssembly."
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="boot" class="boot">
+      <div class="boot-card">
+        <div class="boot-title">Loading WebR</div>
+        <div class="boot-bar"><span id="boot-bar-fill"></span></div>
+        <p class="boot-note">WebAssembly runtime · starting R environment</p>
       </div>
-      <div class="topbar-meta">
-        <span id="mode-label" class="chip">sandbox</span>
-        <span id="strokes-label" class="chip chip-golf" title="Strokes this attempt">0 strokes</span>
-        <span id="par-label" class="chip chip-par" hidden></span>
-      </div>
-      <div class="topbar-actions">
-        <button type="button" id="btn-hint" class="btn btn-ghost">Hint</button>
-        <button type="button" id="btn-undo" class="btn btn-ghost">Undo</button>
-        <button type="button" id="btn-reset" class="btn btn-ghost">Reset</button>
-        <button type="button" id="btn-help" class="btn btn-ghost">Help</button>
-      </div>
-    </header>
-
-    <aside class="rail" aria-label="Levels">
-      <div class="rail-head">
-        <span class="rail-title">Levels</span>
-        <span id="progress-label" class="rail-progress">0 / 12</span>
-      </div>
-      <nav id="level-list" class="level-list"></nav>
-      <button type="button" id="btn-sandbox" class="btn btn-block">Sandbox</button>
-    </aside>
-
-    <main class="stage">
-      <div class="viz">
-        <div class="viz-tabs" role="tablist">
-          <button type="button" class="viz-tab is-active" data-viz="env" role="tab" aria-selected="true">Environment</button>
-          <button type="button" class="viz-tab" data-viz="plot" role="tab" aria-selected="false">Plot</button>
-        </div>
-        <div id="viz-env" class="viz-pane is-active" role="tabpanel">
-          <div id="env-tree" class="env-tree" aria-live="polite"></div>
-        </div>
-        <div id="viz-plot" class="viz-pane" role="tabpanel" hidden>
-          <img id="plot-img" alt="R plot" hidden />
-          <p id="plot-empty" class="empty">No plot yet. Draw one with <code>plot()</code>.</p>
-        </div>
-      </div>
-
-      <section class="editor-well" aria-label="R editor">
-        <div class="editor-label">R</div>
-        <textarea
-          id="editor"
-          class="editor"
-          spellcheck="false"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          placeholder="# write R code, then Run"
-          rows="5"
-        ></textarea>
-        <div class="editor-actions">
-          <button type="button" id="btn-run" class="btn btn-primary">Run</button>
-          <span class="kbd-hint">Ctrl / Cmd + Enter</span>
-        </div>
-      </section>
-
-      <section class="console" aria-label="Console">
-        <div class="console-label">Console</div>
-        <div id="console-out" class="console-out" aria-live="polite"></div>
-      </section>
-    </main>
-
-    <aside class="brief" aria-label="Level brief">
-      <div id="brief-body" class="brief-body"></div>
-      <div id="check-list" class="check-list"></div>
-    </aside>
-  </div>
-
-  <div id="overlay" class="overlay" hidden>
-    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
-      <h2 id="overlay-title" class="overlay-title"></h2>
-      <div id="overlay-score" class="overlay-score" hidden></div>
-      <div id="overlay-body" class="overlay-body"></div>
-      <div id="overlay-actions" class="overlay-actions"></div>
     </div>
-  </div>
-
-  <div id="boot" class="boot">
-    <div class="boot-card">
-      <div class="boot-title">Loading R</div>
-      <div class="boot-bar"><span id="boot-bar-fill"></span></div>
-      <p class="boot-note">WebAssembly runtime · first load may take a moment</p>
-    </div>
-  </div>
-
-  <script type="module" src="js/main.js"></script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

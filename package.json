@@ -1,12 +1,23 @@
 {
   "name": "learn-r",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Interactive R sandbox and level game in the browser",
+  "license": "MIT",
+  "description": "Interactive R visualizer, sandbox, and level game in the browser powered by WebAssembly",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/checks.test.js",
-    "smoke": "node scripts/smoke.mjs",
-    "start": "python -m http.server 5177"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "webr": "^0.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^6.2.1",
+    "vitest": "^3.0.8"
   }
 }

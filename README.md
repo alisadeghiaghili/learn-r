@@ -1,81 +1,78 @@
 # learn-r
 
-Interactive R sandbox and level game in the browser. Real R via WebAssembly.
-Inspired by [learnGitBranching](https://github.com/pcottle/learnGitBranching):
-a command loop, a live visualization of state, and golf-scored levels.
+Interactive R visualizer, sandbox, and level game in the browser powered by real R in WebAssembly.
+Inspired by [learnGitBranching](https://github.com/pcottle/learnGitBranching) and structured like [learn-dvc](https://github.com/alisadeghiaghili/learn-dvc):
+an interactive terminal loop, a live environment and plot board, bilingual interface support, and golf-scored levels.
 
 **Live:** https://alisadeghiaghili.github.io/learn-r/
 
-The visualization subject is R's environment — objects, types, and plots —
-not a git graph.
+The visualization subject is R's environment — atomic vectors, lists, data frames, functions, and graphics.
 
-## Run
-
-Open `index.html` in a modern browser (network required once for the WebR
-runtime). For local serving with correct module resolution:
+## Quick Start
 
 ```bash
-python -m http.server 5177
-# then http://localhost:5177/
+npm install
+npm run dev
+```
+
+GitHub Pages deploys automatically from `main` via `.github/workflows/deploy-pages.yml` (builds `dist/`, runs Vitest suite, and publishes artifact).
+
+Production build and test:
+
+```bash
+npm run build
+npm test
 ```
 
 ## How to play
 
-1. Write R in the editor and press **Run** (Ctrl/Cmd+Enter).
-2. Watch the **Environment** tab and **Plot** tab update after each stroke.
-3. Open **levels** from the rail (or type `levels`). Beat **par** with fewer strokes.
+1. Enter R expressions in the interactive terminal prompt (`R >`) or open the **Script Editor** (Ctrl/Cmd+Enter).
+2. Watch the **Environment** and **Plot Canvas** tabs update after every stroke.
+3. Open **Levels** from the toolbar (or type `levels`). Beat **par** with fewer strokes.
 
-Commands (type in the editor):
+Useful commands inside the terminal:
 
 | Command | Effect |
-|---------|--------|
-| `levels` | list lessons |
-| `hint` | show the level hint |
-| `undo` | remove last stroke |
-| `reset` | clear the environment |
-| `sandbox` | free session |
-| `next` / `prev` | move between levels |
-| `help` | command reference |
+|---|---|
+| `levels` | Open the level catalog |
+| `lesson` | View detailed explanation for current level |
+| `hint` | Reveal level hint |
+| `show solution` | Display target solution |
+| `undo` | Remove last stroke |
+| `reset` | Clear the environment and restart level |
+| `sandbox` | Free exploration mode |
+| `clear` | Clear the console log |
+| `script` | Toggle multi-line R script editor |
+| `help` | Command reference |
 
 ## Curriculum (Foundations)
 
-Base R only: vectors, indexing, logic, lists, data frames, functions,
-`apply`, native pipe `|>`, base graphics, and a capstone.
+Base R:
+1. `Hello, R` — `print()` and console output
+2. `Numbers & Arithmetic` — numeric calculations and `<-` assignment
+3. `Atomic Vectors` — vector creation with `c()` and `length()`
+4. `1-Based Indexing` — positional subsetting (`[1]`, `[2]`)
+5. `Logical Subsetting` — boolean filtering
+6. `Heterogeneous Lists` — mixed-type lists and `$` access
+7. `Data Frames` — 2D tabular datasets
+8. `Custom Functions` — `function(x)` definitions and return values
+9. `Functional Mapping` — `sapply()` iterators
+10. `Native Pipe |>` — forward piping
+11. `Base Graphics` — built-in `plot()` graphics
+12. `Capstone Challenge` — comprehensive data workflow
 
 ## Architecture
 
 ```
-index.html      shell
-styles/         tokens + layout
-js/levels.js    level data
-js/checks.js    pure check + golf helpers
-js/runtime.js   WebR wrapper (file-based parse/eval, undo replay)
-js/visualizer.js
-js/ui.js
-js/main.js      command loop
-tests/          node:test pure-logic tests
+src/
+  engine/         # WebR runtime wrapper, declarative checks, type definitions
+  levels/         # Curated level catalog and pedagogical checks
+  i18n/           # English and Persian localization
+  ui/             # App shell, board visualizer, terminal, script editor, modal dialogs
+tests/            # Vitest unit test suite (checks, levels, i18n)
+.github/
+  workflows/      # Automated GitHub Actions deployment pipeline
 ```
-
-Undo is replay-based: setup + remaining strokes. Correct by construction.
-
-## Tests
-
-```bash
-node --test tests/checks.test.js
-```
-
-End-to-end smoke (needs a local server and `puppeteer-core`):
-
-```bash
-python -m http.server 5177
-npm install puppeteer-core --no-save
-node scripts/smoke.mjs http://127.0.0.1:5177/
-```
-
-## Share a level
-
-`index.html?level=hello` opens that level. Optional deeper sharing (encoded
-strokes) is intentionally deferred.
 
 ## License
 
@@ -84,4 +81,3 @@ MIT
 The R logo (`assets/Rlogo.svg`, `assets/Rlogo.png`) is © The R Foundation,
 distributed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 Source: https://www.r-project.org/logo/
-

@@ -77,37 +77,44 @@ export class App {
     this.root.innerHTML = `
       <div class="app-main">
         <header class="toolbar">
-          <div class="brand">Learn<span>${escapeHtml(u.brandTagline)}</span></div>
+          <div class="brand">
+            <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="R">
+              <rect width="64" height="64" rx="14" fill="#e5edf8"/>
+              <g transform="translate(12 12) scale(1.6667)" fill="#2569bb"><path d="M12 2.746c-6.627 0-12 3.599-12 8.037 0 3.897 4.144 7.144 9.64 7.88V16.26c-2.924-.915-4.925-2.755-4.925-4.877 0-3.035 4.084-5.494 9.12-5.494 5.038 0 8.757 1.683 8.757 5.494 0 1.976-.999 3.379-2.662 4.272.09.066.174.128.258.216.169.149.25.363.372.544 2.128-1.45 3.44-3.437 3.44-5.631 0-4.44-5.373-8.038-12-8.038zm-2.111 4.99v13.516l4.093-.002-.002-5.291h1.1c.225 0 .321.066.549.25.272.22.715.982.715.982l2.164 4.063 4.627-.002-2.864-4.826s-.086-.193-.265-.383a2.22 2.22 0 00-.582-.416c-.422-.214-1.149-.434-1.149-.434s3.578-.264 3.578-3.826c0-3.562-3.744-3.63-3.744-3.63zm4.127 2.93l2.478.002s1.149-.062 1.149 1.127c0 1.165-1.149 1.17-1.149 1.17h-2.478zm1.754 6.119c-.494.049-1.012.079-1.54.088v1.807a16.622 16.622 0 002.37-.473l-.471-.891s-.108-.183-.248-.394c-.039-.054-.08-.098-.111-.137z"/></g>
+            </svg>
+            Learn<span>${escapeHtml(u.brandTagline)}</span>
+          </div>
           <div class="level-title" id="level-title"></div>
           <div class="toolbar-actions">
             <div class="lang-menu">
-              <button type="button" class="lang-btn" data-action="lang-toggle" aria-label="${escapeHtml(u.language)}">
-                <span>${current.toUpperCase()}</span>
+              <button type="button" class="lang-btn" data-action="lang-toggle" aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(u.language)}">
+                <span data-lang-label>${current.toUpperCase()}</span>
                 <span class="lang-caret" aria-hidden="true"></span>
               </button>
-              <div class="lang-dropdown" id="lang-dropdown" hidden>
+              <div class="lang-dropdown" id="lang-dropdown" role="menu" hidden>
                 ${langItems}
               </div>
             </div>
-            <button type="button" class="nav-toggle" data-action="nav-toggle" aria-label="${escapeHtml(u.menuLabel)}">
+            <button type="button" class="nav-toggle" data-action="nav-toggle" aria-label="${escapeHtml(u.menuLabel)}" aria-expanded="false" aria-controls="nav-drawer">
               <span class="nav-bars" aria-hidden="true"></span>
             </button>
             <div class="nav-drawer" id="nav-drawer" hidden>
               <button type="button" data-action="levels">${escapeHtml(u.levels)}</button>
               <button type="button" data-action="lesson" title="${escapeHtml(u.lessonTitle)}">${escapeHtml(u.lesson)}</button>
+              <button type="button" data-action="goal">${escapeHtml(u.guide)}</button>
               <button type="button" data-action="hint">${escapeHtml(u.hint)}</button>
               <button type="button" data-action="solution">${escapeHtml(u.solution)}</button>
               <button type="button" data-action="undo">${escapeHtml(u.undo)}</button>
               <button type="button" data-action="reset">${escapeHtml(u.reset)}</button>
               <button type="button" data-action="sandbox" class="ghost">${escapeHtml(u.sandboxBtn)}</button>
-              <button type="button" class="help-btn" data-action="help">?</button>
-              <a class="tb-link gh" href="${REPO_URL}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.githubTitle)}">
-                <svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-              </a>
-              <a class="tb-link support" href="https://www.buymeacoffee.com/alisadeghil" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.supportTitle)}">
-                ${escapeHtml(u.support)}
-              </a>
+              <button type="button" class="help-btn" data-action="help" title="${escapeHtml(u.uiGuideTitle)}" aria-label="${escapeHtml(u.help)}">?</button>
             </div>
+            <a class="tb-link gh" href="${REPO_URL}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.githubTitle)}" aria-label="GitHub repository">
+              <svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+            </a>
+            <a class="tb-link support" href="https://www.buymeacoffee.com/alisadeghil" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.supportTitle)}">
+              ${escapeHtml(u.support)}
+            </a>
           </div>
         </header>
         <div class="board-wrap" id="board-wrap"></div>
@@ -150,6 +157,7 @@ export class App {
 
         if (action === 'levels') this.openLevels();
         if (action === 'lesson') this.openLesson();
+        if (action === 'goal') this.dockEl.scrollIntoView({ behavior: 'smooth' });
         if (action === 'hint') this.triggerHint();
         if (action === 'solution') this.showSolution();
         if (action === 'undo') void this.undo();

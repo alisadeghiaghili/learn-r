@@ -13,27 +13,10 @@ import { WebR } from 'webr';
 import type { RObjectInfo, StrokeResult } from './types';
 
 const FS_DIR = '/home/web_user';
-const OUT_PATH = `${FS_DIR}/learnr-out.txt`;
-const ERR_PATH = `${FS_DIR}/learnr-err.txt`;
-const CODE_PATH = `${FS_DIR}/learnr-code.R`;
 const PLOT_PATH = `${FS_DIR}/learnr-plot.png`;
 
 const BOOT_R = `
 local({
-  .parse_eval_top <- function(path) {
-    exprs <- parse(path, keep.source = FALSE)
-    if (length(exprs) == 0) return(invisible(NULL))
-    last <- NULL
-    for (i in seq_along(exprs)) {
-      val <- withVisible(eval(exprs[[i]], envir = .GlobalEnv))
-      if (isTRUE(val$visible)) {
-        print(val$value)
-      }
-      last <- val
-    }
-    last
-  }
-  assign(".parse_eval_top", .parse_eval_top, envir = .GlobalEnv)
   options(device = function(...) {
     grDevices::png(
       filename = "${PLOT_PATH}",
@@ -42,34 +25,53 @@ local({
       res = 96
     )
   })
-  TRUE
-})
-`;
-
-const RUN_STROKE_R = `
-local({
-  outPath <- "${OUT_PATH}"
-  errPath <- "${ERR_PATH}"
-  codePath <- "${CODE_PATH}"
-  outCon <- file(outPath, open = "wt")
-  errCon <- file(errPath, open = "wt")
-  sink(outCon)
-  sink(errCon, type = "message")
-  on.exit({
-    while (sink.number("message") > 0) sink(type = "message")
-    while (sink.number() > 0) sink()
-    if (isOpen(outCon)) close(outCon)
-    if (isOpen(errCon)) close(errCon)
-  }, add = TRUE)
-  ok <- FALSE
-  tryCatch({
-    .parse_eval_top(codePath)
+  env_name <- "tools:learnr"
+  if (env_name %in% search()) {
+    try(detach(env_name, character.only = TRUE), silent = TRUE)
+  }
+  learnr_env <- attach(NULL, name = env_name)
+  
+  .learnr_eval <- function(code_str) {
+    out_lines <- character()
+    err_lines <- character()
     ok <- TRUE
-  }, error = function(e) {
-    cat(conditionMessage(e), "\\n", file = errCon)
-  })
-  while (!is.null(grDevices::dev.list())) grDevices::dev.off()
-  if (isTRUE(ok)) 1L else 0L
+
+    tc_out <- textConnection("out_lines", "w", local = TRUE)
+    tc_err <- textConnection("err_lines", "w", local = TRUE)
+
+    sink(tc_out)
+    sink(tc_err, type = "message")
+
+    tryCatch({
+      exprs <- parse(text = code_str, keep.source = FALSE)
+      if (length(exprs) > 0) {
+        for (i in seq_along(exprs)) {
+          val <- withVisible(eval(exprs[[i]], envir = .GlobalEnv))
+          if (isTRUE(val$visible)) {
+            print(val$value)
+          }
+        }
+      }
+    }, error = function(e) {
+      ok <<- FALSE
+      cat(conditionMessage(e), "\\n")
+    }, finally = {
+      while (sink.number("message") > 0) sink(type = "message")
+      while (sink.number() > 0) sink()
+      close(tc_out)
+      close(tc_err)
+    })
+
+    while (!is.null(grDevices::dev.list())) grDevices::dev.off()
+
+    c(
+      if (isTRUE(ok)) "1" else "0",
+      paste(out_lines, collapse = "\\n"),
+      paste(err_lines, collapse = "\\n")
+    )
+  }
+  assign(".learnr_eval", .learnr_eval, envir = learnr_env)
+  TRUE
 })
 `;
 
@@ -99,8 +101,6 @@ export class RRuntime {
   private hasPlot = false;
   private lastStdout = '';
   private lastStderr = '';
-  private encoder = new TextEncoder();
-  private decoder = new TextDecoder();
 
   /**
    * Initialize WebR with a pinned stable release base URL.
@@ -258,30 +258,20 @@ export class RRuntime {
   private async evalRaw(code: string): Promise<{ ok: boolean; stdout: string; stderr: string }> {
     if (!this.webR) throw new Error('WebR runtime is not ready');
     try {
-      await this.writeText(CODE_PATH, code + '\n');
-    } catch (err) {
-      return { ok: false, stdout: '', stderr: String(err) };
-    }
-
-    let codeOk = 0;
-    try {
-      codeOk = await this.webR.evalRNumber(RUN_STROKE_R);
+      const codeEscaped = JSON.stringify(code);
+      const res = await this.webR.evalR(`.learnr_eval(${codeEscaped})`);
+      const js = await res.toJs();
+      const values: string[] = Array.isArray(js)
+        ? (js as string[])
+        : (js as { values?: string[] })?.values ?? [];
+      const ok = values[0] === '1';
+      const stdout = (values[1] ?? '').trimEnd();
+      const stderr = (values[2] ?? '').trimEnd();
+      return { ok, stdout, stderr };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      const stdout = await this.readText(OUT_PATH);
-      const stderr = (await this.readText(ERR_PATH)) || msg;
-      return { ok: false, stdout, stderr };
+      return { ok: false, stdout: '', stderr: msg };
     }
-
-    const stdout = (await this.readText(OUT_PATH)).replace(/\r/g, '');
-    const stderr = (await this.readText(ERR_PATH)).replace(/\r/g, '');
-    return { ok: codeOk === 1, stdout, stderr };
-  }
-
-  private async writeText(path: string, text: string): Promise<void> {
-    const dir = path.slice(0, path.lastIndexOf('/')) || '/';
-    await this.ensureDir(dir);
-    await Promise.resolve(this.webR!.FS.writeFile(path, this.encoder.encode(text)));
   }
 
   private async ensureDir(dir: string): Promise<void> {
@@ -306,12 +296,6 @@ export class RRuntime {
     } catch {
       return null;
     }
-  }
-
-  private async readText(path: string): Promise<string> {
-    const bytes = await this.readBytes(path);
-    if (!bytes) return '';
-    return this.decoder.decode(bytes);
   }
 
   private async refreshPlotFlag(): Promise<void> {

@@ -79,6 +79,7 @@ export const fa: UiStrings = {
   stateNotes: 'یادداشت وضعیت:',
   idealSolution: (par: number) =>
     `راه‌حل ایده‌آل: ${par} فرمان (کمتر یا مساوی عالی است)`,
+  idealForLevelShort: (par: number) => `— روی یا زیر ایده‌آل (${par}). اجرای تمیز.`,
   bestSoFar: (commands: number, par: number) =>
     `بهترین تاکنون: ${commands} فرمان · ایده‌آل: ${par}`,
   solvedBanner: (n: number | null) => `مرحله حل شد${n !== null ? ` با ${n} فرمان` : ''}.`,
@@ -117,4 +118,52 @@ export const fa: UiStrings = {
   levelClearTitle: 'مرحله با موفقیت حل شد!',
   foundationsComplete: 'دوره بنیادین کامل شد! زمین بازی آزاد برای آزمایش‌های شما در دسترس است.',
   closeBtn: 'بستن',
+
+  // Editor Actions
+  runAllBtn: 'اجرای همه',
+
+  // Autocomplete & Terminal Hints
+  tabFillsWord: 'Tab یک کلمه در هر مرحله کامل می‌کند',
+  nextPrompt: 'بعدی',
+  nextPlaceholder: (hint: string) => `بعدی: ${hint}  (Tab قدم‌به‌قدم)`,
+
+  // Celebration & Share Modal
+  levelClearedBadge: 'مرحله حل شد',
+  progressSavedNote: 'مرحله حل شد · پیشرفت در همین مرورگر ذخیره شد',
+  cheers: [
+    'عالی بود. این مفهوم حالا مال شماست.',
+    'بوم — یک مهارت دیگر R به مجموعه‌تان اضافه شد.',
+    'همین را لایقش بودید. به اشتراک بگذارید.',
+    'مسیر یادگیری: مرحله حل شد.',
+    'متغیرها ثبت شدند. اعتماد به نفس بالا.',
+  ],
+  baskInIt: 'لذت ببر',
+  celebrateOn: (id: string) => `جشن بعدی: ${id}`,
+  browseLevels: 'مرور مرحله‌ها',
+  levelComplete: 'مرحله کامل شد',
+  shareTitle: 'چه چیزی یاد گرفتید را به اشتراک بگذارید (با برنامه‌ی آموزشی شما)',
+  styleList: 'فهرست استایل برای پست:',
+  shareGroupLabel: 'اشتراک در شبکه‌های اجتماعی',
+  linkedin: 'LinkedIn',
+  xTwitter: 'X / Twitter',
+  facebook: 'Facebook',
+  copyPost: 'کپی پست',
+  copyOk: 'پست کامل کپی شد — هر جا جایگذاری کنید.',
+  copyFail: 'کپی نشد — متن اشتراک را دستی انتخاب کنید.',
+  shareOpened: 'پنجره‌ی اشتراک باز شد — اگر جا خالی بود متن پست را دستی کپی کنید.',
+  shareCopied: 'پست کپی شد. در جای اشتراک جایگذاری کنید (LinkedIn/Facebook متن خودکار را می‌بندند).',
+  nextCelebration: (id: string, name: string) => `جشن بعدی: **${id}** — ${name}`,
+  lastInPack: 'آخرین مرحله‌ی این بسته. برای ادامه **مرحله‌ها** را باز کنید.',
+  shareLinkedInHead: 'یادگیری تعاملی برنامه‌نویسی و تحلیل داده با R روی وب‌اسمبلی! 📊✨',
+  shareLatestWin: (name: string, id: string) => `هم‌اکنون مرحله ${id}: ${name} را حل کردم!`,
+  shareStarting: 'آغاز مسیر یادگیری تعاملی زبان R در Learn-R.',
+  shareLearnedSoFar: 'مواردی که تا کنون مسلط شده‌ام:',
+  shareProgress: (solved: number, total: number) => `پیشرفت: ${solved}/${total} مرحله حل شد (${Math.round((solved / total) * 100)}%).`,
+  shareCta: 'تمرین رایگان R بدون نیاز به نصب مستقیماً داخل مرورگر:',
+  shareSupport: 'حمایت از پروژه در Buy Me a Coffee:',
+  shareCommands: (cmds: number, par: number) => ` (پایان در ${cmds} فرمان · ایده‌آل: ${par})`,
+  shareXHead: (solved: number, total: number) => `پیشرفت در Learn-R: ${solved}/${total} مرحله حل شد! 🚀`,
+  shareXFirst: 'تسلط بر ساختارهای داده، بردارها و مصورسازی R در مرورگر.',
+  titleLearnR: 'Learn-R — آموزش تعاملی R با وب‌اسمبلی',
+  solveMoreLevels: 'مرحله‌ی بیشتری حل کنید تا این فهرست پر شود',
 };

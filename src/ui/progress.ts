@@ -1,5 +1,5 @@
 import type { LevelProgress } from '../engine/types';
-import { allLevels } from '../levels';
+import { allLevels, SERIES } from '../levels';
 
 export const STORAGE_KEY = 'learn-r-progress-v2';
 export const COOKIE_KEY = 'learn_r_progress';
@@ -14,6 +14,7 @@ export interface CurriculumSummary {
   solvedCount: number;
   total: number;
   percent: number;
+  learned: { id: string; name: string; seriesTitle: string }[];
 }
 
 function readCookie(): string | null {
@@ -96,7 +97,14 @@ export function saveProgress(progress: Record<string, LevelProgress>): void {
 
 export function summarizeCurriculum(progress: Record<string, LevelProgress>): CurriculumSummary {
   const total = allLevels.length;
-  const solvedCount = allLevels.filter((lvl) => Boolean(progress[lvl.id]?.solved)).length;
+  const solved = allLevels.filter((lvl) => Boolean(progress[lvl.id]?.solved));
+  const solvedCount = solved.length;
   const percent = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
-  return { solvedCount, total, percent };
+  const seriesMap = new Map(SERIES.map((s) => [s.id, s.title]));
+  const learned = solved.map((lvl) => ({
+    id: lvl.id,
+    name: lvl.title,
+    seriesTitle: seriesMap.get(lvl.seriesId) ?? 'Foundations',
+  }));
+  return { solvedCount, total, percent, learned };
 }

@@ -7,9 +7,9 @@ import { TerminalView } from './terminal';
 import { ScriptEditorView } from './editor';
 import { escapeHtml, renderMarkdown, showModal } from './dialog';
 import { launchConfetti, playFanfare } from './confetti';
-import { loadProgress, saveProgress } from './progress';
+import { loadProgress, saveProgress, summarizeCurriculum } from './progress';
 import { getLocale, setLocale, ui, LOCALES, type Locale } from '../i18n';
-import { COFFEE_BUTTON_HTML, REPO_URL } from './share';
+import { COFFEE_BUTTON_HTML, REPO_URL, buildShareTargets, shareWithClipboard } from './share';
 import { getVisitorCount } from './visitor-counter';
 import { getLevelLearning, getLevelFieldNotes } from '../levels/guidance';
 import { localizeLevel } from '../levels/i18n';
@@ -289,6 +289,16 @@ export class App {
     this.terminal.clear();
     this.terminal.push('meta', `Level: ${level.title}`);
 
+    // Set level-specific autocomplete commands and next-step hint
+    this.terminal.setExtraCompletions([
+      level.goal,
+      ...level.goal.split('\n'),
+      level.setup,
+      ...level.setup.split('\n'),
+    ]);
+    const firstGoal = level.goal.split('\n')[0]?.trim() ?? null;
+    this.terminal.setHint(firstGoal);
+
     await this.runtime.resetTo(level.setup, []);
     await this.updateBoard();
     this.renderDock();
@@ -305,6 +315,8 @@ export class App {
     this.knownNames = new Set();
     this.terminal.clear();
     this.terminal.push('meta', 'Interactive R Sandbox ready. Enter R code or meta commands (levels, help).');
+    this.terminal.setExtraCompletions([]);
+    this.terminal.setHint(null);
 
     await this.runtime.resetTo('', []);
     await this.updateBoard();
@@ -376,41 +388,140 @@ export class App {
     saveProgress(this.progress);
 
     this.terminal.push('ok', `Level clear! ${formatScore(strokes, par)}`);
-    launchConfetti();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    const confetti = launchConfetti(4800);
     playFanfare();
 
-    const next = getNextLevel(this.level.id);
+    const level = this.level;
+    const next = getNextLevel(level.id);
     const u = ui();
+    const curriculum = summarizeCurriculum(this.progress);
+    const share = buildShareTargets({
+      levelName: level.title,
+      levelId: level.id,
+      commands: strokes,
+      par: level.par,
+      curriculum,
+    });
+    const total = allLevels.length;
+    const solvedCount = curriculum.solvedCount;
+    const underPar = strokes <= level.par;
+    const golfLine = underPar
+      ? `**${strokes}** ${u.idealForLevelShort(level.par)}`
+      : `**${strokes}** strokes. Ideal is ${level.par}. Still counts — you got there.`;
 
-    showModal({
-      title: u.levelClearTitle,
-      bodyHtml: renderMarkdown(`
-### ${this.level.title}
-Score: **${formatScore(strokes, par)}**
+    const cheers = u.cheers;
+    const cheer = cheers[Math.floor(Math.random() * cheers.length)]!;
 
-${next ? `Next up: **${next.title}**` : u.foundationsComplete}
-      `),
-      actions: [
-        ...(next
-          ? [
-              {
-                label: u.nextLevel,
-                className: 'primary',
-                onClick: () => void this.enterLevel(next.id, { openLesson: true }),
-              },
-            ]
-          : []),
-        {
-          label: u.replayLevel,
-          className: 'ghost',
-          onClick: () => void this.enterLevel(this.level!.id, { openLesson: true }),
+    const learnedPreview = curriculum.learned
+      .map((l) => `<li>${escapeHtml(l.seriesTitle)}: ${escapeHtml(l.name)}</li>`)
+      .join('');
+
+    const bodyHtml = `
+      <div class="celebrate" aria-live="polite">
+        <div class="celebrate-visual" aria-hidden="true">
+          <div class="celebrate-ring"></div>
+          <div class="celebrate-star">★</div>
+        </div>
+        <div class="celebrate-badge">${escapeHtml(u.levelClearedBadge)}</div>
+        <h3 class="celebrate-title">${escapeHtml(level.title)}</h3>
+        <p class="celebrate-sub">Foundations · <code>${escapeHtml(level.id)}</code></p>
+        <p class="celebrate-cheer">${escapeHtml(cheer)}</p>
+        <div class="celebrate-stats">${renderMarkdown(golfLine)}</div>
+        <div class="celebrate-progress">
+          <div class="prog-track"><div class="prog-fill" style="width:${curriculum.percent}%"></div></div>
+          <div class="par-note">${solvedCount} / ${total} ${escapeHtml(u.progressSavedNote)}</div>
+        </div>
+        <div class="share-block">
+          <div class="next-title">${escapeHtml(u.shareTitle)}</div>
+          <div class="learned-preview">
+            <div class="par-note">${escapeHtml(u.styleList)}</div>
+            <ul>${learnedPreview || `<li>${escapeHtml(u.solveMoreLevels)}</li>`}</ul>
+          </div>
+          <div class="share-row" role="group" aria-label="${escapeHtml(u.shareGroupLabel)}">
+            <button type="button" class="share-btn linkedin" data-share="linkedin">${escapeHtml(u.linkedin)}</button>
+            <button type="button" class="share-btn x" data-share="x">${escapeHtml(u.xTwitter)}</button>
+            <button type="button" class="share-btn facebook" data-share="facebook">${escapeHtml(u.facebook)}</button>
+            <button type="button" class="share-btn copy" data-share="copy">${escapeHtml(u.copyPost)}</button>
+          </div>
+          <div class="share-status" data-share-status hidden></div>
+        </div>
+        ${
+          next
+            ? `<div class="celebrate-next">${renderMarkdown(u.nextCelebration(next.id, next.title))}</div>`
+            : `<div class="celebrate-next">${renderMarkdown(u.lastInPack)}</div>`
+        }
+      </div>
+    `;
+
+    const actions = [
+      {
+        label: u.baskInIt,
+        className: 'ghost',
+        onClick: () => {
+          this.terminal.focus();
         },
-        {
-          label: u.sandbox,
-          className: 'ghost',
-          onClick: () => void this.enterSandbox(),
+      },
+    ];
+
+    if (next) {
+      actions.push({
+        label: u.celebrateOn(next.id),
+        className: 'primary',
+        onClick: () => {
+          void this.enterLevel(next.id, { openLesson: true });
         },
-      ],
+      });
+    } else {
+      actions.push({
+        label: u.browseLevels,
+        className: 'primary',
+        onClick: () => {
+          this.openLevels();
+        },
+      });
+    }
+
+    const modal = showModal({
+      title: u.levelComplete,
+      bodyHtml,
+      variant: 'celebrate',
+      actions: actions.map((a) => ({
+        ...a,
+        onClick: () => {
+          confetti?.stop();
+          modal.close();
+          a.onClick();
+        },
+      })),
+      onClose: () => {
+        confetti?.stop();
+        this.terminal.focus();
+      },
+    });
+
+    modal.el.querySelectorAll<HTMLButtonElement>('[data-share]').forEach((btn) => {
+      btn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const kind = (btn.dataset.share ?? 'copy') as 'linkedin' | 'facebook' | 'x' | 'copy';
+        const status = modal.el.querySelector<HTMLElement>('[data-share-status]');
+        const result = await shareWithClipboard(kind, share);
+        if (!status) return;
+        status.hidden = false;
+        if (kind === 'copy') {
+          status.textContent = result.copied ? u.copyOk : u.copyFail;
+          return;
+        }
+        status.textContent = result.copied ? u.shareCopied : u.shareOpened;
+      });
+    });
+
+    modal.el.querySelector('.modal')?.addEventListener('keydown', (ev) => {
+      const key = (ev as KeyboardEvent).key;
+      if (key === 'Enter') {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
     });
   }
 

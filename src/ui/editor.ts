@@ -33,15 +33,53 @@ export class ScriptEditorView {
     return this.isExpanded;
   }
 
+  private getCodeToRun(mode: 'line' | 'all' = 'line'): string {
+    const val = this.textarea.value;
+    if (!val.trim()) return '';
+
+    if (mode === 'all') {
+      return val.trim();
+    }
+
+    const start = this.textarea.selectionStart;
+    const end = this.textarea.selectionEnd;
+
+    // 1. If text is highlighted, execute that selection
+    if (start !== end) {
+      return val.substring(start, end).trim();
+    }
+
+    // 2. Otherwise execute the current line and advance cursor
+    const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+    let lineEnd = val.indexOf('\n', start);
+    if (lineEnd === -1) lineEnd = val.length;
+
+    const currentLine = val.substring(lineStart, lineEnd).trim();
+
+    // Advance caret to next line (standard RStudio behavior)
+    if (lineEnd < val.length) {
+      this.textarea.selectionStart = this.textarea.selectionEnd = lineEnd + 1;
+    }
+
+    if (currentLine) {
+      return currentLine;
+    }
+
+    return val.trim();
+  }
+
   private render(): void {
     const u = ui();
     this.root.innerHTML = `
       <div class="editor-bar">
         <span class="editor-title">R Script</span>
         <div class="editor-bar-actions">
-          <button type="button" class="btn btn-sm primary" id="editor-run-btn">
+          <button type="button" class="btn btn-sm primary" id="editor-run-btn" title="Run current line or selection (Ctrl+Enter)">
             <span>${escapeHtml(u.runBtn)}</span>
             <span class="kbd-badge">${escapeHtml(u.runKeyHint)}</span>
+          </button>
+          <button type="button" class="btn btn-sm ghost" id="editor-run-all-btn" title="Run entire script (Ctrl+Shift+Enter)">
+            <span>${escapeHtml(u.runAllBtn)}</span>
           </button>
           <button type="button" class="btn btn-sm ghost" id="editor-toggle-btn">
             ${escapeHtml(u.editorClose)}
@@ -56,7 +94,7 @@ export class ScriptEditorView {
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
-          placeholder="# Write multi-line R code here and press Run (Ctrl+Enter)"
+          placeholder="# Write R code here. Press Run (Ctrl+Enter) to execute line/selection."
           rows="6"
         ></textarea>
       </div>
@@ -64,11 +102,19 @@ export class ScriptEditorView {
 
     this.textarea = this.root.querySelector('#editor-textarea')!;
     const runBtn = this.root.querySelector('#editor-run-btn')!;
+    const runAllBtn = this.root.querySelector('#editor-run-all-btn')!;
     const toggleBtn = this.root.querySelector('#editor-toggle-btn')!;
 
     runBtn.addEventListener('click', () => {
-      const code = this.textarea.value;
-      if (code.trim()) {
+      const code = this.getCodeToRun('line');
+      if (code) {
+        this.onRun(code);
+      }
+    });
+
+    runAllBtn.addEventListener('click', () => {
+      const code = this.getCodeToRun('all');
+      if (code) {
         this.onRun(code);
       }
     });
@@ -78,12 +124,21 @@ export class ScriptEditorView {
     });
 
     this.textarea.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
         e.preventDefault();
-        const code = this.textarea.value;
-        if (code.trim()) {
+        const code = this.getCodeToRun('all');
+        if (code) {
           this.onRun(code);
         }
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        const code = this.getCodeToRun('line');
+        if (code) {
+          this.onRun(code);
+        }
+        return;
       }
       // Handle Tab key for 2 spaces indentation
       if (e.key === 'Tab') {

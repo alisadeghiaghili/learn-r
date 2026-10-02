@@ -167,6 +167,8 @@ export interface ModalSpec {
   bodyHtml: string;
   actions?: ModalAction[];
   onDismiss?: () => void;
+  onClose?: () => void;
+  variant?: 'default' | 'celebrate';
 }
 
 let activeOverlay: HTMLElement | null = null;
@@ -175,18 +177,22 @@ let activeDismiss: (() => void) | undefined;
 export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement } {
   closeModal();
 
+  const isCelebrate = spec.variant === 'celebrate';
   const overlay = document.createElement('div');
-  overlay.className = 'overlay';
+  overlay.className = `overlay${isCelebrate ? ' overlay-celebrate' : ''}`;
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
 
   const card = document.createElement('div');
-  card.className = 'modal';
+  card.className = `modal${isCelebrate ? ' modal-celebrate' : ''}`;
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'true');
   card.setAttribute('aria-label', spec.title);
 
   const h2 = document.createElement('h2');
+  if (isCelebrate) {
+    h2.className = 'visually-hidden';
+  }
   h2.textContent = spec.title;
   card.appendChild(h2);
 
@@ -207,6 +213,7 @@ export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement
       activeDismiss = undefined;
     }
     spec.onDismiss?.();
+    spec.onClose?.();
   };
 
   const actions = spec.actions && spec.actions.length ? spec.actions : [{ label: 'Close', onClick: () => close() }];

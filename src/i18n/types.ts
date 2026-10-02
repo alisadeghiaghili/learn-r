@@ -69,6 +69,7 @@ export interface UiStrings {
   allSolutionMet: string;
   stateNotes: string;
   idealSolution: (par: number) => string;
+  idealForLevelShort: (par: number) => string;
   bestSoFar: (commands: number, par: number) => string;
   solvedBanner: (n: number | null) => string;
   guideAlwaysRight: string;
@@ -98,4 +99,46 @@ export interface UiStrings {
   levelClearTitle: string;
   foundationsComplete: string;
   closeBtn: string;
+
+  // Editor Actions
+  runAllBtn: string;
+
+  // Autocomplete & Terminal Hints
+  tabFillsWord: string;
+  nextPrompt: string;
+  nextPlaceholder: (hint: string) => string;
+
+  // Celebration & Share Modal
+  levelClearedBadge: string;
+  progressSavedNote: string;
+  cheers: string[];
+  baskInIt: string;
+  celebrateOn: (id: string) => string;
+  browseLevels: string;
+  levelComplete: string;
+  shareTitle: string;
+  styleList: string;
+  shareGroupLabel: string;
+  linkedin: string;
+  xTwitter: string;
+  facebook: string;
+  copyPost: string;
+  copyOk: string;
+  copyFail: string;
+  shareOpened: string;
+  shareCopied: string;
+  nextCelebration: (id: string, name: string) => string;
+  lastInPack: string;
+  shareLinkedInHead: string;
+  shareLatestWin: (name: string, id: string) => string;
+  shareStarting: string;
+  shareLearnedSoFar: string;
+  shareProgress: (solved: number, total: number) => string;
+  shareCta: string;
+  shareSupport: string;
+  shareCommands: (cmds: number, par: number) => string;
+  shareXHead: (solved: number, total: number) => string;
+  shareXFirst: string;
+  titleLearnR: string;
+  solveMoreLevels: string;
 }

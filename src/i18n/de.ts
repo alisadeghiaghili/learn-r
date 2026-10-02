@@ -78,6 +78,7 @@ export const de: UiStrings = {
   stateNotes: 'Status-Hinweise:',
   idealSolution: (par: number) =>
     `Ideale Lösung: ${par} Befehl${par === 1 ? '' : 'e'} (weniger oder gleich ist exzellent)`,
+  idealForLevelShort: (par: number) => `— auf oder unter dem Ideal (${par}). Sauberer Lauf.`,
   bestSoFar: (commands: number, par: number) =>
     `Bisher bester Versuch: ${commands} Befehl${commands === 1 ? '' : 'e'} · Ideal: ${par}`,
   solvedBanner: (n: number | null) => `Level gelöst${n !== null ? ` in ${n} Befehl(en)` : ''}.`,
@@ -113,4 +114,52 @@ export const de: UiStrings = {
   levelClearTitle: 'Level gemeistert!',
   foundationsComplete: 'Grundlagen abgeschlossen! Die Sandbox steht dir für freie Experimente offen.',
   closeBtn: 'Schließen',
+
+  // Editor Actions
+  runAllBtn: 'Alles ausführen',
+
+  // Autocomplete & Terminal Hints
+  tabFillsWord: 'Tab füllt ein Wort nach dem anderen',
+  nextPrompt: 'Als Nächstes',
+  nextPlaceholder: (hint: string) => `Als Nächstes: ${hint}  (Tab Schritt für Schritt)`,
+
+  // Celebration & Share Modal
+  levelClearedBadge: 'LEVEL GEMEISTERT',
+  progressSavedNote: 'Level gelöst · Fortschritt in diesem Browser gespeichert',
+  cheers: [
+    'Geschafft. Dieses Konzept gehört jetzt dir.',
+    'Boom — eine weitere R-Skill gebunkert.',
+    'Hast du dir gerade verdient. Teile es.',
+    'Pipeline des Lernens: Stage gelöst.',
+    'Objekte committed. Vertrauen hoch.',
+  ],
+  baskInIt: 'Genießen',
+  celebrateOn: (id: string) => `Weiter feiern: ${id}`,
+  browseLevels: 'Levels durchstöbern',
+  levelComplete: 'Level abgeschlossen',
+  shareTitle: 'Teile, was du gelernt hast (inkl. deinem Curriculum)',
+  styleList: 'Stil-Liste für den Post:',
+  shareGroupLabel: 'In sozialen Netzwerken teilen',
+  linkedin: 'LinkedIn',
+  xTwitter: 'X / Twitter',
+  facebook: 'Facebook',
+  copyPost: 'Post kopieren',
+  copyOk: 'Vollständiger Post kopiert — überall einfügen.',
+  copyFail: 'Kopieren fehlgeschlagen — Share-Text manuell auswählen.',
+  shareOpened: 'Share-Fenster geöffnet — Post-Text manuell kopieren, falls das Feld leer ist.',
+  shareCopied: 'Post kopiert. In die Share-Box einfügen (LinkedIn/Facebook blockieren Auto-Text).',
+  nextCelebration: (id: string, name: string) => `Nächste Feier: **${id}** — ${name}`,
+  lastInPack: 'Letztes Level in diesem Pack. Öffne **Levels**, um weiterzumachen.',
+  shareLinkedInHead: 'R interaktiv im Browser mit WebAssembly lernen! 📊✨',
+  shareLatestWin: (name: string, id: string) => `Gerade Level ${id} gelöst: ${name}!`,
+  shareStarting: 'Starte meine interaktive Lernreise mit Learn-R.',
+  shareLearnedSoFar: 'Was ich bisher gemeistert habe:',
+  shareProgress: (solved: number, total: number) => `Fortschritt: ${solved}/${total} Level gelöst (${Math.round((solved / total) * 100)}%).`,
+  shareCta: 'R kostenlos und ohne Installation direkt im Browser üben:',
+  shareSupport: 'Unterstütze das Projekt auf Buy Me a Coffee:',
+  shareCommands: (cmds: number, par: number) => ` (In ${cmds} Befehl${cmds === 1 ? '' : 'en'} abgeschlossen · Ideal: ${par})`,
+  shareXHead: (solved: number, total: number) => `Fortschritt in Learn-R: ${solved}/${total} Level gemeistert! 🚀`,
+  shareXFirst: 'R-Datenstrukturen, Vektoren und Plots interaktiv im Browser meistern.',
+  titleLearnR: 'Learn-R — Interaktives R mit WebAssembly',
+  solveMoreLevels: 'Löse mehr Levels, um diese Liste zu füllen',
 };

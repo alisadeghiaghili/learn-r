@@ -78,6 +78,7 @@ export const en: UiStrings = {
   stateNotes: 'State notes:',
   idealSolution: (par: number) =>
     `Ideal solution: ${par} command${par === 1 ? '' : 's'} (under or equal is excellent)`,
+  idealForLevelShort: (par: number) => `— at or under the ideal (${par}). Clean run.`,
   bestSoFar: (commands: number, par: number) =>
     `Best so far: ${commands} command${commands === 1 ? '' : 's'} · ideal: ${par}`,
   solvedBanner: (n: number | null) => `Level solved${n !== null ? ` in ${n} command(s)` : ''}.`,
@@ -112,4 +113,52 @@ export const en: UiStrings = {
   levelClearTitle: 'Level Cleared!',
   foundationsComplete: 'Foundations complete! The sandbox is completely open for your experimentation.',
   closeBtn: 'Close',
+
+  // Editor Actions
+  runAllBtn: 'Run All',
+
+  // Autocomplete & Terminal Hints
+  tabFillsWord: 'Tab fills one word at a time',
+  nextPrompt: 'Next',
+  nextPlaceholder: (hint: string) => `Next: ${hint}  (Tab steps word-by-word)`,
+
+  // Celebration & Share Modal
+  levelClearedBadge: 'LEVEL CLEARED',
+  progressSavedNote: 'levels solved · progress saved in this browser',
+  cheers: [
+    'Nailed it. This concept is yours now.',
+    'Boom — another R skill banked.',
+    'You just earned that. Share it.',
+    'Pipeline of learning: stage solved.',
+    'Objects committed. Confidence up.',
+  ],
+  baskInIt: 'Bask in it',
+  celebrateOn: (id: string) => `Celebrate on: ${id}`,
+  browseLevels: 'Browse levels',
+  levelComplete: 'Level complete',
+  shareTitle: 'Share what you learned (includes your curriculum)',
+  styleList: 'Style list for the post:',
+  shareGroupLabel: 'Share on social networks',
+  linkedin: 'LinkedIn',
+  xTwitter: 'X / Twitter',
+  facebook: 'Facebook',
+  copyPost: 'Copy post',
+  copyOk: 'Copied full post — paste anywhere.',
+  copyFail: 'Could not copy — select the share text manually.',
+  shareOpened: 'Share window opened — copy the post text manually if the box is empty.',
+  shareCopied: 'Post copied. Paste it into the share box (LinkedIn/Facebook block auto-filled text).',
+  nextCelebration: (id: string, name: string) => `Next celebration: **${id}** — ${name}`,
+  lastInPack: 'Last level in this pack. Open **Levels** to keep the party going.',
+  shareLinkedInHead: 'Learning R interactively with real WebAssembly execution! 📊✨',
+  shareLatestWin: (name: string, id: string) => `Just solved Level ${id}: ${name}!`,
+  shareStarting: 'Starting out my interactive journey with Learn-R.',
+  shareLearnedSoFar: 'What I have mastered so far:',
+  shareProgress: (solved: number, total: number) => `Progress: ${solved}/${total} levels solved (${Math.round((solved / total) * 100)}%).`,
+  shareCta: 'Practice R for free directly in your browser:',
+  shareSupport: 'Support the project on Buy Me a Coffee:',
+  shareCommands: (cmds: number, par: number) => ` (Completed in ${cmds} command${cmds === 1 ? '' : 's'} · Par: ${par})`,
+  shareXHead: (solved: number, total: number) => `Progress in Learn-R: ${solved}/${total} levels solved! 🚀`,
+  shareXFirst: 'Mastering R data structures, vectorized math, and plots in browser.',
+  titleLearnR: 'Learn-R — Interactive R in WebAssembly',
+  solveMoreLevels: 'Solve more levels to grow this list',
 };

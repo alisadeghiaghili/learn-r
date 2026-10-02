@@ -140,6 +140,33 @@ export class ScriptEditorView {
         }
         return;
       }
+      // Alt + - shortcut for R assignment operator <-
+      if (e.altKey && (e.key === '-' || e.code === 'Minus' || e.code === 'NumpadSubtract' || e.key === '–' || e.key === '—')) {
+        e.preventDefault();
+        const start = this.textarea.selectionStart ?? this.textarea.value.length;
+        const end = this.textarea.selectionEnd ?? start;
+        const val = this.textarea.value;
+        const before = val.substring(0, start);
+        const after = val.substring(end);
+        const hasLeadingSpace = before.endsWith(' ') || before.endsWith('\n');
+        const hasTrailingSpace = after.startsWith(' ') || after.startsWith('\n');
+        let insertion = '<-';
+        if (!hasLeadingSpace && before.length > 0) insertion = ' ' + insertion;
+        if (!hasTrailingSpace) insertion = insertion + ' ';
+
+        let ok = false;
+        try {
+          ok = document.execCommand('insertText', false, insertion);
+        } catch {
+          ok = false;
+        }
+        if (!ok) {
+          this.textarea.value = before + insertion + after;
+          const newPos = start + insertion.length;
+          this.textarea.selectionStart = this.textarea.selectionEnd = newPos;
+        }
+        return;
+      }
       // Handle Tab key for 2 spaces indentation
       if (e.key === 'Tab') {
         e.preventDefault();

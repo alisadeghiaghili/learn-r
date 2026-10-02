@@ -367,6 +367,12 @@ export class TerminalView {
   }
 
   private onKey(e: KeyboardEvent): void {
+    if (e.altKey && (e.key === '-' || e.code === 'Minus' || e.code === 'NumpadSubtract' || e.key === '–' || e.key === '—')) {
+      e.preventDefault();
+      this.insertAssignment();
+      this.syncGhost();
+      return;
+    }
     if (e.key === 'Tab') {
       this.applyTab(e);
       return;
@@ -424,6 +430,31 @@ export class TerminalView {
         this.historyIdx >= this.history.length ? this.draft : (this.history[this.historyIdx] ?? '');
       this.wordCycle = [];
       this.syncGhost();
+    }
+  }
+
+  private insertAssignment(): void {
+    const start = this.inputEl.selectionStart ?? this.inputEl.value.length;
+    const end = this.inputEl.selectionEnd ?? start;
+    const val = this.inputEl.value;
+    const before = val.substring(0, start);
+    const after = val.substring(end);
+    const hasLeadingSpace = before.endsWith(' ') || before.endsWith('\n');
+    const hasTrailingSpace = after.startsWith(' ') || after.startsWith('\n');
+    let insertion = '<-';
+    if (!hasLeadingSpace && before.length > 0) insertion = ' ' + insertion;
+    if (!hasTrailingSpace) insertion = insertion + ' ';
+
+    let ok = false;
+    try {
+      ok = document.execCommand('insertText', false, insertion);
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      this.inputEl.value = before + insertion + after;
+      const newPos = start + insertion.length;
+      this.inputEl.setSelectionRange(newPos, newPos);
     }
   }
 }

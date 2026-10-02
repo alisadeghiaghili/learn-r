@@ -1,7 +1,7 @@
 import type { LevelDef } from '../engine/types';
 import { allLevels, getLevel, getLevelIndex, getNextLevel, seriesOf } from '../levels';
 import { RRuntime } from '../engine/runtime';
-import { evaluateChecks, evalExpressions, formatScore } from '../engine/checks';
+import { evaluateChecks, evalExpressions, formatScore, splitRStatements } from '../engine/checks';
 import { BoardView } from './board';
 import { TerminalView } from './terminal';
 import { ScriptEditorView } from './editor';
@@ -215,6 +215,13 @@ export class App {
         this.closeNav();
       }
     });
+
+    this.dockEl.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement | null)?.closest<HTMLElement>('.g-step-cmd');
+      if (target?.dataset.cmd) {
+        this.terminal.setInput(target.dataset.cmd);
+      }
+    });
   }
 
   private toggleLang(): void {
@@ -312,13 +319,13 @@ export class App {
     }
 
     // Set level-specific autocomplete commands and next-step hint
+    const goalLines = this.level.solution ?? splitRStatements(this.level.goal);
+    const setupLines = splitRStatements(this.level.setup);
     this.terminal.setExtraCompletions([
-      level.goal,
-      ...level.goal.split('\n'),
-      level.setup,
-      ...level.setup.split('\n'),
+      ...goalLines,
+      ...setupLines,
     ]);
-    const firstGoal = level.goal.split('\n')[0]?.trim() ?? null;
+    const firstGoal = goalLines[0]?.trim() ?? null;
     this.terminal.setHint(firstGoal);
 
     await this.runtime.resetTo(level.setup, []);
@@ -405,10 +412,11 @@ export class App {
 
     if (this.level && !verdict.ok) {
       const solutionCmds =
-        this.level.solution ?? this.level.goal.split('\n').map((s) => s.trim()).filter(Boolean);
+        this.level.solution ?? splitRStatements(this.level.goal);
       const nextIdx = verdict.results.findIndex((r) => !r.passed);
       if (nextIdx !== -1) {
-        const nextCmd = solutionCmds[nextIdx] ?? solutionCmds[0] ?? this.level.goal;
+        const stmtIdx = Math.min(nextIdx, solutionCmds.length - 1);
+        const nextCmd = solutionCmds[stmtIdx] ?? this.level.goal;
         this.terminal.setHint(nextCmd);
       }
     }
@@ -602,14 +610,15 @@ export class App {
     }
 
     const level = this.level;
-    const solutionCmds = level.solution ?? level.goal.split('\n').map((s) => s.trim()).filter(Boolean);
+    const solutionCmds = level.solution ?? splitRStatements(level.goal);
     const checks = checkResults ?? level.checks.map((c) => ({ label: c.label, passed: false }));
     const solved = checks.length > 0 && checks.every((c) => c.passed);
     const currentId = checks.findIndex((c) => !c.passed);
 
     const steps = level.checks.map((chk, i) => {
       const isPassed = Boolean(checks[i]?.passed);
-      const cmd = solutionCmds[i] ?? solutionCmds[0] ?? level.goal;
+      const stmtIdx = Math.min(i, solutionCmds.length - 1);
+      const cmd = solutionCmds[stmtIdx] ?? level.goal;
       return {
         command: cmd,
         note: chk.label,
@@ -620,7 +629,7 @@ export class App {
     const items = steps.map((s, i) => {
       const isCurrent = !solved && !s.done && i === currentId;
       return `<li class="${s.done ? 'met' : ''}${isCurrent ? ' current' : ''}">
-        <div class="g-label" dir="ltr">${s.done ? '✓' : isCurrent ? '▶' : '○'} <code>${escapeHtml(s.command)}</code>${
+        <div class="g-label" dir="ltr">${s.done ? '✓' : isCurrent ? '▶' : '○'} <code class="g-step-cmd" data-cmd="${escapeHtml(s.command)}" title="Click to fill into terminal">${escapeHtml(s.command)}</code>${
           isCurrent ? ` <span class="chip current-chip">${escapeHtml(u.nowChip)}</span>` : ''
         }</div>
         <div class="g-detail" dir="ltr">${escapeHtml(s.note)}</div>
@@ -634,7 +643,7 @@ export class App {
           <div class="next-title">${escapeHtml(u.typeNextTitle)}</div>
           <div class="next-row">
             <span class="g-label">${escapeHtml(u.remainingLabel)}</span>
-            ${firstNext ? `<code class="g-cmd" dir="ltr">${escapeHtml(firstNext)}</code>` : ''}
+            ${firstNext ? `<code class="g-cmd g-step-cmd" data-cmd="${escapeHtml(firstNext)}" dir="ltr" title="Click to fill into terminal">${escapeHtml(firstNext)}</code>` : ''}
           </div>
           <div class="par-note">${escapeHtml(u.wrongCommandNote)}</div>
         </div>`;

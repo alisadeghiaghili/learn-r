@@ -32,38 +32,25 @@ local({
 const SNAPSHOT_R = `
 local({
   nms <- sort(ls(envir = .GlobalEnv, all.names = FALSE))
-  if (length(nms) == 0) return("[]")
-  clean_str <- function(s) {
-    if (is.null(s) || length(s) == 0) return('""')
-    s <- paste(as.character(s), collapse = " ")
-    s <- gsub("\\\\", "\\\\\\\\", s)
-    s <- gsub('"', '\\\\"', s)
-    s <- gsub("\\n", " ", s)
-    s <- gsub("\\r", "", s)
-    s <- gsub("\\t", " ", s)
-    paste0('"', s, '"')
-  }
-  items <- lapply(nms, function(nm) {
-    x <- get(nm, envir = .GlobalEnv, inherits = FALSE)
+  if (length(nms) == 0) return(character(0))
+  out <- character(length(nms))
+  for (i in seq_along(nms)) {
+    nm <- nms[i]
+    x <- tryCatch(get(nm, envir = .GlobalEnv, inherits = FALSE), error = function(e) NULL)
     cls <- paste(class(x), collapse = "/")
     typ <- typeof(x)
-    len <- length(x)
+    len <- tryCatch({
+      l <- length(x)
+      if (is.finite(l)) as.numeric(l) else 0
+    }, error = function(e) 0)
     prev <- tryCatch({
-      s <- utils::capture.output(
-        utils::str(x, give.attr = FALSE, max.level = 1, list.len = 6)
-      )
-      paste(utils::head(s, 3), collapse = " · ")
+      s <- utils::capture.output(utils::str(x, give.attr = FALSE, max.level = 1, list.len = 4))
+      s <- gsub("[\\r\\n\\t]+", " ", s)
+      paste(utils::head(s, 2), collapse = " ")
     }, error = function(e) cls)
-    paste0(
-      '{"name":', clean_str(nm),
-      ',"class":', clean_str(cls),
-      ',"type":', clean_str(typ),
-      ',"length":', if (is.finite(len)) as.numeric(len) else 0,
-      ',"preview":', clean_str(prev),
-      '}'
-    )
-  })
-  paste0("[", paste(unlist(items), collapse = ","), "]")
+    out[i] <- paste(nm, cls, typ, len, prev, sep = "@@__LEARNR__@@")
+  }
+  out
 })
 `;
 
@@ -181,12 +168,22 @@ export class RRuntime {
     if (!this.webR) return exprs.map(() => false);
     const results: boolean[] = [];
     for (const expr of exprs) {
-      const wrapped = `isTRUE(tryCatch(${expr}, error = function(e) FALSE))`;
+      const wrapped = `isTRUE(tryCatch({
+  val <- ({ ${expr} })
+  isTRUE(val) || (is.logical(val) && length(val) > 0 && all(val, na.rm = FALSE))
+}, error = function(e) FALSE))`;
       try {
         const val = await this.webR.evalRBoolean(wrapped);
         results.push(Boolean(val));
       } catch {
-        results.push(false);
+        try {
+          const raw = await this.webR.evalR(wrapped);
+          const js = await raw.toJs();
+          const b = typeof js === 'boolean' ? js : (js as any)?.values?.[0] === true;
+          results.push(Boolean(b));
+        } catch {
+          results.push(false);
+        }
       }
     }
     return results;
@@ -198,30 +195,34 @@ export class RRuntime {
   async snapshotEnv(): Promise<RObjectInfo[]> {
     if (!this.webR) return [];
     try {
-      let jsonStr = '';
-      try {
-        jsonStr = await this.webR.evalRString(SNAPSHOT_R);
-      } catch {
-        const raw = await this.webR.evalR(SNAPSHOT_R);
-        const js = await raw.toJs();
-        jsonStr = typeof js === 'string' ? js : (js as any)?.values?.[0] ?? '';
+      const raw = await this.webR.evalR(SNAPSHOT_R);
+      const js = await raw.toJs();
+
+      let lines: string[] = [];
+      if (Array.isArray(js)) {
+        lines = js;
+      } else if (js && Array.isArray((js as any).values)) {
+        lines = (js as any).values;
+      } else if (typeof js === 'string') {
+        lines = [js];
       }
 
-      if (jsonStr && typeof jsonStr === 'string' && jsonStr.startsWith('[')) {
-        const parsed = JSON.parse(jsonStr);
-        if (Array.isArray(parsed)) {
-          return parsed
-            .map((item: any) => ({
-              name: String(item.name ?? ''),
-              class: String(item.class ?? ''),
-              type: String(item.type ?? ''),
-              length: Number(item.length ?? 0),
-              preview: String(item.preview ?? ''),
-            }))
-            .filter((item: RObjectInfo) => Boolean(item.name));
-        }
+      const results: RObjectInfo[] = [];
+      for (const line of lines) {
+        if (!line || typeof line !== 'string') continue;
+        const parts = line.split('@@__LEARNR__@@');
+        if (parts.length < 5) continue;
+        const [name, cls, typ, lenStr, preview] = parts;
+        if (!name || !name.trim()) continue;
+        results.push({
+          name: name.trim(),
+          class: (cls || '').trim(),
+          type: (typ || '').trim(),
+          length: Number(lenStr) || 0,
+          preview: (preview || '').trim(),
+        });
       }
-      return [];
+      return results;
     } catch (err) {
       console.warn('snapshotEnv failed', err);
       return [];
@@ -332,9 +333,12 @@ export class RRuntime {
           stdout += text + (text.endsWith('\n') ? '' : '\n');
         } else if (entry.type === 'stderr') {
           stderr += text + (text.endsWith('\n') ? '' : '\n');
-          if (text.toLowerCase().includes('error')) {
+          if (/^Error\b/i.test(text.trim()) || /Error in /i.test(text)) {
             hasError = true;
           }
+        } else if (entry.type === 'error') {
+          stderr += text + (text.endsWith('\n') ? '' : '\n');
+          hasError = true;
         } else if (entry.type === 'message' || entry.type === 'warning') {
           stderr += text + (text.endsWith('\n') ? '' : '\n');
         }

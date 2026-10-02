@@ -827,6 +827,19 @@ button.ghost,
   color: var(--text);
 }
 
+.g-step-cmd {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: all;
+}
+
+.g-step-cmd:hover {
+  background: color-mix(in srgb, #ff8c1a 24%, var(--line));
+  color: #fff;
+}
+
 .goal-list .g-label {
   font-family: var(--ui);
   color: var(--text);

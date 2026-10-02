@@ -198,7 +198,8 @@ export class TerminalView {
   }
 
   setHint(command: string | null): void {
-    this.hint = command ?? '';
+    const singleLine = (command ?? '').split('\n').map((s) => s.trim()).filter(Boolean)[0] ?? '';
+    this.hint = singleLine;
     const u = ui();
     this.inputEl.placeholder = this.hint
       ? u.nextPlaceholder(this.hint)
@@ -206,24 +207,35 @@ export class TerminalView {
     this.hintEl.hidden = !this.hint;
     if (this.hint) {
       this.hintEl.innerHTML = `${escapeHtml(u.nextPrompt)}: <code>${escapeHtml(this.hint)}</code> <span class="par-note">· ${escapeHtml(u.tabFillsWord)}</span>`;
-    } else {
-      this.hintEl.textContent = '';
     }
     this.syncGhost();
   }
 
+  setInput(value: string): void {
+    this.inputEl.value = value;
+    this.focus();
+    this.syncGhost();
+  }
+
   setExtraCompletions(commands: string[]): void {
-    this.extraCompletions = commands.filter(Boolean);
+    const singleLines = commands
+      .flatMap((c) => (c || '').split('\n'))
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && !s.startsWith('#'));
+    this.extraCompletions = [...new Set<string>(singleLines)];
   }
 
   private allCompletions(): string[] {
-    return [
-      ...new Set<string>([
-        ...this.extraCompletions,
-        ...BASE_COMMANDS,
-        ...this.history.slice().reverse(),
-      ]),
+    const raw = [
+      ...(this.hint ? [this.hint] : []),
+      ...this.extraCompletions,
+      ...BASE_COMMANDS,
+      ...this.history.slice().reverse(),
     ];
+    const singleLines = raw.flatMap((cmd) =>
+      (cmd || '').split('\n').map((s) => s.trim()).filter(Boolean)
+    );
+    return [...new Set<string>(singleLines)];
   }
 
   /** Full commands sharing head words + current token prefix. */
@@ -254,12 +266,13 @@ export class TerminalView {
       if (!words.includes(w)) words.push(w);
     };
     if (this.hint) {
-      const hw = this.hint.split(/\s+/);
+      const hw = this.hint.trim().split(/\s+/);
       const okHead = head.every((h, i) => hw[i] === h);
-      if (okHead) push(hw[head.length]);
+      if (okHead && hw[head.length]) push(hw[head.length]);
     }
     for (const cmd of matches) {
-      push(cmd.split(/\s+/)[head.length]);
+      const cw = cmd.trim().split(/\s+/);
+      if (cw[head.length]) push(cw[head.length]);
     }
     return words.filter((w) => !current || w.toLowerCase().startsWith(current.toLowerCase()));
   }
@@ -300,12 +313,19 @@ export class TerminalView {
   private applyTab(e: KeyboardEvent): void {
     e.preventDefault();
     const value = this.inputEl.value;
+    const trimmedVal = value.trim();
+
+    // 0. If input already completely matches this.hint, do not append further
+    if (this.hint && trimmedVal.toLowerCase() === this.hint.trim().toLowerCase()) {
+      return;
+    }
+
     const { head, current, afterSpace } = parseLine(value);
     const cycleKey = `${head.join(' ')}|${afterSpace ? '' : current}`;
 
     // 1. If empty and hint exists: insert first word only
     if (!value && this.hint) {
-      const firstWord = this.hint.split(/\s+/)[0]!;
+      const firstWord = this.hint.trim().split(/\s+/)[0]!;
       this.inputEl.value = firstWord;
       this.wordCycle = [firstWord];
       this.wordIdx = 0;
@@ -320,6 +340,13 @@ export class TerminalView {
       const currentMatches = this.nextWords(head, current);
       if (currentMatches.length === 1 && currentMatches[0].toLowerCase() === current.toLowerCase()) {
         const newHead = [...head, currentMatches[0]];
+        const fullSoFar = newHead.join(' ');
+        if (this.hint && fullSoFar.toLowerCase() === this.hint.trim().toLowerCase()) {
+          this.inputEl.value = this.hint.trim();
+          this.focus();
+          this.syncGhost();
+          return;
+        }
         const nextOpts = this.nextWords(newHead, '');
         if (nextOpts.length > 0) {
           this.inputEl.value = `${newHead.join(' ')} ${nextOpts[0]}`;

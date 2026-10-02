@@ -83,3 +83,41 @@ export function scoreClass(strokes: number, par: number | null): 'under' | 'par'
   if (strokes === par) return 'par';
   return 'over';
 }
+
+/**
+ * Splits multiline R code into top-level runnable statements,
+ * respecting brackets, braces, parentheses, and continuation operators.
+ */
+export function splitRStatements(code: string): string[] {
+  if (!code || !code.trim()) return [];
+  const lines = code.split('\n');
+  const statements: string[] = [];
+  let current: string[] = [];
+  let depth = 0;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    current.push(line);
+
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '(' || ch === '{' || ch === '[') depth++;
+      else if (ch === ')' || ch === '}' || ch === ']') depth = Math.max(0, depth - 1);
+    }
+
+    const endsWithContinuation = /(?:\|\>|%\>%|\+|\,|\-\>|\<-)\s*$/.test(line);
+
+    if (depth === 0 && !endsWithContinuation) {
+      statements.push(current.join(' '));
+      current = [];
+    }
+  }
+
+  if (current.length > 0) {
+    statements.push(current.join(' '));
+  }
+
+  return statements.length > 0 ? statements : [code.trim()];
+}

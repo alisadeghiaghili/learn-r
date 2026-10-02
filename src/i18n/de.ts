@@ -19,6 +19,8 @@ export const de: UiStrings = {
   sandboxTitle: 'Sandbox-Modus',
   help: 'Hilfe',
   uiGuideTitle: 'Befehlsübersicht und Tastaturkürzel',
+  localSetupBtn: 'Lokales Setup',
+  localSetupTitle: 'Lokale R-, RStudio-, renv- und Produktionsanleitung',
   visitorsTitle: 'Lernende, die hier R üben',
   githubTitle: 'GitHub-Repository',
   support: 'Buy me a coffee',

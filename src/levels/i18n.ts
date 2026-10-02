@@ -1478,6 +1478,192 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
           "استفاده از کدهای درون‌متنی (`r expr`) تضمین می‌کند که آمار و ارقام داخل متن با تغییر داده‌ها همیشه به روز باقی بمانند."
     ],
   },
+  "prod-renv": {
+    title: "۵۹. ایزوله‌سازی وابستگی‌ها و تکرارپذیری در پروداکشن با renv",
+    brief: "در پروژه‌های تیمی و سروری، به‌روزرسانی ناهماهنگ پکیج‌ها پایپ‌لاین را می‌شکند. ساختار یک فایل لاگ renv.lock را شبیه‌سازی کنید.",
+    hint: "مقداردهی کنید: lockfile <- list(R = list(Version = R.version.string), Packages = list(dplyr = list(Version = \"1.1.4\", Source = \"Repository\")))",
+    lesson: `### فصل ۵۹ — ایزوله‌سازی وابستگی‌ها در پروداکشن با renv
+
+در دنیای واقعی مهندسی داده، بزرگترین چالش کار تیمی این است: کدی که روی لپ‌تاپ شما کار می‌کند، روی سرور یا سیستم همکارتان به خاطر تفاوت نسخه یک پکیج ارور می‌دهد!
+پکیج استاندارد **\`renv\`** این معضل را حل می‌کند:
+1. **\`renv::init()\`:** ساخت کتابخانه ایزوله در پروژه.
+2. **\`renv::snapshot()\`:** ضبط نسخه‌های دقیق در \`renv.lock\`.
+3. **\`renv::restore()\`:** نصب دقیق همان نسخه‌ها در کانتینر یا سیستم دیگران.
+
+#### ⚠️ دام‌های متداول:
+- هرگز دایرکتوری حجیم \`renv/library\` را در گیت کامیت نکنید؛ فقط فایل \`renv.lock\` را در مخزن ذخیره کنید.`,
+    checksLabels: [
+      "شیء ساختاریافته lockfile در حافظه ایجاد شده باشد",
+      "نسخه پکیج dplyr در فایل قفل برابر 1.1.4 ثبت شده باشد",
+    ],
+    learning: [
+      "پکیج renv وابستگی‌های پکیج‌ها را به ازای هر پروژه ایزوله می‌کند",
+      "فایل renv.lock درخت کامل نسخه‌ها و منبع دانلود پکیج‌ها را قفل می‌کند",
+      "دستور renv::restore() دقیقاً همان محیط را روی سرور یا کانتینر بازسازی می‌کند",
+    ],
+    fieldNotes: [
+      "فایل renv.lock را به عنوان منبع حقیقت در Git ثبت کنید تا دیپلوی‌های CI/CD پایدار بمانند.",
+      "ایمیج‌های Docker در اولین مرحله renv::restore() را اجرا می‌کنند تا کش لایه‌ها بهینه شود.",
+    ],
+  },
+  "prod-secrets-env": {
+    title: "۶۰. امنیت اسرار سازمانی و فایل Renviron",
+    brief: "هرگز رمزهای دیتابیس یا کلیدهای API را در کد هاردکد نکنید! مقادیر امنیتی را با Sys.setenv و Sys.getenv مدیریت کنید.",
+    hint: "متغیرها را با Sys.setenv تعریف کرده و شیء db_credentials را با فراخوانی Sys.getenv بسازید.",
+    lesson: `### فصل ۶۰ — مدیریت امن اسرار و متغیرهای محیطی با Renviron
+
+در سیستم‌های پروداکشن، پسوردهای دیتابیس هرگز نباید در فایل‌های کدنویسی قرار گیرند:
+1. **فایل \`.Renviron\`:** اسرار را به صورت متغیر محیطی در ریشه پروژه ذخیره کنید و آن را در \`.gitignore\` قرار دهید.
+2. **فراخوانی با \`Sys.getenv()\`:** بدون افشای رمز در کد، مقدار را هنگام اجرا دریافت کنید.
+
+#### ⚠️ دام‌های متداول:
+- اگر متغیری تعریف نشده باشد، \`Sys.getenv()\` به جای \`NA\` رشته خالی \`""\` برمی‌گرداند. با \`nzchar()\` اعتبار آن را بسنجید.`,
+    checksLabels: [
+      "شیء db_credentials در فضای کاری تعریف شده باشد",
+      "مقادیر کاربری و رمز عبور از متغیرهای محیطی با موفقیت خوانده شوند",
+    ],
+    learning: [
+      "فایل .Renviron متغیرهای محرمانه را پیش از آغاز سشن R بارگذاری می‌کند",
+      "تابع Sys.getenv() اسرار را بدون نیاز به ذخیره متن رمز در سورس‌کد دریافت می‌کند",
+      "امنیت اطلاعات در سیستم‌های Git با افزودن .Renviron به .gitignore تضمین می‌شود",
+    ],
+    fieldNotes: [
+      "در کلاستر کوبرنتیز یا پایپ‌لاین‌های CI/CD، سکرت‌ها مستقیماً به محیط کانتینر تزریق می‌شوند.",
+      "برای کار با گاوصندوق رمز عبور سیستم‌عامل در پروژه‌های تیمی، پکیج keyring توصیه می‌شود.",
+    ],
+  },
+  "prod-cli": {
+    title: "۶۱. اتوماسیون، اجرای خط فرمان (CLI) و کارهای دوره‌ای با Rscript",
+    brief: "خط‌های لوله در سرورها به صورت خودکار و بدون رابط گرافیکی اجرا می‌شوند. آرگومان‌های خط فرمان شبیه‌سازی‌شده را پردازش کنید.",
+    hint: "بردار simulated_cli_args را تعریف کرده و با sub و grep پارامتر date را در parsed_date ذخیره کنید.",
+    lesson: `### فصل ۶۱ — اتوماسیون و پردازش دسته‌ای با Rscript
+
+در سرورهای پروداکشن، پایپ‌لاین‌ها توسط Airflow یا Cron اجرا می‌شوند:
+- اجرای اسکریپت با \`Rscript pipeline.R --date=2026-10-01\`.
+- خواندن پارامترها با \`commandArgs(trailingOnly = TRUE)\`.
+- ارسال کدهای خروج (\`quit(status = 0)\` برای موفقیت و \`quit(status = 1)\` برای خطا).
+
+#### ⚠️ دام‌های متداول:
+- در کارهای Batch به جای \`print()\` از \`message()\` استفاده کنید تا خروجی‌های لاگ به جریان \`stderr\` فرستاده شوند.`,
+    checksLabels: [
+      "متغیر parsed_date در حافظه ایجاد شده باشد",
+      "مقدار پارامتر date به درستی به صورت '2026-10-01' استخراج شده باشد",
+    ],
+    learning: [
+      "دستور Rscript اسکریپت‌های R را به صورت غیرتعاملی در محیط خط فرمان سرور اجرا می‌کند",
+      "تابع commandArgs(trailingOnly = TRUE) آرگومان‌های ورودی CLI را در قالب بردار استخراج می‌کند",
+      "ارسال کدهای خروج سیستمی برای هماهنگی با ارکستریتورهایی مانند Apache Airflow حیاتی است",
+    ],
+    fieldNotes: [
+      "برای ساخت CLI‌های پیشرفته با راهنما و پرچم‌های متنوع، پکیج‌های optparse یا argparser عالی هستند.",
+      "تمام خطاها باید با ثبت کد بازگشتی غیرصفر به سیستم‌عامل گزارش شوند تا فرآیند بازآزمایی خودکار فعال شود.",
+    ],
+  },
+  "prod-resilient-db": {
+    title: "۶۲. پایداری دیتابیس در پروداکشن و مدیریت منابع با on.exit",
+    brief: "با قلاب‌های دفاعی on.exit تضمین کنید که کانکشن‌های دیتابیس حتی در صورت وقوع خطای کشنده به طور خودکار بسته می‌شوند.",
+    hint: "تابع safe_query را با قلاب on.exit(message(...), add = TRUE) تعریف کرده و اجرا کنید.",
+    lesson: `### فصل ۶۲ — پایداری دیتابیس و مدیریت سوکت‌ها با on.exit
+
+علت اصلی کرش کردن دیتابیس در اپلیکیشن‌های R، نشت کانکشن (Connection Leak) بر اثر ارورهای هندل‌نشده است:
+- تابع \`on.exit(..., add = TRUE)\` تضمین می‌کند کدهای پاکسازی در لحظه خروج از تابع (چه موفق و چه با خطا) اجرا شوند.
+- استفاده از کوئری‌های پارامتری برای جلوگیری از حملات تزریق SQL (SQL Injection).
+
+#### ⚠️ دام‌های متداول:
+- همواره آرگومان \`add = TRUE\` را قرار دهید تا فراخوانی‌های بعدی \`on.exit\` عملیات قبلی را پاک نکنند.`,
+    checksLabels: [
+      "تابع دفاعی safe_query تعریف شده باشد",
+      "خروجی با موفقیت برگردد و قلاب on.exit بسته شدن سوکت را تضمین نماید",
+    ],
+    learning: [
+      "دستور on.exit(..., add = TRUE) معادل بلوک try/finally برای بستن تضمینی سوکت‌هاست",
+      "آزادسازی دفاعی منابع مانع از اشغال ظرفیت استخر کانکشن‌های دیتابیس می‌شود",
+      "کوئری‌های پارامتری پایگاه‌داده آسیب‌پذیری‌های امنیتی تزریق SQL را کاملاً خنثی می‌کنند",
+    ],
+    fieldNotes: [
+      "در وب‌سرویس‌های پروداکشن و Shiny از پکیج pool استفاده کنید تا نیازی به باز و بست مداوم کانکشن نباشد.",
+      "همواره دستور on.exit را بلافاصله پس از ایجاد اتصال قرار دهید، نه در انتهای تابع.",
+    ],
+  },
+  "prod-error-handling": {
+    title: "۶۳. مدیریت تاب‌آور خطاها و استثناها با tryCatch",
+    brief: "با استفاده از ساختار tryCatch مانع از توقف کل پایپ‌لاین‌های شبانه به خاطر یک ردیف دیتای نامعتبر شوید.",
+    hint: "تابع safe_parse را با tryCatch و مدیریت خطای تبدیل پیاده کرده و با vapply اجرا کنید.",
+    lesson: `### فصل ۶۳ — مدیریت تاب‌آوری و خطاها با tryCatch
+
+در دنیای واقعی، پایپ‌لاین‌ها با داده‌های غیرمنتظره روبرو می‌شوند. یک خطای کوچک نباید پردازش میلیون‌ها رکورد سالم را متوقف کند:
+- ساختار \`tryCatch\` امکان تعیین رفتار پشتیبان (Fallback) در صورت بروز خطا یا هشدار را می‌دهد.
+- ثبت خطاهای رخ‌داده در فایل لاگ همراه با ساعت وقوع برای ریشه‌یابی بعدی.
+
+#### ⚠️ دام‌های متداول:
+- تبدیل متن نامعتبر با \`as.numeric\` خطا پرتاب نمی‌کند، بلکه \`warning\` می‌دهد! هندلر tryCatch باید هر دو را مدیریت کند.`,
+    checksLabels: [
+      "تابع امن safe_parse تعریف شده باشد",
+      "آرایه clean_nums مقادیر نامعتبر را به NA تبدیل کرده و بدون کرش اجرا شود",
+    ],
+    learning: [
+      "ساختار tryCatch خطاهای کشنده، اخطارها و پیام‌ها را رهگیری و مهار می‌کند",
+      "تعریف مقادیر پیش‌فرض (Fallback) تداوم اجرای خط‌های لوله شبانه را تضمین می‌نماید",
+      "تمایز میان خطای کشنده و اخطار در ساخت سیستم‌های تمیزکاری داده بسیار کلیدی است",
+    ],
+    fieldNotes: [
+      "برای خطاها لاگ دقیق شامل نام تابع و ورودی ثبت کنید تا تیم پشتیبانی بتواند بدون دیباگ لایو مشکل را حل کند.",
+      "اگر داده ورودی ساختار کلی را نقض کند، بهتر است کد با stop کرش کند تا دیتای خراب ذخیره نشود.",
+    ],
+  },
+  "capstone-dirty-data": {
+    title: "۶۴. پروژه جامع اول: پاک‌سازی داده‌های کثیف و نامنظم دنیای واقعی",
+    brief: "داده‌های واقعی پر از مقادیر گمشده پنهان (-999, N/A)، علائم دلار، کاما و فاصله‌های خالی هستند. جدول خام را کاملاً پاک‌سازی کنید.",
+    hint: "از stringr::str_trim، stringr::str_replace_all برای حذف $ و کاما، تبدیل به عدد و فیلتر مقادیر منفی استفاده کنید.",
+    lesson: `### فصل ۶۴ — پروژه جامع اول: پاک‌سازی داده‌های کثیف دنیای واقعی
+
+در محیط کار واقعی، بیش از ۸۰٪ کار تمیزکاری داده‌های غیر استاندارد است:
+1. حذف کاراکترهای پولی (\`$\`) و کاماهای جداکننده ارقام (\`,\`).
+2. شناسایی مقادیر ساختگی گمشده مانند \`-999\` و \`"N/A"\`.
+3. یکدست‌سازی متون، حذف فاصله‌های خالی ابتدایی و انتهایی با \`str_trim\`، و تبدیل به حروف کوچک.
+
+این مهارت پایه تمام پروژه‌های تجاری و سازمانی است.`,
+    checksLabels: [
+      "جدول پردازش‌شده clean_tx در حافظه وجود داشته باشد",
+      "دقیقاً ۲ تراکنش سالم با مبالغ مثبت در خروجی فیلتر شوند",
+      "کدهای مشتریان تمیز و به حروف کوچک تبدیل شده باشند",
+    ],
+    learning: [
+      "شناسایی مقادیر گمشده پنهان (Sentinel Values) پیش‌نیاز هر تحلیل آماری صحیح است",
+      "ترکیب توابع رشته‌ای stringr و جهش‌های dplyr فرمت‌های عددی مخدوش را اصلاح می‌کند",
+      "فیلترهای دفاعی از ورود داده‌های مسموم به مدل‌های تحلیلی و آماری جلوگیری می‌کنند",
+    ],
+    fieldNotes: [
+      "همیشه تعداد ردیف‌های حذف‌شده را لاگ کنید تا تغییرات ناگهانی فرمت ارائه‌دهنده دیتا فوراً کشف شود.",
+      "قبل از محاسبات مالی، تایپ ستون‌های تمیزشده را با stopifnot(is.numeric(...)) اعتبارسنجی کنید.",
+    ],
+  },
+  "capstone-pipeline": {
+    title: "۶۵. پروژه جامع دوم: خط لوله تحلیلی کامل و اعتبارسنجی سازمانی",
+    brief: "یک خط لوله کامل را اجرا کنید: جوین جداول رویداد و کاتالوگ، محاسبه شاخص‌های مالی به تفکیک دسته، و راستی‌آزمایی با stopifnot.",
+    hint: "جداول را با inner_join متصل کرده، revenue را محاسبه، با group_by و summarise شاخص‌ها را حساب کرده و با stopifnot بررسی کنید.",
+    lesson: `### فصل ۶۵ — پروژه جامع دوم: خط لوله تحلیل داده و اعتبارسنجی سازمانی
+
+گام‌های پایانی یک پروژه استاندارد علم داده:
+1. **اتصال جداول رابطه‌ای (Relational Joins):** پیوند امن جدول سفارشات با کاتالوگ محصولات.
+2. **محاسبه شاخص‌های کسب‌وکار (KPIs):** درآمد کل، تعداد سفارشات و میانگین سبد خرید.
+3. **گروه‌بندی امن:** استفاده از \`.groups = "drop"\` برای جلوگیری از بروز باگ در مراحل بعدی.
+4. **اعتبارسنجی خودکار (Data Contracts):** استفاده از \`stopifnot()\` برای اطمینان از سلامت کامل داده‌ها پیش از ارسال به داشبوردها.`,
+    checksLabels: [
+      "جدول شاخص‌ها kpi_summary ایجاد شده باشد",
+      "دسته‌بندی‌های Hardware و Software به درستی تجمیع شده باشند",
+      "مجموع درآمد ۳۹۰ دلار برای Hardware و ۷۲۰ دلار برای Software محاسبه شود",
+    ],
+    learning: [
+      "خط‌های لوله استاندارد تلفیقی از اتصالات رابطه‌ای، جهش‌های متغیر و خلاصه‌سازی آماری هستند",
+      "پارامتر .groups = 'drop' وضعیت‌های گروه‌بندی پنهان و باگ‌های بعدی را کاملاً از بین می‌برد",
+      "دستور stopifnot قراردادهای تجاری و قیود سلامت داده را پیش از گزارش‌گیری تضمین می‌کند",
+    ],
+    fieldNotes: [
+      "همیشه یکتایی کلیدهای اولیه را قبل از جوین بررسی کنید تا از تکثیر ناخواسته ردیف‌ها جلوگیری شود.",
+      "جداول نهایی را در قالب‌های مدرن مانند Parquet ذخیره کنید تا سرعت کوئری ابزارهای BI حداکثر شود.",
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -2944,6 +3130,189 @@ Das Ziel jedes R-Entwicklers lautet: **0 errors | 0 warnings | 0 notes**.
           "Inline R-Code (`r expr`) hält Fließtext-Kennzahlen bei Datenupdates automatisch synchron."
     ],
   },
+  "prod-renv": {
+    title: "59. Produktions-Reproduzierbarkeit & renv",
+    brief: "In Teams brechen ungesicherte Paketversionen Produktions-Pipelines. Simuliere eine renv.lock Sperrdatei.",
+    hint: "Weise lockfile <- list(R = list(Version = R.version.string), Packages = list(dplyr = list(Version = '1.1.4', Source = 'Repository'))) zu.",
+    lesson: `### Kapitel 59 — Produktions-Reproduzierbarkeit mit renv
+
+In realen Unternehmensprojekten ist die Paket-Abhängigkeitshölle (Dependency Hell) eine häufige Fehlerquelle. Das Paket **\`renv\`** standardisiert Arbeitsumgebungen:
+- **\`renv::init()\`:** Isoliert Paketbibliotheken pro Projekt.
+- **\`renv::snapshot()\`:** Speichert exakte Paketversionen in \`renv.lock\`.
+- **\`renv::restore()\`:** Installiert exakt dieselben Versionen auf Servern oder Kollegen-Rechnern.
+
+#### ⚠️ Häufige Fallstricke:
+- Niemals den Ordner \`renv/library\` in Git committen; nur \`renv.lock\`, \`.Rprofile\` und \`renv/activate.R\` einchecken.`,
+    checksLabels: [
+      "lockfile existiert als Listenstruktur",
+      "lockfile registriert dplyr Version 1.1.4",
+    ],
+    learning: [
+      "renv isoliert Bibliotheken pro Projekt und verhindert Versionskonflikte",
+      "renv.lock fixiert exakte Versionen und Quell-Repositories aller Pakete",
+      "renv::restore() baut identische Entwicklungsumgebungen deterministisch auf",
+    ],
+    fieldNotes: [
+      "renv.lock gehört zwingend in die Versionskontrolle von CI/CD-Pipelines.",
+      "Docker-Builds nutzen renv::restore(), um Schichten effizient zu cachen.",
+    ],
+  },
+  "prod-secrets-env": {
+    title: "60. Unternehmensgeheimnisse & .Renviron",
+    brief: "Datenbank-Passwörter niemals im Code fest kodieren. Lese Umgebungsvariablen sicher mit Sys.getenv() und Sys.setenv().",
+    hint: "Setze Umgebungsvariablen mit Sys.setenv und lese sie in db_credentials mit Sys.getenv aus.",
+    lesson: `### Kapitel 60 — Sichere Geheimnisverwaltung mit .Renviron
+
+In Produktionssystemen gehören Passwörter und API-Keys niemals in R-Skripte:
+- **\`.Renviron\`:** Speichere Schlüssel als Umgebungsvariablen und setze die Datei auf \`.gitignore\`.
+- **\`Sys.getenv()\`:** Liest Zugangsdaten zur Laufzeit sicher aus.
+
+#### ⚠️ Häufige Fallstricke:
+- Nicht definierte Umgebungsvariablen liefern \`""\` (leeren String) statt \`NA\`. Prüfe mit \`nzchar()\`.`,
+    checksLabels: [
+      "Objekt db_credentials existiert im Arbeitsbereich",
+      "db_credentials liest DB_USER und DB_PASS sicher aus",
+    ],
+    learning: [
+      ".Renviron lädt Umgebungsvariablen vor der Skriptausführung",
+      "Sys.getenv() greift auf Zugangsdaten zu, ohne Klartext-Passwörter im Quellcode zu speichern",
+      "Schutz sensibler Daten durch Ausschluss von .Renviron in .gitignore",
+    ],
+    fieldNotes: [
+      "In Cloud-Umgebungen (Kubernetes, AWS) werden Secrets direkt als Environment-Variablen injiziert.",
+      "Für lokale Desktops empfiehlt sich das Paket keyring zur Nutzung des OS-Schlüsselbundes.",
+    ],
+  },
+  "prod-cli": {
+    title: "61. Automatisierung, Batch-Jobs & CLI mit Rscript",
+    brief: "Produktions-Pipelines laufen headless via cron oder Airflow. Verarbeite simulierte Befehlszeilenargumente.",
+    hint: "Definiere simulated_cli_args und extrahiere das Datum mit sub und grep in parsed_date.",
+    lesson: `### Kapitel 61 — Automatisierung und Batch-Ausführung mit Rscript
+
+Pipelines laufen in Rechenzentren automatisiert im Hintergrund:
+- Starten mit \`Rscript pipeline.R --date=2026-10-01\`.
+- CLI-Argumente lesen mit \`commandArgs(trailingOnly = TRUE)\`.
+- Statuscodes zurückgeben mit \`quit(status = 0)\` (Erfolg) oder \`quit(status = 1)\` (Fehler).
+
+#### ⚠️ Häufige Fallstricke:
+- Verwende in Batch-Skripten \`message()\` statt \`print()\`, damit Statusmeldungen sauber im \`stderr\`-Log landen.`,
+    checksLabels: [
+      "Objekt parsed_date existiert im Workspace",
+      "parsed_date extrahiert den Parameter '2026-10-01' korrekt",
+    ],
+    learning: [
+      "Rscript führt R-Skripte nicht-interaktiv in Terminal- und Serverumgebungen aus",
+      "commandArgs(trailingOnly = TRUE) parst übergebene Start-Parameter",
+      "Exit-Codes steuern Fehlerbehandlung in Workflow-Managern wie Airflow",
+    ],
+    fieldNotes: [
+      "Pakete wie optparse oder argparser strukturieren komplexe CLI-Schnittstellen mit Flags und Hilfetexten.",
+      "Immer saubere Exit-Codes liefern, damit Retries und Alerting-Systeme zuverlässig anschlagen.",
+    ],
+  },
+  "prod-resilient-db": {
+    title: "62. Datenbank-Resilienz & Ressourcenbereinigung mit on.exit",
+    brief: "Stelle sicher, dass Datenbank-Sockets auch bei Skriptfehlern über defensive on.exit-Hooks geschlossen werden.",
+    hint: "Definiere safe_query mit on.exit(message(...), add = TRUE) und rufe die Funktion auf.",
+    lesson: `### Kapitel 62 — Robuste Datenbankverbindungen mit on.exit
+
+Offene Datenbankverbindungen nach abgebrochenen Skripten blockieren den Datenbankserver:
+- \`on.exit(..., add = TRUE)\` garantiert die Ausführung des Bereinigungscodes beim Verlassen der Funktion.
+- Parametrisierte Abfragen verhindern gefährliche SQL-Injections.
+
+#### ⚠️ Häufige Fallstricke:
+- Setze immer \`add = TRUE\`, da nachfolgende \`on.exit\`-Aufrufe frühere sonst überschreiben.`,
+    checksLabels: [
+      "Funktion safe_query ist definiert",
+      "res liefert Ergebnis und on.exit garantiert saubere Trennung",
+    ],
+    learning: [
+      "on.exit(..., add = TRUE) fungiert als verlässlicher Cleanup-Hook analog zu try/finally",
+      "Defensives Ressourcen-Management verhindert Connection Leaks",
+      "Parametrisierte SQL-Abfragen schließen Sicherheitslücken aus",
+    ],
+    fieldNotes: [
+      "In produktiven Shiny-Apps verwaltet pool::dbPool() Verbindungen thread-sicher über Nutzer hinweg.",
+      "on.exit() direkt nach erfolgreichem dbConnect() platzieren, nicht erst am Funktionsende.",
+    ],
+  },
+  "prod-error-handling": {
+    title: "63. Robuste Fehlerbehandlung mit tryCatch",
+    brief: "Verhindere den Absturz von Batch-Pipelines durch einzelne fehlerhafte Datensätze mittels tryCatch.",
+    hint: "Implementiere safe_parse mit tryCatch und wende es via vapply auf raw_inputs an.",
+    lesson: `### Kapitel 63 — Resiliente Datenverarbeitung mit tryCatch
+
+Produktions-Pipelines dürfen bei unvorhergesehenen Datenfehlern nicht mitten in der Nacht unkontrolliert abstürzen:
+- \`tryCatch\` fängt Fehler und Warnungen ab und liefert Fallback-Werte.
+- Systematisches Logging von Fehlermeldungen mit Zeitstempel.
+
+#### ⚠️ Häufige Fallstricke:
+- \`as.numeric("ungültig")\` erzeugt eine Warnung (\`warning\`), keinen Fehler! Fange daher beide Conditions ab.`,
+    checksLabels: [
+      "Funktion safe_parse ist definiert",
+      "clean_nums fängt ungültige Werte als NA ab ohne abzustürzen",
+    ],
+    learning: [
+      "tryCatch fängt kritische Errors, Warnings und Messages strukturiert ab",
+      "Fallback-Werte halten nächtliche ETL-Pipelines bei Einzelfehlern stabil",
+      "Präzise Unterscheidung zwischen Warnungen und fatalen Fehlern",
+    ],
+    fieldNotes: [
+      "Fehlerdetails mit Kontext (Spalte, Zeile, Zeit) in Audit-Tabellen persistieren.",
+      "Bei Verletzung fundamentaler Schemakontrakte gezielt mit stop() abbrechen.",
+    ],
+  },
+  "capstone-dirty-data": {
+    title: "64. Capstone I: Bereinigung unsauberer Realdaten",
+    brief: "Reale Datensätze enthalten fehlende Werte (-999, N/A), Währungssymbole und Leerzeichen. Bereinige die Rohdaten.",
+    hint: "Nutze stringr::str_trim, stringr::str_replace_all für $, wandle in Zahlen und filtere negative Werte aus.",
+    lesson: `### Kapitel 64 — Capstone I: Bereinigung unberechenbarer Realdaten
+
+Mehr als 80 % der Datenpraxis besteht aus dem Aufräumen unstrukturierter Quellen:
+1. Währungszeichen (\`$\`) und Tausendertrennzeichen entfernen.
+2. Verschleierte NA-Werte wie \`-999\` oder \`"N/A"\` durch echtes \`NA_real_\` ersetzen.
+3. Whitespace und Groß-/Kleinschreibung harmonisieren.`,
+    checksLabels: [
+      "clean_tx existiert im Arbeitsbereich",
+      "Genau 2 valide Transaktionen mit positiven Beträgen extrahiert",
+      "Kunden-Codes sind getrimmt und in Kleinbuchstaben vereinheitlicht",
+    ],
+    learning: [
+      "Erkennung verdeckter Sentinel-Fehlwerte (-999, N/A) schützt vor falschen Kennzahlen",
+      "stringr und dplyr transformieren fehlerhafte Textformate in saubere Zahlenvektoren",
+      "Defensives Filtern trennt saubere Beobachtungen von fehlerhaften Rohdaten",
+    ],
+    fieldNotes: [
+      "Verworfene Zeilen stets protokollieren, um stille Änderungen von Quellsystemen zu erkennen.",
+      "Finanzdaten vor Weiterverarbeitung mit stopifnot(is.numeric(...)) validieren.",
+    ],
+  },
+  "capstone-pipeline": {
+    title: "65. Capstone II: Produktions-Analyse-Pipeline & Datenverträge",
+    brief: "Führe eine vollständige Pipeline aus: Tabellen-Join, Aggregation von Geschäftskennzahlen und Validierung mit stopifnot.",
+    hint: "Verbinde orders mit products via inner_join, berechne revenue, aggregiere via group_by/summarise und prüfe mit stopifnot.",
+    lesson: `### Kapitel 65 — Capstone II: Analytische Pipeline & Datenverträge
+
+Schritte einer professionellen Data-Pipeline:
+1. **Relationale Joins:** Saubere Verknüpfung von Fakten- und Dimensionstabellen.
+2. **Business-KPIs:** Umsatz, Bestellvolumen und Durchschnittswerte berechnen.
+3. **Sichere Gruppierung:** \`.groups = "drop"\` verhindert latente Gruppierungsfehler.
+4. **Datenverträge:** \`stopifnot()\` sichert Invarianten ab, bevor Daten an Dashboards übergeben werden.`,
+    checksLabels: [
+      "kpi_summary Tabelle existiert",
+      "Kategorien Hardware und Software korrekt aggregiert",
+      "Umsatz 390 $ für Hardware und 720 $ für Software berechnet",
+    ],
+    learning: [
+      "Moderne Pipelines kombinieren relationale Joins, Mutationen und Aggregationen",
+      ".groups = 'drop' eliminiert unerwünschte Gruppierungszustände",
+      "stopifnot() erzwingt Business-Invarianten vor der Berichtsübergabe",
+    ],
+    fieldNotes: [
+      "Schlüssel-Eindeutigkeit vor Joins prüfen, um Zeilen-Vervielfachungen zu vermeiden.",
+      "Zusammenfassungen als performante Parquet-Dateien für BI-Tools bereitstellen.",
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -3460,6 +3829,76 @@ The hallmark of a production-ready package is achieving **0 errors | 0 warnings 
   },
   "repro-rmarkdown": {
     lesson: "### Chapter 58 — Reproducible Reporting with R Markdown\n\nReproducibility is the gold standard of scientific computing. R Markdown merges narrative documentation with live R calculations:\n- **YAML Frontmatter:** Configures title, author, and output targets (HTML, PDF, Word).\n- **Code Chunks:** Executable blocks bounded by ````{r} ... ````.\n- **Chunk Options:** `echo = FALSE` (hide code from readers), `eval = TRUE` (execute calculations), `message = FALSE`, `warning = FALSE`.\n- **Inline Code:** Embedding dynamic calculations directly into sentences via ```` `r expr` ````.\n\n#### ⚠️ Common Gotchas:\n- **Clean Environment During Rendering:** Running `rmarkdown::render()` executes in a fresh, isolated background process. Everything your report depends on must be explicitly loaded in the document itself.",
+  },
+  "prod-renv": {
+    lesson: `### Chapter 59 — Production Reproducibility with renv
+
+In professional team environments, unpinned packages cause unpredictable breaking changes when moving code from development to production.
+The standard tool for reproducible R environments is **\`renv\`**:
+- **\`renv::init()\`:** Creates an isolated, project-local library.
+- **\`renv::snapshot()\`:** Locks exact package versions and repository sources in \`renv.lock\`.
+- **\`renv::restore()\`:** Recreates the identical environment on servers, Docker containers, or team machines.
+
+#### ⚠️ Common Gotchas:
+- Never commit the bulky \`renv/library\` directory to Git; only version control \`renv.lock\`, \`.Rprofile\`, and \`renv/activate.R\`.`,
+  },
+  "prod-secrets-env": {
+    lesson: `### Chapter 60 — Enterprise Secrets & .Renviron
+
+Hardcoding database passwords or API keys in source code is a major security violation:
+- **\`.Renviron\`:** Store secrets as key-value environment variables in your project root, and ensure it is listed in \`.gitignore\`.
+- **\`Sys.getenv()\`:** Safely read credentials at runtime without exposing sensitive text in code.
+
+#### ⚠️ Common Gotchas:
+- Unset environment variables return empty strings (\`""\`) rather than \`NA\`. Test with \`nzchar(Sys.getenv("KEY"))\`.`,
+  },
+  "prod-cli": {
+    lesson: `### Chapter 61 — Automation, Batch Jobs & CLI with Rscript
+
+Production data pipelines run headlessly on cloud servers:
+- Execute non-interactively with \`Rscript pipeline.R --date=2026-10-01\`.
+- Read CLI flags using \`commandArgs(trailingOnly = TRUE)\`.
+- Return explicit process exit codes with \`quit(status = 0)\` for success or \`quit(status = 1)\` on fatal errors to notify orchestrators like Airflow.
+
+#### ⚠️ Common Gotchas:
+- In batch scripts, use \`message()\` rather than \`print()\` so diagnostic logs flow to \`stderr\` without polluting tabular \`stdout\` pipelines.`,
+  },
+  "prod-resilient-db": {
+    lesson: `### Chapter 62 — Database Resiliency & Cleanup with on.exit
+
+Dangling database sockets from unhandled exceptions can exhaust connection pools and crash database servers:
+- **\`on.exit(..., add = TRUE)\`:** Guarantees that cleanup routines run when a function exits, even if an error is thrown midway.
+- Always use parameterized SQL queries with bind parameters to eliminate SQL injection vulnerabilities.
+
+#### ⚠️ Common Gotchas:
+- Always include \`add = TRUE\` in \`on.exit()\`; omitting it causes subsequent cleanup calls to overwrite previous ones.`,
+  },
+  "prod-error-handling": {
+    lesson: `### Chapter 63 — Resilient Data Pipelines with tryCatch
+
+Overnight data pipelines must not abort completely because of a single corrupted row or intermittent network glitch:
+- **\`tryCatch\`:** Traps errors and warnings to provide fallback values and keep the batch job running.
+- Structured condition handling logs exceptions with timestamps for diagnostic auditing.
+
+#### ⚠️ Common Gotchas:
+- \`as.numeric("invalid")\` raises a **warning**, not an error! Production error handlers must handle both warning and error conditions.`,
+  },
+  "capstone-dirty-data": {
+    lesson: `### Chapter 64 — Capstone I: Dirty Real-World Data Cleansing
+
+In the wild, over 80% of data science work involves cleaning messy raw inputs:
+1. Stripping currency symbols (\`$\`) and comma thousand-separators (\`,\`).
+2. Identifying sentinel missing values such as \`-999\`, \`"N/A"\`, or \`"UNKNOWN"\`.
+3. Normalizing inconsistent casing and irregular whitespace using \`stringr::str_trim\` and \`stringr::str_to_lower\`.`,
+  },
+  "capstone-pipeline": {
+    lesson: `### Chapter 65 — Capstone II: Production Analytical Pipeline & Contracts
+
+Essential architecture of a production data pipeline:
+1. **Relational Joins:** Joining transaction event logs with dimensional catalog tables.
+2. **Business Metrics:** Computing order volume, aggregate revenue, and average transaction values.
+3. **Defensive Grouping:** Setting \`.groups = "drop"\` prevents latent grouped data frame bugs in downstream steps.
+4. **Data Contract Invariants:** Asserting invariants with \`stopifnot()\` ensures corrupted outputs never reach executive dashboards.`,
   },
 };
 

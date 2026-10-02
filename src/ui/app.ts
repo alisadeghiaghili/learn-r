@@ -119,6 +119,7 @@ export class App {
               <button type="button" data-action="undo">${escapeHtml(u.undo)}</button>
               <button type="button" data-action="reset">${escapeHtml(u.reset)}</button>
               <button type="button" data-action="sandbox" class="ghost">${escapeHtml(u.sandboxBtn)}</button>
+              <button type="button" data-action="local-setup" title="${escapeHtml(u.localSetupTitle)}" class="ghost">${escapeHtml(u.localSetupBtn)}</button>
               <button type="button" class="help-btn" data-action="help" title="${escapeHtml(u.uiGuideTitle)}" aria-label="${escapeHtml(u.help)}">?</button>
             </div>
             <span class="tb-stat visitors" id="visitor-stat" title="${escapeHtml(u.visitorsTitle)}">
@@ -182,6 +183,7 @@ export class App {
         if (action === 'undo') void this.undo();
         if (action === 'reset') void this.reset();
         if (action === 'sandbox') void this.enterSandbox();
+        if (action === 'local-setup') this.openLocalGuide();
         if (action === 'help') this.openHelp();
         this.terminal.focus();
       });
@@ -740,6 +742,10 @@ export class App {
       this.openLesson();
       return;
     }
+    if (lower === 'local' || lower === 'setup' || lower === 'production') {
+      this.openLocalGuide();
+      return;
+    }
 
     await this.executeRCode(raw);
   }
@@ -868,6 +874,7 @@ export class App {
 | \`sandbox\` | Enter open sandbox mode |
 | \`clear\` | Clear the console log |
 | \`script\` | Toggle multi-line R script editor |
+| \`local\` | Open production and local environment setup guide |
 
 ### Execution
 - Press **Ctrl / Cmd + Enter** to run the current line or script.
@@ -875,6 +882,163 @@ export class App {
 - Tab cycles through autocomplete suggestions.
       `),
       actions: [{ label: u.closeBtn, onClick: () => undefined }],
+    });
+  }
+
+  openLocalGuide(): void {
+    const u = ui();
+    const loc = getLocale();
+    let guideMd = '';
+
+    if (loc === 'fa') {
+      guideMd = `
+### راهنمای جامع راه‌اندازی R در محیط محلی و استانداردهای پروداکشن
+
+برای انتقال از این سندباکس آموزشی مرورگر به پروژه‌های واقعی سازمانی، این چک‌لیست طلایی را دنبال کنید:
+
+#### ۱. نصب R و کامپایلرهای سیستمی
+- **هسته R:** دانلود آخرین نسخه پایدار از [CRAN](https://cran.r-project.org/)
+- **ویندوز (بسیار حیاتی):** حتماً ابزار **Rtools** متناسب با نسخه R را نصب کنید تا کامپایل پکیج‌های C/C++ مانند \`data.table\` و \`Rcpp\` بدون خطا انجام شود.
+- **مک (macOS):** اجرای دستور \`xcode-select --install\` در ترمینال.
+- **لینوکس (Ubuntu/Debian):** اجرای دستور \`sudo apt install r-base-dev\`.
+
+#### ۲. محیط‌های مدرن توسعه (IDE)
+- **Positron (پیشنهاد مدرن):** محیط توسعه نسل جدید شرکت Posit مبتنی بر هسته VS Code.
+- **RStudio Desktop:** کامل‌ترین و محبوب‌ترین IDE تخصصی برای توسعه پکیج‌ها و اسکریپت‌های R.
+- **VS Code:** همراه با افزونه رسمی R و پکیج \`languageserver\`.
+
+#### ۳. مدیریت ایزوله وابستگی‌ها با \`renv\` (پرهیز از تداخل نسخه‌ها)
+\`\`\`r
+# ۱. ساخت کتابخانه ایزوله در پوشه پروژه
+renv::init()
+
+# ۲. ثبت نسخه‌های دقیق پکیج‌ها در renv.lock
+renv::snapshot()
+
+# ۳. بازسازی دقیق محیط در سیستم همکاران یا کانتینر Docker
+renv::restore()
+\`\`\`
+
+#### ۴. ساختار پوشه‌بندی استاندارد پروژه‌های سازمانی
+\`\`\`text
+my_r_project/
+├── .Renviron          # متغیرهای محرمانه و پسوردها (حتماً در .gitignore باشد!)
+├── .gitignore         # نادیده گرفتن data/، .RData، و renv/library/
+├── .Rprofile          # اسکریپت راه‌اندازی سشن
+├── renv.lock          # قفل متنی نسخه‌های دقیق پکیج‌ها
+├── data/
+│   ├── raw/           # داده‌های خام و غیرقابل تغییر
+│   └── clean/         # خروجی‌های تمیزشده
+├── R/                 # توابع کمکی و اسکریپت‌های ماژولار
+└── run_pipeline.R     # اسکریپت اصلی اجرای خط لوله
+\`\`\`
+
+#### ۵. اتوماسیون و اجرای شبانه (Batch Automation)
+اجرای خودکار پایپ‌لاین‌ها در پس‌زمینه توسط Airflow یا Cron:
+\`\`\`bash
+Rscript run_pipeline.R --date=2026-10-01
+\`\`\`
+`;
+    } else if (loc === 'de') {
+      guideMd = `
+### Leitfaden: Lokale R-Entwicklung & Produktions-Standards
+
+Schließe die Lücke zwischen Browser-Sandbox und produktiver Datenanalyse im Unternehmen:
+
+#### 1. R-Kern & Compiler-Toolchains
+- **R Basis:** Aktuelle Version von [CRAN](https://cran.r-project.org/) herunterladen.
+- **Windows (essenziell):** Installiere **Rtools**, um C/C++-Pakete lokal kompilieren zu können.
+- **macOS:** Führe \`xcode-select --install\` im Terminal aus.
+- **Linux:** \`sudo apt install r-base-dev\`.
+
+#### 2. Moderne Entwicklungsumgebungen (IDE)
+- **Positron:** Die neue, moderne Data-Science-IDE von Posit auf VS-Code-Basis.
+- **RStudio Desktop:** Die bewährte Referenz-IDE für statistische Modellierung und R-Pakete.
+- **VS Code:** Mit der offiziellen R-Erweiterung und dem Paket \`languageserver\`.
+
+#### 3. Reproduzierbare Umgebungen mit \`renv\`
+\`\`\`r
+# 1. Lokale Projektbibliothek isolieren
+renv::init()
+
+# 2. Paketversionen in renv.lock fixieren
+renv::snapshot()
+
+# 3. Umgebung auf Servern deterministisch wiederherstellen
+renv::restore()
+\`\`\`
+
+#### 4. Professionelle Projektstruktur
+\`\`\`text
+my_r_project/
+├── .Renviron          # Passwörter & Secrets (gehört zwingend in .gitignore)
+├── .gitignore         # Schließt Daten & renv/library/ aus
+├── renv.lock          # Sperrdatei der Paketversionen
+├── data/              # Rohe und bereinigte Daten
+├── R/                 # Modulare Funktionen
+└── run_pipeline.R     # Hauptskript für Batch-Ausführung
+\`\`\`
+
+#### 5. Headless Automatisierung & CLI
+\`\`\`bash
+Rscript run_pipeline.R --date=2026-10-01
+\`\`\`
+`;
+    } else {
+      guideMd = `
+### Comprehensive Local R Setup & Production Engineering Guide
+
+Bridge the gap from this browser sandbox to real-world production data engineering:
+
+#### 1. R Core Engine & Compiler Toolchains
+- **R Binaries:** Download the latest official release from [CRAN](https://cran.r-project.org/).
+- **Windows (Critical):** Install **Rtools** matching your R major version to enable compilation of C/C++ packages like \`data.table\` and \`Rcpp\`.
+- **macOS:** Run \`xcode-select --install\` in the terminal.
+- **Linux (Ubuntu/Debian):** Run \`sudo apt-get install r-base-dev\`.
+
+#### 2. Modern IDEs & Tooling
+- **Positron (Recommended):** The next-generation, fast, extensible data science IDE from Posit built on Code OSS.
+- **RStudio Desktop:** The long-standing gold standard IDE for R development.
+- **VS Code:** Excellent with the official \`R\` extension and \`languageserver\` package.
+
+#### 3. Isolated Dependency Locking with \`renv\`
+Never install packages globally across production machines:
+\`\`\`r
+# 1. Initialize an isolated project library
+renv::init()
+
+# 2. Capture and lock package versions into renv.lock
+renv::snapshot()
+
+# 3. Deterministically recreate environment on Docker / servers
+renv::restore()
+\`\`\`
+
+#### 4. Enterprise Project Directory Architecture
+\`\`\`text
+my_r_project/
+├── .Renviron          # Secrets & API credentials (ALWAYS in .gitignore)
+├── .gitignore         # Exclude large data/, .RData, and renv/library/
+├── .Rprofile          # Startup initialization hook
+├── renv.lock          # Precise dependency tree lockfile
+├── data/              # Immutable raw and cleaned artifacts
+├── R/                 # Modular pure functions
+└── run_pipeline.R     # Top-level headless executable pipeline
+\`\`\`
+
+#### 5. Headless Automation & Batch Jobs
+Run analytical pipelines headlessly from crontab or Airflow:
+\`\`\`bash
+Rscript run_pipeline.R --date=2026-10-01
+\`\`\`
+`;
+    }
+
+    showModal({
+      title: u.localSetupTitle,
+      bodyHtml: renderMarkdown(guideMd),
+      actions: [{ label: u.closeBtn, className: 'primary', onClick: () => this.terminal.focus() }],
+      onDismiss: () => this.terminal.focus(),
     });
   }
 

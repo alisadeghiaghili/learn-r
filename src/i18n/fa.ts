@@ -19,6 +19,8 @@ export const fa: UiStrings = {
   sandboxTitle: 'حالت سندباکس',
   help: 'راهنما',
   uiGuideTitle: 'کلیدهای میانبر و راهنمای دستورات',
+  localSetupBtn: 'محیط لوکال',
+  localSetupTitle: 'راهنمای راه‌اندازی R محلی، RStudio، پکیج renv و پروداکشن',
   visitorsTitle: 'تعداد افراد یکتایی که در این سامانه R را تمرین کرده‌اند',
   githubTitle: 'مخزن گیت‌هاب',
   support: 'Buy me a coffee',

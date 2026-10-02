@@ -647,6 +647,83 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Embed dynamic statistics directly into narrative prose using inline R expressions (`r expr`).',
     ],
   },
+  'prod-renv': {
+    learning: [
+      'renv isolates dependencies per project, eliminating version conflicts between projects',
+      'renv::snapshot() records exact package versions and repositories into renv.lock',
+      'renv::restore() replicates the locked package environment on servers or teammate machines',
+    ],
+    fieldNotes: [
+      'Never commit the renv/library directory to Git; only commit renv.lock, .Rprofile, and renv/activate.R.',
+      'Docker images for R pipelines run renv::restore() in build stages to guarantee deterministic image layers.',
+    ],
+  },
+  'prod-secrets-env': {
+    learning: [
+      '.Renviron securely defines environment variables loaded before any R script executes',
+      'Sys.getenv() retrieves credentials without hardcoding secrets in source files',
+      'Sys.setenv() configures environment variables dynamically during runtime or testing',
+    ],
+    fieldNotes: [
+      'Always add .Renviron to .gitignore to prevent accidental credential leakage to public repositories.',
+      'Unset environment variables return empty string "" rather than NA; verify with nzchar(Sys.getenv("KEY")).',
+    ],
+  },
+  'prod-cli': {
+    learning: [
+      'Rscript executes standalone R scripts non-interactively in production and CI/CD pipelines',
+      'commandArgs(trailingOnly = TRUE) extracts command-line flags and parameters passed from shells',
+      'quit(status = 0/1) communicates completion success or failure codes to batch orchestrators',
+    ],
+    fieldNotes: [
+      'Enterprise orchestrators (Airflow, Dagster, Prefect) rely on process exit codes to trigger retries or alerts.',
+      'Write informative logs to stderr using message() to keep data pipelines separated from operational stdout.',
+    ],
+  },
+  'prod-resilient-db': {
+    learning: [
+      'on.exit(..., add = TRUE) registers clean-up hooks that run regardless of how a function terminates',
+      'Defensive resource deallocation prevents dangling database connections and memory leaks',
+      'Parameterized SQL queries prevent SQL injection vulnerabilities and handle special characters safely',
+    ],
+    fieldNotes: [
+      'Always include add = TRUE in on.exit(); without it, subsequent on.exit() calls overwrite existing handlers.',
+      'Production Shiny apps and web APIs use pool::dbPool() to manage database connections efficiently across users.',
+    ],
+  },
+  'prod-error-handling': {
+    learning: [
+      'tryCatch() traps errors, warnings, and messages to prevent overnight batch pipeline crashes',
+      'Structured condition handlers provide default fallback values and diagnostic logging',
+      'distinguishing warnings from errors is essential for robust data transformation',
+    ],
+    fieldNotes: [
+      'Type conversions like as.numeric() generate warnings on invalid inputs, requiring warning handlers.',
+      'Log exception messages (e$message) with timestamps to persistent storage for root cause analysis.',
+    ],
+  },
+  'capstone-dirty-data': {
+    learning: [
+      'Real-world data ingestion requires handling sentinel missing values (-999, "N/A", "UNKNOWN")',
+      'String cleansing normalizes irregular whitespace, currency symbols, and casing differences',
+      'Defensive filtering isolates valid observations and flags anomalies for auditing',
+    ],
+    fieldNotes: [
+      'Data engineering pipelines spend 80% of effort cleaning incoming raw source inconsistencies.',
+      'Always log the count of dropped or anomalous records to detect silent upstream schema changes.',
+    ],
+  },
+  'capstone-pipeline': {
+    learning: [
+      'Production analytical pipelines join transactional events with dimensional reference tables',
+      'Grouped summaries with explicit .groups = "drop" prevent latent grouping state bugs',
+      'stopifnot() enforces contract invariants and business rule assertions before publication',
+    ],
+    fieldNotes: [
+      'Validate key uniqueness before executing joins to avoid silent row multiplication / fanout bugs.',
+      'Automated pipelines export finalized summary tibbles to Parquet or cloud storage for downstream BI tools.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

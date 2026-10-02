@@ -1981,6 +1981,267 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Assemble rmd_template with YAML frontmatter, code chunk with echo = FALSE, and inline code `r total_sales`, then call parse_rmd().",
     lesson: "### فصل ۵۸ — تولید گزارش‌های علمی و تکرارپذیر با R Markdown و Knitr\n\nتکرارپذیری (Reproducibility) قلب تپنده علم داده مدرن است. به جای کپی-پیست کردن دستی اعداد و نمودارها در ورد یا پاورپوینت، از **R Markdown** استفاده می‌کنیم:\n1. **سربرگ YAML:** تنظیمات سند بین دو خط `---` در ابتدای فایل.\n2. **چانک‌های کد (Code Chunks):** بلوک‌های کدی که با سه بک‌تیک و `{r}` آغاز می‌شوند.\n3. **تنظیمات کلیدی چانک:**\n   - `echo = FALSE`: اجرای کد بدون نمایش متن کد در گزارش نهایی (ایده‌آل برای مدیران)\n   - `eval = FALSE`: نمایش کد بدون اجرای آن\n   - `warning = FALSE, message = FALSE`: پنهان کردن پیام‌های سیستمی\n4. **کدهای درون‌متنی (Inline R):** تزریق خودکار متغیرها درون متن گزارش با نحو `` `r var` ``.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **محیط کاری ایزوله هنگام رِندر:** فرآیند ساخت گزارش (`render`) کدها را در یک سشن تازه R اجرا می‌کند؛ بنابراین تمام متغیرها و پکیج‌های موردنیاز باید صراحتاً درون خود فایل `.Rmd` بارگذاری و تعریف شده باشند.",
   },
+
+  // Section 11: مهندسی پروداکشن و محیط لوکال
+  {
+    id: "prod-renv",
+    seriesId: 'foundations',
+    title: "59. Production Reproducibility & renv",
+    brief: "In real projects, unpinned packages break production. Simulate initializing and taking a snapshot of an renv lockfile structure.",
+    goal: "lockfile <- list(R = list(Version = R.version.string), Packages = list(dplyr = list(Version = \"1.1.4\", Source = \"Repository\")))",
+    setup: "# renv isolates project libraries and records exact versions in renv.lock",
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"lockfile\", envir = .GlobalEnv, inherits = FALSE) && is.list(lockfile)",
+        label: "Object lockfile exists as a list structure",
+      },
+      {
+        type: "eval",
+        expr: "!is.null(lockfile$Packages$dplyr$Version) && identical(lockfile$Packages$dplyr$Version, \"1.1.4\")",
+        label: "lockfile records dplyr version 1.1.4",
+      },
+    ],
+    hint: "Assign lockfile <- list(R = list(Version = R.version.string), Packages = list(dplyr = list(Version = \"1.1.4\", Source = \"Repository\")))",
+    lesson: `### فصل ۵۹ — ایزوله‌سازی و تکرارپذیری وابستگی‌ها در پروداکشن با renv
+
+در دنیای واقعی، بزرگترین کابوس تیم‌های دیتا، به‌روزرسانی ناخواسته یک پکیج در سیستم یکی از اعضا و شکستن کل خط‌لوله (Dependency Hell) است. پکیج استاندارد صنعت برای حل این مشکل **\`renv\`** است:
+
+1. **\`renv::init()\`:** یک کتابخانه محلی اختصاصی و ایزوله در پوشه پروژه ایجاد می‌کند تا پروژه‌ها تداخلی با هم نداشته باشند.
+2. **\`renv::snapshot()\`:** لیست و نسخه دقیق تمامی پکیج‌های استفاده‌شده در پروژه را در فایل متنی \`renv.lock\` (معادل \`package-lock.json\` در نود) ذخیره می‌کند.
+3. **\`renv::restore()\`:** همکار جدید یا کانتینر Docker با یک دستور دقیقاً همان پکیج‌ها و همان نسخه‌ها را روی سیستم مقصد دانلود و کامپایل می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **کامیت نکردن پوشه \`renv/library\` در Git:** دایرکتوری \`renv/library\` حاوی باینری‌های سنگین است و باید در \`.gitignore\` باشد. شما فقط باید فایل‌های متنی سبک \`renv.lock\`، \`.Rprofile\` و \`renv/activate.R\` را در گیت ثبت کنید.`,
+  },
+  {
+    id: "prod-secrets-env",
+    seriesId: 'foundations',
+    title: "60. Enterprise Secrets & .Renviron",
+    brief: "Never hardcode database passwords or API keys in code. Safely read and set environment configuration using Sys.getenv() and Sys.setenv().",
+    goal: "Sys.setenv(DB_USER = \"analytics_svc\", DB_PASS = \"k8s_secret_99\")\ndb_credentials <- list(user = Sys.getenv(\"DB_USER\"), pass = Sys.getenv(\"DB_PASS\"))",
+    setup: "# In enterprise production, credentials are injected via environment variables",
+    par: 2,
+    difficulty: 2,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"db_credentials\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Object db_credentials exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "identical(db_credentials$user, \"analytics_svc\") && identical(db_credentials$pass, \"k8s_secret_99\")",
+        label: "db_credentials safely retrieves DB_USER and DB_PASS environment variables",
+      },
+    ],
+    hint: "Use Sys.setenv(DB_USER = \"analytics_svc\", DB_PASS = \"k8s_secret_99\") then db_credentials <- list(user = Sys.getenv(\"DB_USER\"), pass = Sys.getenv(\"DB_PASS\"))",
+    lesson: `### فصل ۶۰ — مدیریت امن اسرار و متغیرهای محیطی با Renviron
+
+یکی از خطاهای مرگبار در پروژه‌های شرکتی، هاردکد کردن رمز دیتابیس یا توکن API در سورس‌کد R و پوش کردن آن به گیت‌هاب است!
+
+برای رعایت استانداردهای امنیتی سازمان:
+1. **فایل \`.Renviron\`:** در ریشه پروژه فایلی با نام \`.Renviron\` بسازید و متغیرها را به صورت کلید-مقدار بنویسید (\`DB_PASS=secret123\`). این فایل حتماً باید در \`.gitignore\` باشد.
+2. **خواندن با \`Sys.getenv()\`:** در کد R به جای هاردکد، با \`Sys.getenv("DB_PASS")\` مقدار را از سیستم‌عامل بخوانید.
+3. **محیط‌های ابری و کانتینری:** در Kubernetes، Docker و GitHub Actions، اسرار مستقیماً به عنوان Environment Variable به کانتینر تزریق می‌شوند و کد شما بدون تغییر کار می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **رشته خالی به جای NA:** در زبان R اگر متغیر محیطی تعریف نشده باشد، \`Sys.getenv("KEY")\` مقدار \`""\` (رشته خالی) برمی‌گرداند نه \`NA\`! برای بررسی وجود متغیر همیشه از \`nzchar(Sys.getenv("KEY"))\` استفاده کنید.`,
+  },
+  {
+    id: "prod-cli",
+    seriesId: 'foundations',
+    title: "61. Automation, Batch Jobs & CLI Rscript",
+    brief: "Production pipelines run headlessly via cron or Airflow. Process simulated command-line arguments using commandArgs(trailingOnly = TRUE).",
+    goal: "simulated_cli_args <- c(\"--date=2026-10-01\", \"--batch-size=500\")\nparsed_date <- sub(\"^--date=\", \"\", grep(\"^--date=\", simulated_cli_args, value = TRUE))",
+    setup: "# Headless execution via CLI: Rscript pipeline.R --date=2026-10-01 --batch-size=500",
+    par: 2,
+    difficulty: 3,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"parsed_date\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Object parsed_date exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "identical(parsed_date, \"2026-10-01\")",
+        label: "parsed_date correctly extracts parameter value '2026-10-01'",
+      },
+    ],
+    hint: "Set simulated_cli_args <- c(\"--date=2026-10-01\", \"--batch-size=500\") and parse with sub(\"^--date=\", \"\", grep(\"^--date=\", simulated_cli_args, value = TRUE))",
+    lesson: `### فصل ۶۱ — اتوماسیون، اجرای خط فرمان (CLI) و پردازش‌های دسته‌ای با Rscript
+
+در خط‌های تولید واقعی (Production Pipelines)، هیچ کاربری پشت RStudio نمی‌نشیند تا دکمه Run را بزند. اسکریپت‌ها شبانه توسط ابزارهایی مانند Airflow، Cron یا GitHub Actions در پس‌زمینه اجرا می‌شوند:
+
+1. **دستور \`Rscript\`:** اجرای بدون رابط گرافیکی فایل:
+   \`\`\`bash
+   Rscript run_etl.R --date=2026-10-01 --batch-size=500
+   \`\`\`
+2. **دریافت پارامترهای ورودی:** با \`args <- commandArgs(trailingOnly = TRUE)\` آرگومان‌های ارسال‌شده به اسکریپت خوانده می‌شوند.
+3. **کدهای خروج (Exit Codes):** برای اعلام وضعیت به ارکستریتور (مانند Airflow)، در صورت اتمام موفق \`quit(status = 0)\` و در صورت خطای بحرانی \`quit(status = 1)\` را صدا می‌زنیم.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تفاوت پیام‌ها و خروجی‌ها:** در کارهای Batch، خروجی‌های اطلاع‌رسانی را با \`message()\` بنویسید نه \`print()\`. توابع مانیتورینگ سرور خروجی‌های \`message()\` را در \`stderr\` لاگ می‌کنند که با خروجی اصلی دیتا قاطی نشود.`,
+  },
+  {
+    id: "prod-resilient-db",
+    seriesId: 'foundations',
+    title: "62. Production Database Resiliency & on.exit",
+    brief: "Guarantee database resources and file handles are safely released on failure or exit using defensive on.exit() hooks.",
+    goal: "safe_query <- function() {\n  con <- \"MOCK_DB_CONN\"\n  on.exit(message(\"Connection safely closed\"), add = TRUE)\n  return(data.frame(status = \"SUCCESS\"))\n}\nres <- safe_query()",
+    setup: "# Unclosed database sockets cause memory leaks and server connection pool exhaustion",
+    par: 2,
+    difficulty: 3,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"safe_query\", envir = .GlobalEnv, mode = \"function\")",
+        label: "Function safe_query is declared in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "exists(\"res\", envir = .GlobalEnv) && identical(res$status, \"SUCCESS\")",
+        label: "res captures return value while defensive on.exit guarantees clean socket release",
+      },
+    ],
+    hint: "Define safe_query <- function() { con <- \"MOCK_DB_CONN\"; on.exit(message(\"Connection safely closed\"), add = TRUE); return(data.frame(status = \"SUCCESS\")) } and call res <- safe_query()",
+    lesson: `### فصل ۶۲ — پایداری اتصال به دیتابیس و مدیریت منابع با on.exit
+
+در سرورهای پروداکشن، یکی از رایج‌ترین دلایل از کار افتادن دیتابیس، نشت کانکشن (Connection Leak) است؛ یعنی کدی خطایی دریافت می‌کند و تابع قبل از رسیدن به \`dbDisconnect()\` کرش می‌کند و کانکشن برای همیشه در حافظه سرور باز می‌ماند.
+
+1. **سازوکار \`on.exit()\`:** معادل بلوک \`try...finally\` در جاوا و پایتون یا \`defer\` در زبان Go است. هر کدی که در \`on.exit()\` ثبت شود، حتی اگر در خط بعدی تابع ارور غیرمنتظره‌ای رخ دهد، تضمین می‌شود که قبل از خروج اجرا شود.
+2. **استخر کانکشن (Connection Pool):** در وب‌اپلیکیشن‌ها و سرورهای شلوغ، از پکیج \`pool\` استفاده می‌شود تا به جای باز و بسته کردن مکرر، کانکشن‌ها بازیافت شوند.
+3. **جلوگیری از حملات تزریق SQL (SQL Injection):** هرگز با \`paste0\` کوئری نسازید! همیشه از کوئری‌های پارامتری با علامت سوال (\`?\`) و آرگومان \`params\` استفاده کنید.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراموش کردن آرگومان \`add = TRUE\`:** به طور پیش‌فرض، فراخوانی دوم \`on.exit()\` فراخوانی اول را لغو و بازنویسی می‌کند! برای اینکه چند عملیات پاکسازی را پشت سر هم ثبت کنید، همیشه صراحتاً بنویسید: \`on.exit(dbDisconnect(con), add = TRUE)\`.`,
+  },
+  {
+    id: "prod-error-handling",
+    seriesId: 'foundations',
+    title: "63. Robust Error Handling with tryCatch",
+    brief: "Prevent batch pipelines from crashing on a single corrupt row or failing API using tryCatch() with graceful error fallback.",
+    goal: "safe_parse <- function(x) {\n  tryCatch(as.numeric(x), warning = function(w) NA_real_, error = function(e) NA_real_)\n}\nclean_nums <- vapply(raw_inputs, safe_parse, numeric(1), USE.NAMES = FALSE)",
+    setup: "raw_inputs <- c(\"42\", \"corrupt_val\", \"100\")",
+    par: 2,
+    difficulty: 3,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"safe_parse\", envir = .GlobalEnv, mode = \"function\")",
+        label: "Function safe_parse is defined in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "exists(\"clean_nums\", envir = .GlobalEnv) && identical(clean_nums, c(42, NA_real_, 100))",
+        label: "clean_nums safely captures parsed numbers with NA fallback for corrupt values",
+      },
+    ],
+    hint: "Define safe_parse using tryCatch(as.numeric(x), warning = function(w) NA_real_, error = function(e) NA_real_) then apply with vapply(raw_inputs, safe_parse, numeric(1), USE.NAMES = FALSE)",
+    lesson: `### فصل ۶۳ — تاب‌آوری خط لوله‌ها و مدیریت خطا با tryCatch
+
+در دنیای واقعی، داده‌های ورودی کثیف هستند و سرویس‌های وب گهگاه قطع می‌شوند. اگر یک پایپ‌لاین ۳ ساعته به خاطر یک ردیف نامعتبر در انتهای کار کاملاً از کار بیفتد، یک فاجعه عملیاتی است!
+
+1. **سیستم شرایط در R (Conditions):** در R سه سطح شرایط داریم: \`message\`، \`warning\` و خطای کشنده \`error\`.
+2. **ساختار \`tryCatch()\`:**
+   \`\`\`r
+   result <- tryCatch(
+     expr = {
+       risky_operation()
+     },
+     warning = function(w) {
+       log_warn(w$message)
+       fallback_value
+     },
+     error = function(e) {
+       log_error(e$message)
+       fallback_value
+     },
+     finally = {
+       # همیشه در پایان اجرا می‌شود
+     }
+   )
+   \`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تبدیل کاراکتر خراب به عدد ارور نیست، Warning است!** تابع \`as.numeric("bad")\` خطای کشنده تولید نمی‌کند، بلکه مقدار \`NA\` به همراه یک \`warning\` برمی‌گرداند. بنابراین در مدیریت خطاهای واقعی داده باید علاوه بر \`error\`، هندلر \`warning\` را نیز مدیریت کنید.`,
+  },
+
+  // Section 12: پروژه‌های جامع دنیای واقعی
+  {
+    id: "capstone-dirty-data",
+    seriesId: 'foundations',
+    title: "64. Capstone I: Dirty Real-World Data Cleansing",
+    brief: "Real datasets have mixed formats, sentinel missing values, whitespace, and improper types. Clean and normalize the messy raw transaction log.",
+    goal: "clean_tx <- raw_tx |>\n  dplyr::mutate(\n    tx_id = stringr::str_trim(tx_id),\n    customer_code = stringr::str_to_lower(stringr::str_trim(customer_code)),\n    clean_price = suppressWarnings(as.numeric(stringr::str_replace_all(raw_price, \"[\\\\$,]\", \"\")))\n  ) |>\n  dplyr::mutate(\n    clean_price = dplyr::if_else(is.na(clean_price) | clean_price < 0, NA_real_, clean_price)\n  ) |>\n  dplyr::filter(!is.na(clean_price))",
+    setup: "library(tibble)\nlibrary(dplyr)\nlibrary(stringr)\n\nraw_tx <- tibble(\n  tx_id = c(\" TX-101 \", \"TX-102\", \" TX-103 \", \"TX-104 \"),\n  raw_price = c(\"$1,250.00\", \"N/A\", \"$350.50\", \"-999.00\"),\n  customer_code = c(\"  c_alpha \", \"C_BETA\", \"c_alpha\", \"  c_gamma  \")\n)",
+    par: 1,
+    difficulty: 4,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"clean_tx\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Dataset clean_tx exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "nrow(clean_tx) == 2 && all(clean_tx$clean_price > 0)",
+        label: "clean_tx isolates the 2 valid transactions with cleaned positive numeric prices",
+      },
+      {
+        type: "eval",
+        expr: "identical(clean_tx$customer_code, c(\"c_alpha\", \"c_alpha\"))",
+        label: "customer_code is trimmed and normalized to lowercase",
+      },
+    ],
+    hint: "Use stringr::str_trim(), stringr::str_to_lower(), stringr::str_replace_all() to strip $, replace negative values with NA_real_, and filter(!is.na(clean_price)).",
+    lesson: `### فصل ۶۴ — پروژه جامع اول: تمیزکاری داده‌های کثیف دنیای واقعی
+
+در کتاب‌های آموزشی، دیتاست‌ها همیشه مرتب و آماده تحلیل هستند. اما در دنیای واقعی، بیش از ۸۰٪ وقت یک متخصص داده صرف مقابله با موارد زیر می‌شود:
+1. **مقادیر گمشده پنهان (Sentinel Values):** سیستم‌های قدیمی داده‌های ناموجود را با \`-999\`، \`"N/A"\` یا \`"UNKNOWN"\` ثبت می‌کنند.
+2. **علائم پولی و هزارگان:** اعداد به فرمت متنی مانند \`"$1,250.00"\` ذخیره شده‌اند و تبدیل مستقیم آن‌ها با شکست مواجه می‌شود.
+3. **فضاهای خالی ناخواسته و حروف کوچک/بزرگ:** \`"  c_alpha "\` با \`"c_alpha"\` در گروه‌بندی یکسان در نظر گرفته نمی‌شوند مگر آنکه نرمال‌سازی شوند.
+
+در این مرحله جامع، شما با ترکیب \`stringr::str_trim\`، \`stringr::str_replace_all\`، \`dplyr::mutate\`، و گزاره‌های شرطی دفاعی، داده‌های خام را به یک تیبل تمیز و استاندارد تبدیل می‌کنید.`,
+  },
+  {
+    id: "capstone-pipeline",
+    seriesId: 'foundations',
+    title: "65. Capstone II: Production Analytical Pipeline",
+    brief: "Execute an end-to-end analytical pipeline: join transaction logs with product metadata, compute business KPIs, and validate data invariants.",
+    goal: "kpi_summary <- orders |>\n  dplyr::inner_join(products, by = \"product_id\") |>\n  dplyr::mutate(revenue = quantity * unit_price) |>\n  dplyr::group_by(category) |>\n  dplyr::summarise(\n    total_orders = dplyr::n(),\n    total_revenue = sum(revenue),\n    avg_order_value = mean(revenue),\n    .groups = \"drop\"\n  )\nstopifnot(nrow(kpi_summary) == 2, all(kpi_summary$total_revenue > 0))",
+    setup: "library(tibble)\nlibrary(dplyr)\n\norders <- tibble(\n  order_id = 1:5,\n  product_id = c(\"P1\", \"P2\", \"P1\", \"P3\", \"P2\"),\n  quantity = c(2, 1, 4, 3, 5)\n)\n\nproducts <- tibble(\n  product_id = c(\"P1\", \"P2\", \"P3\"),\n  category = c(\"Hardware\", \"Software\", \"Hardware\"),\n  unit_price = c(50.0, 120.0, 30.0)\n)",
+    par: 2,
+    difficulty: 4,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"kpi_summary\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Dataset kpi_summary exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "identical(sort(kpi_summary$category), c(\"Hardware\", \"Software\"))",
+        label: "kpi_summary contains aggregated metrics for Hardware and Software categories",
+      },
+      {
+        type: "eval",
+        expr: "isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Hardware\"], 390)) && isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Software\"], 720))",
+        label: "Total revenue accurately aggregates to $390 (Hardware) and $720 (Software)",
+      },
+    ],
+    hint: "Join orders with products via inner_join, compute revenue = quantity * unit_price, group_by(category) and summarise with .groups = 'drop', then assert with stopifnot().",
+    lesson: `### فصل ۶۵ — پروژه جامع دوم: خط لوله تحلیل داده و اعتبارسنجی پروداکشن
+
+یک خط لوله تحلیلی سازمانی (Production Analytical Pipeline) شامل ۴ گام اساسی است:
+1. **اتصال داده‌های رابطه‌ای (Relational Joins):** ترکیب جدول رویدادها (Orders) با جدول ابعادی کاتالوگ (Products) بر اساس کلید واحد \`product_id\`.
+2. **مهندسی ویژگی و محاسبات درآمد:** محاسبه ارزش هر سفارش به صورت برداری (\`quantity * unit_price\`).
+3. **تجمیع شاخص‌های کلیدی عملکرد (KPIs):** محاسبه تعداد سفارشات، مجموع فروش، و میانگین ارزش سبد خرید به تفکیک دسته‌بندی با پارامتر امن \`.groups = "drop"\` برای جلوگیری از باگ‌های گروه‌بندی پایدار.
+4. **قراردادهای داده و آزمون‌های دفاعی (Invariants Contract):** بررسی عدم وجود رکوردهای منفی یا تهی با تابع \`stopifnot()\` تا تضمین شود دیتای معیوب هرگز به دشبورد مدیران یا سرورهای گزارش‌گیری راه پیدا نمی‌کند.`,
+  },
 ];
 
 export function getLevel(id: string): LevelDef | null {
@@ -2113,6 +2374,27 @@ export function seriesOf(): SeriesGroup[] {
         'adv-expressions',
         'adv-quasiquote',
         'adv-profiling',
+      ],
+    },
+    {
+      id: 'production',
+      title: 'PRODUCTION ENGINEERING & LOCAL WORKFLOW',
+      prefix: 'prod',
+      ids: [
+        'prod-renv',
+        'prod-secrets-env',
+        'prod-cli',
+        'prod-resilient-db',
+        'prod-error-handling',
+      ],
+    },
+    {
+      id: 'capstones',
+      title: 'REAL-WORLD END-TO-END CAPSTONES',
+      prefix: 'cap',
+      ids: [
+        'capstone-dirty-data',
+        'capstone-pipeline',
       ],
     },
   ];

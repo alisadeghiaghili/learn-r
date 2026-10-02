@@ -19,6 +19,8 @@ export interface UiStrings {
   sandboxTitle: string;
   help: string;
   uiGuideTitle: string;
+  localSetupBtn: string;
+  localSetupTitle: string;
   visitorsTitle: string;
   githubTitle: string;
   support: string;

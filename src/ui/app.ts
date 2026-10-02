@@ -1,16 +1,17 @@
 import type { LevelDef } from '../engine/types';
 import { allLevels, getLevel, getLevelIndex, getNextLevel, seriesOf } from '../levels';
 import { RRuntime } from '../engine/runtime';
-import { evaluateChecks, evalExpressions, formatScore, scoreClass } from '../engine/checks';
+import { evaluateChecks, evalExpressions, formatScore } from '../engine/checks';
 import { BoardView } from './board';
 import { TerminalView } from './terminal';
 import { ScriptEditorView } from './editor';
 import { escapeHtml, renderMarkdown, showModal } from './dialog';
 import { launchConfetti, playFanfare } from './confetti';
-import { loadProgress, saveProgress, summarizeCurriculum } from './progress';
+import { loadProgress, saveProgress } from './progress';
 import { getLocale, setLocale, ui, LOCALES, type Locale } from '../i18n';
 import { COFFEE_BUTTON_HTML, REPO_URL } from './share';
 import { getVisitorCount } from './visitor-counter';
+import { getLevelLearning, getLevelFieldNotes } from '../levels/guidance';
 
 function renderDiffDots(difficulty: number): string {
   const n = Math.max(0, Math.min(5, difficulty));
@@ -166,7 +167,7 @@ export class App {
 
         if (action === 'levels') this.openLevels();
         if (action === 'lesson') this.openLesson();
-        if (action === 'goal') this.dockEl.scrollIntoView({ behavior: 'smooth' });
+        if (action === 'goal') this.focusGuide();
         if (action === 'hint') this.triggerHint();
         if (action === 'solution') this.showSolution();
         if (action === 'undo') void this.undo();
@@ -400,86 +401,112 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
     });
   }
 
+  private focusGuide(): void {
+    this.dockEl.classList.remove('dock-pulse');
+    void this.dockEl.offsetWidth;
+    this.dockEl.classList.add('dock-pulse');
+    this.dockEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   private renderDock(checkResults?: { label: string; passed: boolean }[]): void {
     const u = ui();
     if (!this.level) {
-      const summary = summarizeCurriculum(this.progress);
       this.dockEl.innerHTML = `
-        <div class="dock-section">
-          <h3>${escapeHtml(u.sandbox)}</h3>
-          <p class="muted">Free session. Write R code in the console or editor.</p>
+        <h2>${escapeHtml(u.learningGuide)}</h2>
+        <p class="objective">${escapeHtml(u.guideAlwaysOn)}</p>
+        <div class="learning-box">
+          <div class="next-title">${escapeHtml(u.startHere)}</div>
+          <ul>
+            ${u.startHereItems.map((item) => `<li>${renderMarkdown(item)}</li>`).join('')}
+          </ul>
         </div>
-        <div class="dock-section">
-          <h4>Progress: ${summary.solvedCount} / ${summary.total} (${summary.percent}%)</h4>
+        <div class="learning-box">
+          <div class="next-title">${escapeHtml(u.sandboxTip)}</div>
+          <ul>
+            ${u.sandboxTipItems.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
         </div>
+        <ul class="goal-list">
+          <li class="met"><div class="g-label">${escapeHtml(u.noActiveLevel)}</div><div class="g-detail">${escapeHtml(u.noActiveLevelDetail)}</div></li>
+        </ul>
+        <div class="par-note">${u.guideFlashNote}</div>
       `;
       return;
     }
 
-    const strokes = this.runtime.strokeCount();
-    const checks = checkResults ?? this.level.checks.map((c) => ({ label: c.label, passed: false }));
+    const level = this.level;
+    const solutionCmds = level.solution ?? level.goal.split('\n').map((s) => s.trim()).filter(Boolean);
+    const checks = checkResults ?? level.checks.map((c) => ({ label: c.label, passed: false }));
+    const solved = checks.length > 0 && checks.every((c) => c.passed);
+    const currentId = checks.findIndex((c) => !c.passed);
 
-    const checkItems = checks
-      .map(
-        (c) => `
-        <div class="check-item ${c.passed ? 'is-ok' : 'is-fail'}">
-          <span class="check-dot"></span>
-          <span class="check-label">${escapeHtml(c.label)}</span>
-        </div>
-      `,
-      )
-      .join('');
+    const steps = level.checks.map((chk, i) => {
+      const isPassed = Boolean(checks[i]?.passed);
+      const cmd = solutionCmds[i] ?? solutionCmds[0] ?? level.goal;
+      return {
+        command: cmd,
+        note: chk.label,
+        done: isPassed,
+      };
+    });
 
-    const strokeChipText =
-      getLocale() === 'fa'
-        ? `ایده‌آل ${this.level.par} · ${strokes} دستور`
-        : `ideal ${this.level.par} cmd${this.level.par === 1 ? '' : 's'} · ${strokes} ${strokes === 1 ? 'cmd' : 'cmds'}`;
+    const items = steps.map((s, i) => {
+      const isCurrent = !solved && !s.done && i === currentId;
+      return `<li class="${s.done ? 'met' : ''}${isCurrent ? ' current' : ''}">
+        <div class="g-label" dir="ltr">${s.done ? '✓' : isCurrent ? '▶' : '○'} <code>${escapeHtml(s.command)}</code>${
+          isCurrent ? ` <span class="chip current-chip">${escapeHtml(u.nowChip)}</span>` : ''
+        }</div>
+        <div class="g-detail" dir="ltr">${escapeHtml(s.note)}</div>
+      </li>`;
+    });
+
+    const firstNext = currentId !== -1 ? steps[currentId]?.command : solutionCmds[0] ?? level.goal;
+    const nextBlock = solved
+      ? `<div class="next-box met">${escapeHtml(u.allSolutionMet)}</div>`
+      : `<div class="next-box">
+          <div class="next-title">${escapeHtml(u.typeNextTitle)}</div>
+          <div class="next-row">
+            <span class="g-label">${escapeHtml(u.remainingLabel)}</span>
+            ${firstNext ? `<code class="g-cmd" dir="ltr">${escapeHtml(firstNext)}</code>` : ''}
+          </div>
+          <div class="par-note">${escapeHtml(u.wrongCommandNote)}</div>
+        </div>`;
+
+    const prog = this.progress[level.id];
+    const golfNote =
+      prog?.bestStrokes !== undefined
+        ? u.bestSoFar(prog.bestStrokes, level.par)
+        : u.idealSolution(level.par);
+
+    const learning = level.learning ?? getLevelLearning(level.id);
+    const fieldNotes = level.fieldNotes ?? getLevelFieldNotes(level.id);
+    const unmetChecks = steps.filter((s) => !s.done);
 
     this.dockEl.innerHTML = `
-      <div class="dock-header">
-        <div class="dock-meta-row">
-          <div class="diff-dots">${renderDiffDots(this.level.difficulty)}</div>
-          <span class="chip ${scoreClass(strokes, this.level.par)}">${strokeChipText}</span>
-        </div>
-        <h2>${escapeHtml(this.level.title)}</h2>
-        <p class="dock-brief">${escapeHtml(this.level.brief)}</p>
-      </div>
-
-      <div class="dock-section">
-        <div class="dock-section-head">
-          <span class="dock-section-title">${escapeHtml(u.targetHeading)}</span>
-        </div>
-        <pre class="dock-goal"><code>${escapeHtml(this.level.goal)}</code></pre>
-      </div>
-
-      <div class="dock-section">
-        <div class="dock-section-head">
-          <span class="dock-section-title">${escapeHtml(u.checksHeading)}</span>
-        </div>
-        <div class="check-list">${checkItems}</div>
-      </div>
-
+      <h2>${escapeHtml(level.title)}</h2>
+      <p class="objective">${escapeHtml(level.brief)}</p>
       ${
-        this.showHint
-          ? `
-        <div class="dock-section hint-box">
-          <span class="dock-section-title">${escapeHtml(u.hintLabel)}</span>
-          <p>${escapeHtml(this.level.hint)}</p>
-        </div>
-      `
+        learning.length
+          ? `<div class="learning-box">
+              <div class="next-title">${escapeHtml(u.youAreLearning)}</div>
+              <ul>${learning.map((l) => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+            </div>`
           : ''
       }
-
-      <div class="dock-actions">
-        <button type="button" class="btn btn-sm ghost" id="dock-btn-hint">${escapeHtml(u.hint)}</button>
-        <button type="button" class="btn btn-sm ghost" id="dock-btn-undo">${escapeHtml(u.undo)}</button>
-        <button type="button" class="btn btn-sm ghost" id="dock-btn-reset">${escapeHtml(u.reset)}</button>
-      </div>
+      ${
+        fieldNotes.length
+          ? `<div class="field-box">
+              <div class="next-title">${escapeHtml(u.fieldNotesTitle)}</div>
+              <ul>${fieldNotes.map((l) => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+            </div>`
+          : ''
+      }
+      <div class="par-note">${escapeHtml(golfNote)}</div>
+      ${nextBlock}
+      <ul class="goal-list">${items.join('')}</ul>
+      ${this.showHint ? `<div class="par-note"><strong>${escapeHtml(u.hintLabel)}:</strong> ${escapeHtml(level.hint)}</div>` : ''}
+      ${unmetChecks.length && !solved ? `<div class="par-note">${escapeHtml(u.stateNotes)} ${unmetChecks.map((s) => escapeHtml(s.note)).join(' · ')}</div>` : ''}
     `;
-
-    this.dockEl.querySelector('#dock-btn-hint')?.addEventListener('click', () => this.triggerHint());
-    this.dockEl.querySelector('#dock-btn-undo')?.addEventListener('click', () => void this.undo());
-    this.dockEl.querySelector('#dock-btn-reset')?.addEventListener('click', () => void this.reset());
   }
 
   private async refreshDock(): Promise<void> {
@@ -513,6 +540,11 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
     }
     if (lower === 'hint') {
       this.triggerHint();
+      return;
+    }
+    if (lower === 'goal' || lower === 'guide' || lower === 'steps' || lower === 'next') {
+      this.focusGuide();
+      this.terminal.push('meta', ui().guideAlwaysRight);
       return;
     }
     if (lower === 'show solution' || lower === 'solution') {
@@ -706,8 +738,6 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
           u.welcomeCoffee,
           '',
           COFFEE_BUTTON_HTML,
-          '',
-          u.welcomeToolbar,
         ].join('\n'),
       ),
       actions: [

@@ -47,6 +47,43 @@ export const fa: UiStrings = {
   hintLabel: 'نکته راهنما',
   nextLevel: 'مرحله بعد',
   replayLevel: 'اجرای مجدد',
+  learningGuide: 'راهنمای یادگیری',
+  guideAlwaysOn:
+    'پنل همیشه‌باز. در مرحله مفاهیم، یادداشت‌های میدانی و چک‌لیست راه‌حل را نشان می‌دهد.',
+  startHere: 'از اینجا شروع کنید',
+  startHereItems: [
+    '**مراحل** را باز کنید و با 01. Introduction / Hello, R شروع کنید',
+    'برای راهنما و کلیدهای میانبر `help` تایپ کنید',
+    'برای توضیحات مفهومی مرحله `lesson` تایپ کنید',
+    'با عملگر تخصیص `<-` متغیرها را در حافظه ایجاد کنید',
+  ],
+  sandboxTip: 'نکته‌ی سندباکس',
+  sandboxTipItems: [
+    'بورد: محیط اشیاء (Environment) و بوم نمودار (Plot)',
+    'ترمینال: کلید Ctrl + Enter کد جاری را اجرا می‌کند',
+    'پیشرفت در همین مرورگر ذخیره می‌شود (cookie + localStorage)',
+  ],
+  noActiveLevel: 'مرحله‌ی فعالی نیست',
+  noActiveLevelDetail: 'levels → یک چالش انتخاب کنید تا چک‌لیست اینجا بیاید',
+  guideFlashNote:
+    'دکمه‌ی **راهنما** در نوار ابزار این پنل را مشخص می‌کند. در تمام ارتفاع صفحه باز می‌ماند.',
+  youAreLearning: 'در حال یادگیری',
+  fieldNotesTitle: 'در تولید (یادداشت میدانی)',
+  typeNextTitle: 'بعدی را تایپ کن — با هایلایت نارنجی',
+  remainingLabel: '○ باقی‌مانده',
+  wrongCommandNote:
+    'فرمان اشتباه؟ همین‌جا می‌مانید — پیشرفت حفظ می‌شود. تاریخچه: ↑ / ↓',
+  nowChip: 'اکنون',
+  optionalChip: 'اختیاری',
+  allSolutionMet: 'همه‌ی گام‌های راه‌حل انجام شد.',
+  stateNotes: 'یادداشت وضعیت:',
+  idealSolution: (par: number) =>
+    `راه‌حل ایده‌آل: ${par} فرمان (کمتر یا مساوی عالی است)`,
+  bestSoFar: (commands: number, par: number) =>
+    `بهترین تاکنون: ${commands} فرمان · ایده‌آل: ${par}`,
+  solvedBanner: (n: number | null) => `مرحله حل شد${n !== null ? ` با ${n} فرمان` : ''}.`,
+  guideAlwaysRight:
+    'پنل راهنما همیشه سمت راست باز است (ارتفاع کامل). دکمه‌ی Guide آن را فوکوس می‌کند.',
 
   welcomeTitle: 'LearnR',
   welcomeIntro: 'آموزش تعاملی **زبان برنامه‌نویسی R** — سندباکس + مراحل هدایت‌شده.',
@@ -66,8 +103,6 @@ export const fa: UiStrings = {
     'انتشار و نگهداری توسط **Ali Sadeghi Aghili** — برنامه‌نویس، مهندس/دانشمند داده، مهندس ML. [linktr.ee/aliaghili](https://linktr.ee/aliaghili)',
   welcomeGithub: '- [GitHub — سورس و ایشو](https://github.com/alisadeghiaghili/learn-r)',
   welcomeCoffee: 'Buy Me a Coffee (از ناشر حمایت می‌کند):',
-  welcomeToolbar:
-    'نوار ابزار: **درس** (تکرار مقدمه مرحله) · **GitHub** · **Buy me a coffee**.',
   openLevels: 'باز کردن مرحله‌ها',
   levelsTitle: 'مراحل',
   pickChallenge: 'یک چالش انتخاب کنید. مراحل حل‌شده در همین مرورگر می‌مانند.',

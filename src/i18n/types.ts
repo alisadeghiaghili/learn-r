@@ -41,7 +41,7 @@ export interface UiStrings {
   runBtn: string;
   runKeyHint: string;
 
-  // Dock / Guide
+  // Dock / Learning Guide
   targetHeading: string;
   checksHeading: string;
   difficultyLabel: string;
@@ -50,6 +50,28 @@ export interface UiStrings {
   hintLabel: string;
   nextLevel: string;
   replayLevel: string;
+  learningGuide: string;
+  guideAlwaysOn: string;
+  startHere: string;
+  startHereItems: string[];
+  sandboxTip: string;
+  sandboxTipItems: string[];
+  noActiveLevel: string;
+  noActiveLevelDetail: string;
+  guideFlashNote: string;
+  youAreLearning: string;
+  fieldNotesTitle: string;
+  typeNextTitle: string;
+  remainingLabel: string;
+  wrongCommandNote: string;
+  nowChip: string;
+  optionalChip: string;
+  allSolutionMet: string;
+  stateNotes: string;
+  idealSolution: (par: number) => string;
+  bestSoFar: (commands: number, par: number) => string;
+  solvedBanner: (n: number | null) => string;
+  guideAlwaysRight: string;
 
   // Dialogs & Modals
   welcomeTitle: string;
@@ -64,7 +86,6 @@ export interface UiStrings {
   welcomePublisherBody: string;
   welcomeGithub: string;
   welcomeCoffee: string;
-  welcomeToolbar: string;
   openLevels: string;
   levelsTitle: string;
   pickChallenge: string;

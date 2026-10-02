@@ -38,6 +38,12 @@ export interface LevelDef {
   hint: string;
   /** Full educational lesson text shown in intro modal */
   lesson?: string;
+  /** Key concepts and learning takeaways shown in right dock */
+  learning?: string[];
+  /** Practical production/industry advice shown in right dock */
+  fieldNotes?: string[];
+  /** Expected solution commands */
+  solution?: string[];
 }
 
 export interface SeriesDef {

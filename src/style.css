@@ -659,29 +659,227 @@ button.ghost,
 /* Right Dock (Guide / Goals / Checks) */
 .dock {
   background: var(--panel);
+  border-inline-start: 1px solid var(--line);
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 13px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  gap: 16px;
-  overflow-y: auto;
-  min-height: 0;
 }
 
-.dock-header h2 {
-  margin: 6px 0 4px 0;
-  font-size: 18px;
+.dock-pulse {
+  animation: dock-pulse-anim 1.2s ease-out;
 }
 
-.dock-brief {
+@keyframes dock-pulse-anim {
+  0% {
+    box-shadow: inset 0 0 0 2px var(--dvc);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-pulse {
+    animation: none;
+  }
+}
+
+.dock h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  padding-bottom: 6px;
+  z-index: 1;
+}
+
+.dock .objective {
   color: var(--haze);
-  margin: 0;
   font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.45;
 }
 
-.dock-meta-row {
+.goal-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-list li {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--ink);
+  font-size: 12px;
+}
+
+.goal-list li.met {
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--line));
+}
+
+.goal-list li.current {
+  border-color: #ff8c1a;
+  background: color-mix(in srgb, #ff8c1a 12%, var(--ink));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #ff8c1a 70%, transparent),
+    0 0 14px color-mix(in srgb, #ff8c1a 45%, transparent),
+    0 0 28px color-mix(in srgb, #ff8c1a 22%, transparent);
+  animation: neon-pulse 1.6s ease-in-out infinite;
+}
+
+.goal-list li.current code {
+  color: #ffd29a;
+}
+
+.goal-list li.current .g-detail {
+  color: #ffc07a;
+}
+
+.chip.current-chip {
+  color: #1a0d00;
+  background: #ff8c1a;
+  border-color: #ff8c1a;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+@keyframes neon-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #ff8c1a 70%, transparent),
+      0 0 12px color-mix(in srgb, #ff8c1a 40%, transparent),
+      0 0 24px color-mix(in srgb, #ff8c1a 18%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #ff8c1a 90%, transparent),
+      0 0 18px color-mix(in srgb, #ff8c1a 60%, transparent),
+      0 0 36px color-mix(in srgb, #ff8c1a 30%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-list li.current {
+    animation: none;
+  }
+}
+
+.goal-list li.optional {
+  opacity: 0.72;
+}
+
+.goal-list li code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.goal-list .g-label {
+  font-family: var(--ui);
+  color: var(--text);
+}
+
+.goal-list .g-detail {
+  color: var(--haze);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.goal-list li.met .g-detail {
+  color: var(--ok);
+}
+
+.g-cmd {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--code);
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 6px;
+  word-break: break-all;
+}
+
+.learning-box {
+  border: 1px solid color-mix(in srgb, var(--dvc) 40%, var(--line));
+  background: color-mix(in srgb, var(--dvc) 8%, var(--ink));
+  border-radius: 10px;
+  padding: 10px;
+  margin: 0 0 10px;
+}
+
+.field-box {
+  border: 1px solid color-mix(in srgb, var(--remote) 40%, var(--line));
+  background: color-mix(in srgb, var(--remote) 8%, var(--ink));
+  border-radius: 10px;
+  padding: 10px;
+  margin: 0 0 10px;
+}
+
+.field-box ul,
+.learning-box ul {
+  margin: 6px 0 0;
+  padding-inline-start: 16px;
+}
+
+.field-box li,
+.learning-box li {
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.field-box li {
+  color: #f0e0c0;
+}
+
+.next-box {
+  border: 1px solid color-mix(in srgb, var(--dvc) 40%, var(--line));
+  background: color-mix(in srgb, var(--dvc) 10%, var(--ink));
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.next-box.met {
+  border-color: color-mix(in srgb, var(--ok) 40%, var(--line));
+  background: color-mix(in srgb, var(--ok) 10%, var(--ink));
+}
+
+.next-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--haze);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.next-row {
+  margin-bottom: 6px;
+}
+
+.next-row .g-cmd {
+  margin-top: 4px;
+}
+
+.par-note {
+  font-size: 12px;
+  color: var(--haze);
+  margin: 8px 0;
+  line-height: 1.4;
 }
 
 .diff-dots {
@@ -730,97 +928,6 @@ button.ghost,
 .chip.under { color: var(--ok); }
 .chip.par { color: var(--warn); }
 .chip.over { color: var(--haze); }
-
-.dock-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dock-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dock-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--haze);
-}
-
-.dock-goal {
-  margin: 0;
-  background: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--code);
-  white-space: pre-wrap;
-}
-
-.check-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  padding: 6px 8px;
-  background: var(--panel-2);
-  border-radius: 6px;
-  border-inline-start: 3px solid var(--line);
-}
-
-.check-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--line);
-}
-
-.check-item.is-ok {
-  border-inline-start-color: var(--ok);
-}
-
-.check-item.is-ok .check-dot {
-  background: var(--ok);
-}
-
-.check-item.is-fail {
-  border-inline-start-color: var(--err);
-}
-
-.check-item.is-fail .check-dot {
-  background: var(--err);
-}
-
-.hint-box {
-  background: rgba(251, 191, 36, 0.08);
-  border: 1px solid var(--warn);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
-}
-
-.hint-box p {
-  margin: 4px 0 0 0;
-  color: var(--warn);
-}
-
-.dock-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: auto;
-}
 
 /* Modals & Dialogs */
 .overlay {

@@ -64,6 +64,17 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Lists are the standard format for configuration trees, model outputs, and parsed JSON objects.',
     ],
   },
+  'factors-reorder': {
+    learning: [
+      'reorder() alters factor levels based on a numerical summary (e.g. median or mean)',
+      'levels() reflects categorical display order in base plots and ggplot2 visualizations',
+      'Categorical factors govern baseline reference levels in statistical linear models',
+    ],
+    fieldNotes: [
+      'Visualizations sorted by metric order drastically reduce cognitive load compared to arbitrary alphabetical order.',
+      'In tidyverse workflows, forcats::fct_reorder() provides equivalent functionality with descending options.',
+    ],
+  },
   'control-flow': {
     learning: [
       'ifelse() evaluates conditional logic element-wise across entire vectors',
@@ -84,6 +95,17 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
     fieldNotes: [
       'The apply family (lapply, sapply, vapply) is the foundation of idiomatic functional programming in R.',
       'Production packages use vapply() when strict return-type safety is required in ETL pipelines.',
+    ],
+  },
+  'type-safe-apply': {
+    learning: [
+      'vapply() enforces strict type and length verification on every iteration step',
+      'FUN.VALUE provides a template specifying the expected return type (e.g. numeric(1))',
+      'Prevents silent type-coercion bugs caused by sapply() on empty or variable inputs',
+    ],
+    fieldNotes: [
+      'Enterprise R packages and CRAN guidelines strongly recommend vapply() over sapply() for deterministic pipelines.',
+      'In modern tidyverse development, purrr::map_dbl(), map_chr(), and map_lgl() provide similar type safety.',
     ],
   },
   'import-flat': {
@@ -130,6 +152,17 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Nested API responses are often flattened using purrr::map_dfr() or tibble::enframe() for downstream analysis.',
     ],
   },
+  rectangling: {
+    learning: [
+      'Data rectangling transforms hierarchical, nested JSON/lists into 2D tidy data frames',
+      'do.call(rbind, lapply(...)) flattens lists of uniform records in base R',
+      'Data frames provide column-oriented access for vectorized operations',
+    ],
+    fieldNotes: [
+      'Real-world API responses are almost always nested trees; rectangling is the first step before exploratory analysis.',
+      'tidyr provides unnest_wider(), unnest_longer(), and hoist() for complex ragged JSON hierarchies.',
+    ],
+  },
   'tidy-data': {
     learning: [
       'Missing values are formally represented by the special constant NA',
@@ -139,6 +172,17 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
     fieldNotes: [
       'Never use x == NA because NA indicates unknown state and always returns NA; always use is.na(x).',
       'In production ML pipelines, imputation strategies (median, KNN, MICE) are often chosen over brute-force row deletion.',
+    ],
+  },
+  pivoting: {
+    learning: [
+      'reshape(direction = "long") transforms wide repeated measurement columns into tidy key-value pairs',
+      'Tidy datasets require each variable in a column and each observation in a row',
+      'Long-format data is mandatory for multivariate ggplot2 aesthetics and grouped summaries',
+    ],
+    fieldNotes: [
+      'Wide tables are convenient for human data entry, but analytical engines require tidy long representations.',
+      'In tidyverse code, tidyr::pivot_longer() and pivot_wider() supersede older reshape2/gather functions.',
     ],
   },
   'strings-regex': {
@@ -172,6 +216,17 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
     fieldNotes: [
       'Dimensional data modeling relies on left joins from transactional fact tables to master lookup tables.',
       'Ensure join keys have matching data types and contain no unexpected duplicate keys that would cause cartesian explosion.',
+    ],
+  },
+  'anti-joins': {
+    learning: [
+      'Filtering joins filter observations from one table based on matching keys in another table',
+      'Anti-joins identify records in x that have NO matching key in y',
+      'Negating %in% with !(x %in% y) provides idiomatic, high-speed anti-join filtering in base R',
+    ],
+    fieldNotes: [
+      'Anti-joins are vital in data engineering for finding orphaned records, churned users, and missing reference codes.',
+      'In dplyr, anti_join(x, y, by = "id") explicitly conveys business intent without manual set negation.',
     ],
   },
   datetime: {

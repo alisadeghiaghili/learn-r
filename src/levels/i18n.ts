@@ -142,11 +142,50 @@ mat <- matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE)
       'لیست‌ها ساختار استاندارد خروجی مدل‌ها، تنظیمات نرم‌افزار و پاسخ‌های وب‌سرویس JSON هستند.',
     ],
   },
+  'factors-reorder': {
+    title: '۰۶. فاکتورها و بازچینی دسته‌ها (Factor Reordering)',
+    brief: 'فاکتورها ترتیب نمایش دسته‌ها در نمودارها و سطح مبنا در مدل‌ها را کنترل می‌کنند. با تابع reorder() فاکتور شهر را بر اساس میانه درآمد مرتب کرده و در ordered_city بریزید.',
+    hint: 'دستورهای ordered_city <- reorder(factor(survey$city), survey$income, FUN = median) و city_levels <- levels(ordered_city) را وارد کنید.',
+    lesson: `### فصل ۶ — فاکتورها و بازچینی دسته‌ها (Factor Reordering)
+
+در زبان R، متغیرهای کیفی و دسته‌ای به صورت **Factor** ذخیره می‌شوند. فاکتورها دارای مجموعه‌ای از \`levels\` هستند که ترتیب نمایش داده‌ها در نمودارها (محورهای مختصات یا Legend) و همچنین سطح مبنا (Reference Level) در مدل‌های رگرسیونی را تعیین می‌کنند.
+
+به طور پیش‌فرض، R سطوح فاکتور را بر اساس **ترتیب الفبایی** مرتب می‌کند که در تحلیل داده گمراه‌کننده است:
+\`\`\`r
+cities <- factor(c("Tokyo", "Berlin", "London"))
+levels(cities) # "Berlin" "London" "Tokyo"
+\`\`\`
+
+برای نمایش حرفه‌ای و خوانا، باید فاکتورها را بر اساس یک متغیر عددی (مانند میانه یا میانگین درآمد) بازچینی کرد. تابع \`reorder()\` در R پایه این کار را انجام می‌دهد:
+\`\`\`r
+ordered_f <- reorder(factor_var, numeric_metric, FUN = median)
+\`\`\`
+
+در اکوسیستم Tidyverse، پکیج محبوب \`forcats\` توابع پیشرفته‌ای مانند \`fct_reorder()\` و \`fct_lump()\` را برای همین هدف ارائه می‌دهد.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله سطوح بی‌استفاده (Unused Levels):** اگر رکوردهایی از یک دیتافریم فیلتر یا حذف شوند، سطوح فاکتور قدیمی به صورت پیش‌فرض باقی می‌مانند! برای حذف سطوح منسوخ باید از \`droplevels(df)\` استفاده کنید.
+- **تغییر سطح مبنا در رگرسیون:** در مدل \`lm()\` اولین سطح فاکتور به عنوان پایه (Baseline) در نظر گرفته می‌شود. با \`relevel(f, ref = "...")\` می‌توانید سطح مبنا را مشخص کنید تا تفسیر ضرایب مدل معنادار شود.`,
+    checksLabels: [
+      'متغیر ordered_city یک فاکتور باشد',
+      'سطوح فاکتور بر اساس میانه درآمد مرتب شده باشد',
+      'متغیر city_levels سطوح مرتب‌شده را دریافت کرده باشد',
+    ],
+    learning: [
+      'تابع reorder() سطوح یک فاکتور را بر اساس یک شاخص عددی بازچینی می‌کند',
+      'ترتیب levels در فاکتور مستقیماً محورهای نمودارها و ترتیب Legend را تعیین می‌کند',
+      'اولین سطح فاکتور در مدل‌های رگرسیونی به عنوان سطح مبنا (Baseline) محاسبه می‌شود',
+    ],
+    fieldNotes: [
+      'نمودارهایی که دسته‌های آن‌ها بر اساس مقدار متریک مرتب شده‌اند بار شناختی مخاطب را به شدت کاهش می‌دهند.',
+      'در اکوسیستم tidyverse پکیج forcats با تابع fct_reorder() همین قابلیت را به شکل زنجیره‌ای فراهم می‌کند.',
+    ],
+  },
   'control-flow': {
-    title: '۰۶. ساختارهای کنترلی و شروط',
+    title: '۰۷. ساختارهای کنترلی و شروط',
     brief: 'تابع ifelse() شروط را به صورت برداری روی عناصر اعمال می‌کند. نمرات scores را به وضعیت‌های "pass" یا "fail" تبدیل کنید.',
     hint: 'دستور status <- ifelse(scores >= 50, "pass", "fail") را اجرا کنید.',
-    lesson: `### فصل ۶ — ساختارهای شرطی و کنترل جریان
+    lesson: `### فصل ۷ — ساختارهای شرطی و کنترل جریان
 
 در زبان R، علاوه بر دستور \`if ... else\`، تابع برداری بسیار سریع \`ifelse(test, yes, no)\` وجود دارد که شرط را روی تک‌تک اعضای یک بردار می‌سنجد:
 
@@ -167,10 +206,10 @@ status <- ifelse(scores >= 50, "pass", "fail")
     ],
   },
   functions: {
-    title: '۰۷. توابع اختصاصی و خانواده Apply',
+    title: '۰۸. توابع اختصاصی و خانواده Apply',
     brief: 'تابع توان سوم cube را تعریف کرده و با sapply() روی اعداد ۱ تا ۴ اجرا کنید.',
     hint: 'دستورهای cube <- function(x) x^3 و res <- sapply(1:4, cube) را وارد کنید.',
-    lesson: `### فصل ۷ — تعریف توابع و خانواده apply
+    lesson: `### فصل ۸ — تعریف توابع و خانواده apply
 
 تعریف تابع در R با کلمه کلیدی \`function\` انجام می‌شود و خروجی آخرین عبارت محاسبه‌شده به عنوان نتیجه برگردانده می‌شود:
 
@@ -193,11 +232,46 @@ cube <- function(x) x^3
       'در بسته‌های حساس به کارایی، استفاده از vapply برای تضمین نوع خروجی توصیه می‌شود.',
     ],
   },
+  'type-safe-apply': {
+    title: '۰۹. پیمایش نوع-امن با vapply',
+    brief: 'تابع sapply نوع خروجی را به شکل پیش‌بینی‌ناپذیر ساده‌سازی می‌کند. با vapply و قالب نوع numeric(1) میانگین قرائت‌های هر سنسور را در means محاسبه کنید.',
+    hint: 'دستور means <- vapply(metrics, mean, numeric(1)) را اجرا کنید.',
+    lesson: `### فصل ۹ — پیمایش امن و تضمین نوع خروجی با vapply
+
+در زبان R، خانواده توابع \`apply\` هسته برنامه‌نویسی تابعی (Functional Programming) هستند. با این حال، تابع معروف \`sapply()\` یک خطر جدی در کدهای محیط پروداکشن دارد:
+**ساده‌سازی خاموش و غیرقابل پیش‌بینی نوع خروجی!**
+اگر ورودی \`sapply\` خالی باشد، یک لیست پس می‌دهد؛ اگر توابع خروجی با طول یکسان بدهند، ماتریس می‌سازد؛ و در غیر این صورت بردار بازمی‌گرداند. این رفتار چندریختی منشأ باگ‌های خاموش در پایپلاین‌های کلان‌داده است.
+
+تابع استاندارد و نوع-امن \`vapply(X, FUN, FUN.VALUE)\` توسعه داده شده است تا نوع داده و ابعاد دقیق خروجی را تضمین کند:
+\`\`\`r
+vapply(metrics, mean, numeric(1))
+\`\`\`
+اگر تابع \`FUN\` مقداری برگرداند که با قالب \`FUN.VALUE\` همخوانی نداشته باشد، R بلافاصله با خطا متوقف می‌شود.
+
+در پکیج \`purrr\`، خانواده توابع \`map_dbl()\` و \`map_chr()\` با همین فلسفه جایگزین \`sapply\` شده‌اند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله قالب FUN.VALUE:** قالب \`FUN.VALUE\` باید دقیقاً نوع و طول خروجی هر تکرار را بازتاب دهد. اگر تابعی یک بردار دوعنصری برمی‌گرداند (مانند \`range\`)، باید بنویسید \`numeric(2)\`.`,
+    checksLabels: [
+      'متغیر means یک بردار عددی به طول ۳ باشد',
+      'میانگین هر سه سنسور به درستی محاسبه شده باشد',
+      'از تابع vapply برای تضمین نوع خروجی استفاده شده باشد',
+    ],
+    learning: [
+      'تابع vapply() نوع و طول خروجی هر تکرار را بر اساس قالب FUN.VALUE به شدت اعتبارسنجی می‌کند',
+      'از بروز باگ‌های خاموش ناشی از تبدیل ناخواسته خروجی به ماتریس یا لیست توسط sapply جلوگیری می‌کند',
+      'تضمین می‌کند که پایپلاین پردازش داده در مواجهه با ورودی‌های خالی یا خطا فوراً آگاه شود',
+    ],
+    fieldNotes: [
+      'در راهنماهای کدنویسی صنعتی CRAN و گوگل، استفاده از vapply به جای sapply به عنوان یک الزام قطعی توصیه می‌شود.',
+      'در پکیج purrr خانواده توابع map_dbl و map_chr با همین فلسفه طراحی شده‌اند.',
+    ],
+  },
   'import-flat': {
-    title: '۰۸. ورود داده از فایل‌های متنی (CSV)',
+    title: '۱۰. ورود داده از فایل‌های متنی (CSV)',
     brief: 'تابع read.csv() داده‌های متنی با جداکننده کاما را می‌خواند. متغیر csv_text را به صورت دیتافریم در df بارگذاری کنید.',
     hint: 'دستور df <- read.csv(text = csv_text) را فراخوانی کنید.',
-    lesson: `### فصل ۸ — خواندن فایل‌های Flat و CSV
+    lesson: `### فصل ۱۰ — خواندن فایل‌های Flat و CSV
 
 فایل‌های متنی با ساختار جدول (مانند CSV و TSV) از پرکاربردترین قالب‌های ذخیره‌سازی داده هستند.
 تابع \`read.csv()\` متن‌ها و فایل‌های با جداکننده کاما را خوانده و ساختار \`data.frame\` تولید می‌کند.`,
@@ -216,10 +290,10 @@ cube <- function(x) x^3
     ],
   },
   'import-excel': {
-    title: '۰۹. بررسی و بازرسی داده‌های جدولی',
+    title: '۱۱. بررسی و بازرسی داده‌های جدولی',
     brief: 'جداول واردشده را بازرسی کنید. میانگین ستون ریاضی را در avg_math و تعداد سطرها را در n_records محاسبه نمایید.',
     hint: 'از mean(student_table$math) و nrow(student_table) استفاده کنید.',
-    lesson: `### فصل ۹ — ورود داده از اکسل و بازرسی اولیه
+    lesson: `### فصل ۱۱ — ورود داده از اکسل و بازرسی اولیه
 
 پس از ورود داده، مراحل بازرسی با توابع استاندارد زیر انجام می‌گیرد:
 - \`nrow()\` و \`ncol()\`: ابعاد سطر و ستون جدول
@@ -240,10 +314,10 @@ cube <- function(x) x^3
     ],
   },
   'import-db': {
-    title: '۱۰. پرس‌وجوهای رابطه‌ای و پایگاه‌داده',
+    title: '۱۲. پرس‌وجوهای رابطه‌ای و پایگاه‌داده',
     brief: 'فیلتر شرطی در R مشابه دستور WHERE در SQL است. سطرهایی از sales_data با amount >= 150 و region == "North" را فیلتر کنید.',
     hint: 'دستور top_sales <- subset(sales_data, amount >= 150 & region == "North") را بنویسید.',
-    lesson: `### فصل ۱۰ — اتصال به دیتابیس و فیلترهای رابطه‌ای
+    lesson: `### فصل ۱۲ — اتصال به دیتابیس و فیلترهای رابطه‌ای
 
 منطق استخراج رکوردهای منطبق با شروط پایگاه‌داده در R با تابع \`subset()\` یا فیلترهای منطقی پیاده‌سازی می‌شود.
 عملگر \`&\` شرط عطفی (AND) و عملگر \`|\` شرط فصلی (OR) را بررسی می‌کنند.`,
@@ -262,10 +336,10 @@ cube <- function(x) x^3
     ],
   },
   'import-web': {
-    title: '۱۱. داده‌های وب و وب‌سرویس‌ها (APIs)',
+    title: '۱۳. داده‌های وب و وب‌سرویس‌ها (APIs)',
     brief: 'وب‌سرویس‌ها داده‌ها را در ساختار درختی JSON یا لیست برمی‌گردانند. نام کاربران را از api_data$items در متغیر names استخراج کنید.',
     hint: 'دستور names <- sapply(api_data$items, function(u) u$name) را اجرا کنید.',
-    lesson: `### فصل ۱۱ — خواندن داده از وب و ساختارهای JSON
+    lesson: `### فصل ۱۳ — خواندن داده از وب و ساختارهای JSON
 
 داده‌های استخراج‌شده از وب‌سرویس‌ها معمولاً ساختار سلسله‌مراتبی درختی دارند.
 با ترکیب توابع نگاشت و پیمایش لیست‌ها، مقادیر فیلدهای مشخص استخراج و به فرمت‌های جدولی تبدیل می‌شوند.`,
@@ -280,11 +354,43 @@ cube <- function(x) x^3
       'داده‌های سلسله‌مراتبی وب پس از استخراج توسط purrr یا tidyr مسطح (Flatten) می‌شوند.',
     ],
   },
+  rectangling: {
+    title: '۱۴. مسطح‌سازی داده‌های درختی (Data Rectangling)',
+    brief: 'پاسخ‌های API به شکل درخت‌های تو در تو هستند. لیست سلسله‌مراتبی raw_users را با do.call(rbind, ...) به جدول دوبعدی user_table تبدیل کرده و مجموع لاگین‌ها را در total_logins محاسبه کنید.',
+    hint: 'دستورهای user_table <- do.call(rbind, lapply(raw_users, as.data.frame)) و total_logins <- sum(user_table$logins) را اجرا کنید.',
+    lesson: `### فصل ۱۴ — مسطح‌سازی داده‌های سلسله‌مراتبی (Data Rectangling)
+
+بسیاری از منابع داده در دنیای وب، اسناد NoSQL و خروجی وب‌سرویس‌های RESTful با فرمت سلسله‌مراتبی JSON عرضه می‌شوند؛ یعنی لیستی از اشیاء که هر کدام ویژگی‌ها و فیلدهای درختی خود را دارند.
+
+اصطلاح **Data Rectangling** به هنر تبدیل داده‌های درختی، عمیق و غیرجدولی به جداول دو‌بعدی مستطیلی (\`data.frame\`) گفته می‌شود تا برای تحلیل و مدل‌سازی برداری آماده شوند:
+\`\`\`r
+user_table <- do.call(rbind, lapply(raw_records, as.data.frame))
+\`\`\`
+
+در اکوسیستم Tidyverse و پکیج \`tidyr\`، توابع قدرتمندی مانند \`unnest_wider()\`، \`unnest_longer()\` و \`hoist()\` برای مسطح‌سازی درخت‌های چندلایه طراحی شده‌اند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **رکوردهای ناهمگن با کلیدهای مفقود (Ragged Lists):** اگر یکی از آیتم‌ها فیلدی کمتر از بقیه داشته باشد، \`as.data.frame\` ممکن است ابعاد متفاوتی بسازد و \`rbind\` با خطای ناسازگاری ستون متوقف شود. در داده‌های واقعی باید ابتدا ساختار رکوردها با مقادیر پیش‌فرض یکنواخت شود.`,
+    checksLabels: [
+      'متغیر user_table یک دیتافریم ۳ در ۴ باشد',
+      'ستون‌های id، name، role و logins در جدول حفظ شده باشند',
+      'مجموع تعداد ورود کاربران برابر ۶۴ باشد',
+    ],
+    learning: [
+      'فرآیند Data Rectangling داده‌های تودرتو و درختی JSON را به دیتافریم‌های مسطح دوبعدی تبدیل می‌کند',
+      'الگوی do.call(rbind, lapply(...)) رکوردها را به سرعت به هم متصل می‌سازد',
+      'دیتافریم‌های مستطیلی امکان استفاده از تمام توابع برداری و مدل‌سازی را باز می‌کنند',
+    ],
+    fieldNotes: [
+      'در مهندسی داده، مسطح‌سازی لیست‌های API اولین گام پیش از ورود داده به انبار داده (Data Warehouse) است.',
+      'در پکیج tidyr توابع unnest_wider و hoist برای مسطح‌سازی درخت‌های پیچیده با فیلدهای متغیر طراحی شده‌اند.',
+    ],
+  },
   'tidy-data': {
-    title: '۱۲. داده‌های تمیز و مقادیر مفقوده (NA)',
+    title: '۱۵. داده‌های تمیز و مقادیر مفقوده (NA)',
     brief: 'مقادیر گم‌شده با NA نشان داده می‌شوند. مکان‌های NA را با is.na() پیدا کرده و سطرها را با na.omit() پاکسازی کنید.',
     hint: 'دستورهای has_na <- is.na(raw_survey$score) و clean_survey <- na.omit(raw_survey) را بنویسید.',
-    lesson: `### فصل ۱۲ — اصول داده تمیز و مدیریت مقادیر گم‌شده
+    lesson: `### فصل ۱۵ — اصول داده تمیز و مدیریت مقادیر گم‌شده
 
 در اصول Tidy Data:
 - داده‌های مفقوده با مقدار اختصاصی \`NA\` نشان داده می‌شوند.
@@ -304,11 +410,54 @@ cube <- function(x) x^3
       'در پروژه‌های یادگیری ماشین، روش‌های جایگزینی آماری (Imputation) به جای حذف ساده سطرها ترجیح داده می‌شوند.',
     ],
   },
+  pivoting: {
+    title: '۱۶. چرخش داده‌ها: تبدیل عریض به طویل (Pivoting)',
+    brief: 'بسیاری از جداول به شکل عریض ذخیره می‌شوند که مناسب رسم نمودار نیست. جدول quarterly_sales را با reshape() به فرمت طویل long_sales با ستون‌های quarter و revenue تبدیل کنید.',
+    hint: 'دستور long_sales <- reshape(quarterly_sales, direction = "long", varying = c("Q1", "Q2"), v.names = "revenue", timevar = "quarter", times = c("Q1", "Q2"), idvar = "dept") را اجرا و نام سطرها را با row.names(long_sales) <- NULL ریست کنید.',
+    lesson: `### فصل ۱۶ — چرخش داده‌ها: از جدول عریض به طویل (Pivoting Wide to Long)
+
+یکی از مفاهیم بنیادین کتاب R for Data Science، ساختار **Tidy Data** است:
+1. هر متغیر باید در یک ستون مستقل قرار گیرد.
+2. هر مشاهده (Observation) باید یک سطر مستقل باشد.
+3. هر مقدار (Value) باید در یک سلول واحد جای گیرد.
+
+اغلب گزارش‌های مالی و صفحات اکسل در قالب **عریض (Wide Format)** ذخیره می‌شوند که در آن، متغیر زمان (مانند ماه‌ها یا فصول سال: Q1، Q2) نام ستون‌ها را تشکیل داده است. برای تحلیل‌های آماری، مدل‌سازی با \`lm()\` و رسم نمودار با \`ggplot2\`، داده‌ها باید به قالب **طویل (Long Format)** تبدیل شوند:
+\`\`\`r
+long_df <- reshape(
+  wide_df,
+  direction = "long",
+  varying = c("Q1", "Q2"),
+  v.names = "revenue",
+  timevar = "quarter",
+  times = c("Q1", "Q2"),
+  idvar = "dept"
+)
+\`\`\`
+
+در پکیج \`tidyr\` (اکوسیستم Tidyverse)، این عملیات با دستور بسیار خوانای \`pivot_longer()\` انجام می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله چندگانگی ستون‌های مقیاس‌شده:** هنگام انتقال چند ستون به قالب طویل، باید مطمئن شد نوع داده تمام ستون‌های ورودی سازگار باشد (مثلاً همگی عددی باشند)، وگرنه R تمام مقادیر را به رشته متنی (Character) تبدیل می‌کند.`,
+    checksLabels: [
+      'جدول long_sales به ۴ سطر طویل تبدیل شده باشد',
+      'شامل ستون‌های dept، quarter و revenue باشد',
+      'مجموع درآمد تمام فصول برابر ۴۵۰ باشد',
+    ],
+    learning: [
+      'تبدیل عریض به طویل (Wide to Long) ستون‌های مقادیر تکرارشونده را به جفت کلید-مقدار تبدیل می‌کند',
+      'ساختار Tidy Data شرط لازم برای استفاده از زیبایی‌شناسی‌های چندمتغیره در ggplot2 است',
+      'تابع reshape() در R پایه چرخش ساختار داده را بدون نیاز به پکیج جانبی مدیریت می‌کند',
+    ],
+    fieldNotes: [
+      'جداول عریض برای ورود داده توسط انسان در اکسل مناسبند، اما پایگاه‌های تحلیلی نیازمند قالب طویل هستند.',
+      'در tidyverse دستور pivot_longer() جایگزین توابع قدیمی gather و reshape2 شده است.',
+    ],
+  },
   'strings-regex': {
-    title: '۱۳. کار با رشته‌ها و عبارات منظم (Regex)',
+    title: '۱۷. کار با رشته‌ها و عبارات منظم (Regex)',
     brief: 'با تابع gsub() تمام خط‌تیره‌ها را با خط زیرین در بردار tags تعویض کرده و در clean_tags ذخیره کنید.',
     hint: 'دستور clean_tags <- gsub("-", "_", tags) را اجرا کنید.',
-    lesson: `### فصل ۱۳ — دستکاری متون و الگوهای منظم
+    lesson: `### فصل ۱۷ — دستکاری متون و الگوهای منظم
 
 برای پاکسازی و تطبیق متن‌ها در R:
 - \`gsub(pattern, replacement, x)\`: جایگزینی تمامی رخدادهای منطبق با الگو
@@ -326,10 +475,10 @@ cube <- function(x) x^3
     ],
   },
   dplyr: {
-    title: '۱۴. دستکاری داده‌ها و عملگر خط لوله (Pipe)',
+    title: '۱۸. دستکاری داده‌ها و عملگر خط لوله (Pipe)',
     brief: 'عملیات را با عملگر پایپ بومی |> زنجیره‌ای کنید. روی cars_sample خودروهای با mpg >= 18 را فیلتر کرده و نسبت قدرت به وزن pwr_ratio = round(hp / wt, 1) را محاسبه کنید.',
     hint: 'دستور valuable <- subset(cars_sample, mpg >= 18) |> transform(pwr_ratio = round(hp / wt, 1)) را بنویسید.',
-    lesson: `### فصل ۱۴ — دستکاری داده‌ها با عملگر خط لوله (Pipe)
+    lesson: `### فصل ۱۸ — دستکاری داده‌ها با عملگر خط لوله (Pipe)
 
 عملگر خط لوله مدرن بومی R (\`|>\`):
 نتیجه عبارت سمت چپ را به عنوان ورودی اول تابع سمت راست ارسال می‌کند.
@@ -357,10 +506,10 @@ data |> filter(...) |> transform(...)
     ],
   },
   joins: {
-    title: '۱۵. پیوند جداول و اتصالات رابطه‌ای (Joins)',
+    title: '۱۹. پیوند جداول و اتصالات رابطه‌ای (Joins)',
     brief: 'دو جدول کاربران و سفارش‌ها را بر اساس user_id پیوند دهید. با merge(all.x = TRUE) یک اتصال چپ انجام دهید.',
     hint: 'دستور report <- merge(users, orders, by = "user_id", all.x = TRUE) را وارد کنید.',
-    lesson: `### فصل ۱۵ — اتصال جداول (Merge و Join)
+    lesson: `### فصل ۱۹ — اتصال جداول (Merge و Join)
 
 اتصال جداول در R با تابع \`merge()\` صورت می‌گیرد:
 - **اتصال چپ (Left Join)**: با گزینه \`all.x = TRUE\` تمام رکوردهای جدول اول حفظ شده و در صورت نبود سفارش، مقدار \`NA\` درج می‌شود.
@@ -383,11 +532,47 @@ data |> filter(...) |> transform(...)
       'همواره قبل از Join بررسی کنید که نوع داده کلیدهای دو جدول کاملاً یکسان باشد.',
     ],
   },
+  'anti-joins': {
+    title: '۲۰. اتصال‌های فیلترکننده: Anti-Join و Semi-Join',
+    brief: 'اتصال‌های فیلترکننده بدون افزودن ستون، سطرها را تفکیک می‌کنند. با نقیض عملگر in کاربران بدون اشتراک فعال را در churned_users استخراج کرده و شناسه‌ها را در churned_ids بریزید.',
+    hint: 'دستورهای churned_users <- subset(all_users, !(user_id %in% active_subscribers$user_id)) و churned_ids <- churned_users$user_id را وارد کنید.',
+    lesson: `### فصل ۲۰ — اتصال‌های فیلترکننده: Anti-Join و Semi-Join
+
+در تحلیل داده‌های رابطه‌ای، دو دسته عملیات اتصال (Join) وجود دارد:
+1. **اتصال‌های جهش‌دهنده (Mutating Joins):** مانند \`inner_join\` و \`left_join\` که ستون‌های جدول دوم را به جدول اول اضافه می‌کنند.
+2. **اتصال‌های فیلترکننده (Filtering Joins):** که بدون افزودن هیچ ستون جدیدی، فقط سطرهای جدول اول را بر اساس وجود یا عدم وجود تطابق در جدول دوم فیلتر می‌کنند:
+   - **Semi-Join:** سطرهایی از جدول اول را نگه می‌دارد که در جدول دوم کلید متناظر دارند.
+   - **Anti-Join:** سطرهایی از جدول اول را نگه می‌دارد که در جدول دوم هیچ کلیدی برای آن‌ها وجود **ندارد**.
+
+عملیات Anti-Join یکی از مهم‌ترین ابزارهای مهندسی داده برای کشف خطاهای پایگاه‌داده (مثل کلیدهای خارجی یتیم / Orphaned Records)، کاربران انصراف‌داده (Churned Customers) و کدهای مفقود در جداول مرجع است:
+\`\`\`r
+churned <- subset(all_users, !(id %in% active_users$id))
+\`\`\`
+
+در پکیج \`dplyr\`، این الگو با تابع اختصاصی \`anti_join(x, y, by = "id")\` فراخوانی می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله مقادیر NA در مقایسه با \`%in%\` در برابر \`==\`:** عملگر \`%in%\` در زبان R با مقادیر \`NA\` بسیار ایمن رفتار می‌کند و اگر مقداری در سمت راست نباشد همیشه \`FALSE\` می‌دهد؛ بر خلاف \`==\` که اگر با \`NA\` مقایسه شود، خروجی \`NA\` تولید کرده و باعث خرابی فیلتر می‌شود.`,
+    checksLabels: [
+      'جدول churned_users شامل ۲ کاربر فاقد اشتراک باشد',
+      'شناسه‌های ۲ و ۴ به درستی استخراج شده باشند',
+      'کاربران Bob و David در جدول جدا شده باشند',
+    ],
+    learning: [
+      'اتصال‌های فیلترکننده (Filtering Joins) سطرهای جدول مبدا را بدون الحاق ستون جدید تفکیک می‌کنند',
+      'عملیات Anti-Join رکوردهایی از جدول اول که هیچ معادلی در جدول دوم ندارند را می‌یابد',
+      'استفاده از !(x %in% y) سریع‌ترین و ایمن‌ترین روش پیاده‌سازی Anti-Join در R پایه است',
+    ],
+    fieldNotes: [
+      'در مهندسی داده، Anti-Join برای کشف داده‌های یتیم (Orphan Records)، ریزش مشتریان و بررسی یکپارچگی ارجاعی حیاتی است.',
+      'در dplyr توابع anti_join و semi_join بدون نیاز به نوشتن دستی شروط مجموعه‌ای، قصد عملیاتی را بیان می‌کنند.',
+    ],
+  },
   datetime: {
-    title: '۱۶. مدیریت تاریخ و زمان',
+    title: '۲۱. مدیریت تاریخ و زمان',
     brief: 'رشته‌های تاریخی را با as.Date() به نوع داده تاریخ تبدیل کرده و اختلاف روزها را در days_between محاسبه کنید.',
     hint: 'با as.Date("YYYY-MM-DD") تبدیل کنید و تفاضل را به عدد تبدیل نمایید: as.numeric(end_date - start_date).',
-    lesson: `### فصل ۱۶ — داده‌های تقویمی و زمانی
+    lesson: `### فصل ۲۱ — داده‌های تقویمی و زمانی
 
 در زبان R، کلاس \`Date\` برای مدیریت تاریخ‌های تقویمی و کلاس \`POSIXct\` برای زمان همراه با ساعت به کار می‌رود.
 تفریق دو تاریخ به صورت خودکار تفاوت روزها (\`difftime\`) را برمی‌گرداند.
@@ -409,10 +594,10 @@ data |> filter(...) |> transform(...)
     ],
   },
   'data-table': {
-    title: '۱۷. خلاصه‌سازی و تجمیع داده‌ها',
+    title: '۲۲. خلاصه‌سازی و تجمیع داده‌ها',
     brief: 'داده‌ها را دسته‌بندی کنید: با aggregate() میانگین مصرف سوخت (mpg) را بر اساس تعداد سیلندر (cyl) در mtcars داخل cyl_summary ذخیره نمایید.',
     hint: 'دستور cyl_summary <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean) را بنویسید.',
-    lesson: `### فصل ۱۷ — گروه‌بندی و تجمیع داده‌ها (Split-Apply-Combine)
+    lesson: `### فصل ۲۲ — گروه‌بندی و تجمیع داده‌ها (Split-Apply-Combine)
 
 یکی از پرکاربردترین نیازهای روزمره علم داده، خلاصه‌سازی و تجمیع متغیرهای پیوسته بر اساس دسته‌ها است.
 فرمول نحوی \`aggregate(y ~ group, data, FUN)\` زبان R این الگو را به شکل فوق‌العاده کوتاه و خوانا پیاده‌سازی می‌کند.
@@ -435,10 +620,10 @@ data |> filter(...) |> transform(...)
     ],
   },
   'outliers-plots': {
-    title: '۱۸. شناسایی داده‌های پرت و رسم نمودار',
+    title: '۲۳. شناسایی داده‌های پرت و رسم نمودار',
     brief: 'نقاط پرت آماری را با IQR() شناسایی کرده و توزیع مقادیر ازن (Ozone) در airquality را با boxplot() همراه با عناوین رسم کنید.',
     hint: 'دستورهای iqr_val <- IQR(ozone_clean) و boxplot(ozone_clean, col = "#2569bb", main = "Ozone Distribution (ppb)", ylab = "Ozone (ppb)") را اجرا کنید.',
-    lesson: `### فصل ۱۸ — داده‌های پرت و نمودارهای گرافیکی
+    lesson: `### فصل ۲۳ — داده‌های پرت و نمودارهای گرافیکی
 
 - **دامنه میان‌چارکی (\`IQR\`):** تفاوت بین چارک سوم (۷۵٪) و چارک اول (۲۵٪).
 - **معیار توکی برای Outlierها:** داده‌هایی که کمتر از \`Q1 - 1.5*IQR\` یا بیشتر از \`Q3 + 1.5*IQR\` باشند نقاط دورافتاده تلقی می‌شوند.
@@ -461,10 +646,10 @@ data |> filter(...) |> transform(...)
     ],
   },
   regression: {
-    title: '۱۹. رگرسیون خطی و تشخیص مدل',
+    title: '۲۴. رگرسیون خطی و تشخیص مدل',
     brief: 'مدل رگرسیون چندگانه را برای پیش‌بینی mpg بر اساس wt و hp در mtcars برازش داده و ضریب تعیین r_squared را استخراج کنید.',
     hint: 'دستورهای fit <- lm(mpg ~ wt + hp, data = mtcars) و r_squared <- summary(fit)$r.squared را اجرا کنید.',
-    lesson: `### فصل ۱۹ — رگرسیون خطی و مدل‌سازی آماری
+    lesson: `### فصل ۲۴ — رگرسیون خطی و مدل‌سازی آماری
 
 قلب تپنده زبان R توانایی بی‌نظیر آن در آمار و مدل‌سازی ریاضی است.
 تابع \`lm(formula, data)\` مدل رگرسیون خطی را با روش کمترین مربعات خطا (OLS) برازش می‌دهد:
@@ -496,7 +681,7 @@ summary(fit)
     ],
   },
   hypothesis: {
-    title: '۲۰. آزمون فرض آماری و پیش‌بینی',
+    title: '۲۵. آزمون فرض آماری و پیش‌بینی',
     brief: 'یک آزمون t دونمونه‌ای برای مقایسه مصرف سوخت بر اساس نوع گیربکس (am) اجرا کرده و مقدار mpg را برای یک خودروی ۳۰۰۰ پوندی با ۱۵۰ اسب بخار پیش‌بینی کنید.',
     hint: 'دستورهای ttest_res <- t.test(mpg ~ am, data = mtcars) و pred_mpg <- as.numeric(predict(fit, newdata = data.frame(wt = 3.0, hp = 150))) را وارد کنید.',
     lesson: `### فصل ۲۰ — آزمون فرض آماری و پیش‌بینی (Inference & Prediction)
@@ -525,7 +710,7 @@ summary(fit)
     ],
   },
   capstone: {
-    title: '۲۱. پروژه جامع: تحلیل کامل علم داده',
+    title: '۲۶. پروژه جامع: تحلیل کامل علم داده',
     brief: 'پایپلاین کامل روی airquality: پاکسازی داده‌های مفقوده، محاسبه همبستگی بین دما و ازن و رسم نمودار پراکندگی با خط رگرسیون (abline).',
     hint: 'با na.omit() پاکسازی کنید، cor() را محاسبه کرده و دستورات plot() و abline(lm(...)) را اجرا نمایید.',
     lesson: `### فصل ۲۱ — پروژه جامع: تحلیل کامل صفر تا صد علم داده
@@ -554,10 +739,10 @@ summary(fit)
     ],
   },
   'pkg-anatomy': {
-    title: '۲۲. کالبدشناسی پکیج و فایل DESCRIPTION',
+    title: '۲۷. کالبدشناسی پکیج و فایل DESCRIPTION',
     brief: 'تمام پکیج‌های R حول محور فایل DESCRIPTION ساخته می‌شوند. یک متادیتای معتبر با write.dcf() حاوی نام بسته، عنوان، نسخه و مجوز بسازید.',
     hint: 'دیتافریم desc را با فیلدهای Package, Title, Version, License و Description ساخته، با write.dcf() ذخیره و با read.dcf() بازخوانی کنید.',
-    lesson: `### فصل ۲۲ — کالبدشناسی پکیج و فایل حیاتی DESCRIPTION
+    lesson: `### فصل ۲۷ — کالبدشناسی پکیج و فایل حیاتی DESCRIPTION
 
 در اکوسیستم R، پکیج بالاترین سطح ماژولارکردن و اشتراک‌گذاری کد و داده است.
 ساختار یک پکیج استاندارد بر اساس قراردادهای مشخص دایرکتوری شکل می‌گیرد:
@@ -587,10 +772,10 @@ summary(fit)
     ],
   },
   'pkg-deps': {
-    title: '۲۳. مدیریت وابستگی‌ها: تفاوت Imports و Suggests',
+    title: '۲۸. مدیریت وابستگی‌ها: تفاوت Imports و Suggests',
     brief: 'هرگز در کدهای پکیج library() را صدا نزنید! تابع امن safe_median را بنویسید که وجود پکیج stats را با requireNamespace() بررسی کرده و stats::median را صدا بزند.',
     hint: 'دستور safe_median <- function(x) { if (!requireNamespace("stats", quietly = TRUE)) stop("stats required"); stats::median(x, na.rm = TRUE) } را بنویسید.',
-    lesson: `### فصل ۲۳ — مدیریت وابستگی‌ها: تفاوت Imports و Suggests
+    lesson: `### فصل ۲۸ — مدیریت وابستگی‌ها: تفاوت Imports و Suggests
 
 یکی از حیاتی‌ترین مباحث مهندسی نرم‌افزار با R، تعریف وابستگی‌های پکیج در فایل \`DESCRIPTION\` است:
 - **\`Imports\`**: بسته‌هایی که توابع شما مستقیماً در حین اجرا به آن‌ها وابسته هستند و هنگام نصب پکیج شما، خودکار نصب می‌شوند.
@@ -624,10 +809,10 @@ if (!requireNamespace("pkg", quietly = TRUE)) {
     ],
   },
   'pkg-code': {
-    title: '۲۴. کدهای پکیج و پاکسازی اثرات جانبی (on.exit)',
+    title: '۲۹. کدهای پکیج و پاکسازی اثرات جانبی (on.exit)',
     brief: 'توابع پکیج هرگز نباید اثرات جانبی در محیط کاربر بر جای بگذارند. تابع with_temp_digits را با on.exit(add = TRUE) بنویسید تا تنظیمات اعداد اعشاری به حالت اول بازگردد.',
     hint: 'دستور old_opt <- options(digits = digits) را ذخیره کرده و on.exit(options(old_opt), add = TRUE) را قبل از format(x) ثبت کنید.',
-    lesson: `### فصل ۲۴ — کدهای سازگار با پکیج و پاکسازی اثرات جانبی (on.exit)
+    lesson: `### فصل ۲۹ — کدهای سازگار با پکیج و پاکسازی اثرات جانبی (on.exit)
 
 یک پکیج حرفه‌ای باید «مهمان مؤدبی» در سشن کاربر باشد!
 این یعنی هرگز نباید متغیرهایی در \`.GlobalEnv\` ایجاد کند، نباید دایرکتوری جاری را با \`setwd()\` تغییر دهد، و نباید تنظیمات سراسری مانند \`options()\` یا پارامترهای گرافیکی \`par()\` را بدون بازگردانی دستکاری کند.
@@ -660,10 +845,10 @@ my_fn <- function(x) {
     ],
   },
   'pkg-roxygen': {
-    title: '۲۵. مستندسازی مدرن با roxygen2',
+    title: '۳۰. مستندسازی مدرن با roxygen2',
     brief: 'در پکیج‌های R، مستندسازی با کامنت‌های roxygen2 انجام می‌شود. تابع normalize_vec را پیاده‌سازی کرده و تگ‌های roxygen آن را تعریف کنید.',
     hint: 'تابع normalize_vec را تعریف کرده و متغیر roxy_tags را با title, param, return و export = TRUE مقداردهی نمایید.',
-    lesson: `### فصل ۲۵ — مستندسازی مدرن با roxygen2
+    lesson: `### فصل ۳۰ — مستندسازی مدرن با roxygen2
 
 در گذشته توسعه‌دهندگان R مجبور بودند مستندات توابع را دستی با کدهای شبیه LaTeX در فایل‌های \`man/*.Rd\` بنویسند.
 پکیج انقلابی \`roxygen2\` به شما اجازه می‌دهد مستندات را مستقیماً بالای تعریف هر تابع با پیشوند \`#'\` بنویسید:
@@ -699,10 +884,10 @@ normalize_vec <- function(x) { ... }
     ],
   },
   'pkg-namespace': {
-    title: '۲۶. مدیریت فضای نام (NAMESPACE) و پنهان‌سازی',
+    title: '۳۱. مدیریت فضای نام (NAMESPACE) و پنهان‌سازی',
     brief: 'فایل NAMESPACE رابط عمومی و ورودی‌های خارجی پکیج را کنترل می‌کند. یک فایل NAMESPACE ایجاد کنید که normalize_vec را export کرده و توابع median و IQR را import کند.',
     hint: 'دستورات export(normalize_vec) و importFrom(stats, median, IQR) را در فایل NAMESPACE بنویسید و بخوانید.',
-    lesson: `### فصل ۲۶ — مدیریت فضای نام (NAMESPACE) و پنهان‌سازی اطلاعات
+    lesson: `### فصل ۳۱ — مدیریت فضای نام (NAMESPACE) و پنهان‌سازی اطلاعات
 
 فایل \`NAMESPACE\` کنترل‌کننده مرزهای ماژول شماست و دو وظیفه کلیدی دارد:
 1. **صادرات (Export):** تعیین اینکه کدام توابع با بارگذاری پکیج در دسترس کاربر قرار می‌گیرند (\`export(fun)\`).
@@ -728,10 +913,10 @@ normalize_vec <- function(x) { ... }
     ],
   },
   'pkg-testing': {
-    title: '۲۷. تست خودکار نرم‌افزار با testthat',
+    title: '۳۲. تست خودکار نرم‌افزار با testthat',
     brief: 'تست‌های واحد پایداری پکیج‌های R را تضمین می‌کنند. توابع expect_equal و expect_error را پیاده‌سازی کرده و تست‌های normalize_vec را اجرا کنید.',
     hint: 'توابع کمکی expect_equal و expect_error را پیاده کرده و خروجی تست‌ها را در test_results ذخیره کنید.',
-    lesson: `### فصل ۲۷ — تست خودکار نرم‌افزار با فریم‌ورک testthat
+    lesson: `### فصل ۳۲ — تست خودکار نرم‌افزار با فریم‌ورک testthat
 
 در مهندسی پکیج‌های R، تست‌های خودکار در پوشه \`tests/testthat/\` قرار می‌گیرند.
 پکیج \`testthat\` ساختار استاندارد تست را با بلاک‌های \`test_that()\` و توابع \`expect_*\` فراهم می‌سازد:
@@ -759,10 +944,10 @@ normalize_vec <- function(x) { ... }
     ],
   },
   'pkg-data': {
-    title: '۲۸. انتشار داده‌ها و فایل‌های ضمیمه در پکیج',
+    title: '۳۳. انتشار داده‌ها و فایل‌های ضمیمه در پکیج',
     brief: 'پکیج‌ها فایل‌های خام را در inst/extdata توزیع می‌کنند. فایل inst/extdata/sample_cars.csv را ساخته و با read.csv() در raw_asset بارگذاری کنید.',
     hint: 'پوشه را با dir.create("inst/extdata", recursive = TRUE) بسازید، با write.csv() بنویسید و در raw_asset بخوانید.',
-    lesson: `### فصل ۲۸ — انتشار داده‌ها و فایل‌های ضمیمه در پکیج
+    lesson: `### فصل ۳۳ — انتشار داده‌ها و فایل‌های ضمیمه در پکیج
 
 پکیج‌های R می‌توانند دو دسته داده را توزیع کنند:
 1. **داده‌های رسمی پکیج (\`data/\`):** دیتافریم‌های باینری به فرمت \`.rda\` که با دستور \`usethis::use_data()\` تولید شده و مستقیماً توسط کاربر با \`data(my_dataset)\` قابل استفاده‌اند.
@@ -791,10 +976,10 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     ],
   },
   'pkg-check': {
-    title: '۲۹. کنترل کیفیت و انتشار بسته با R CMD check',
+    title: '۳۴. کنترل کیفیت و انتشار بسته با R CMD check',
     brief: 'ابزار R CMD check استاندارد طلایی کیفیت در R است. تابع check_package را برای اعتبارسنجی متادیتای DESCRIPTION و NAMESPACE بنویسید و نتیجه صفر خطا بگیرید.',
     hint: 'تابع check_package را برای بررسی فیلدهای read.dcf و دستورات NAMESPACE بنویسید و مطمئن شوید errors, warnings و notes برابر 0 هستند.',
-    lesson: `### فصل ۲۹ — کنترل کیفیت و انتشار بسته با R CMD check
+    lesson: `### فصل ۳۴ — کنترل کیفیت و انتشار بسته با R CMD check
 
 ابزار \`R CMD check\` (که از طریق \`devtools::check()\` اجرا می‌شود) دروازه کیفیت افسانه‌ای دنیای R است.
 این فرآیند بیش از ۵۰ آزمون موشکافانه را روی پکیج اجرا می‌کند:
@@ -959,8 +1144,47 @@ Der Zugriff auf Matrixelemente erfolgt im Format \`mat[Zeile, Spalte]\` (1-basie
       'Listen sind das Standardformat für Modell-Ergebnisse, Konfigurationen und JSON-Daten.',
     ],
   },
+  'factors-reorder': {
+    title: '06. Kategoriale Faktoren & Neuordnung',
+    brief: 'Faktoren steuern die kategoriale Reihenfolge in Plots und Modell-Kontrasten. Ordne die Städte nach Medianeinkommen mit reorder() in ordered_city und extrahiere city_levels.',
+    hint: 'Verwende ordered_city <- reorder(factor(survey$city), survey$income, FUN = median) und city_levels <- levels(ordered_city).',
+    lesson: `### Kapitel 6 — Faktoren und kategoriale Neuordnung (Factor Reordering)
+
+In R werden qualitative Merkmale als **Faktoren (Factors)** gespeichert. Faktoren besitzen eine definierte Liste von \`levels\`, welche die Darstellungsreihenfolge in Grafiken (Achsenbeschriftungen, Legenden) und die Referenzkategorie (Baseline) in Regressionsmodellen bestimmen.
+
+Standardmäßig sortiert R Faktoren **alphabetisch**, was in Diagrammen oft unlogisch und schwer lesbar ist:
+\`\`\`r
+cities <- factor(c("Tokyo", "Berlin", "London"))
+levels(cities) # "Berlin" "London" "Tokyo"
+\`\`\`
+
+Mit der Funktion \`reorder()\` lassen sich Faktorstufen anhand einer numerischen Metrik (z. B. Median oder Mittelwert) ordnen:
+\`\`\`r
+ordered_f <- reorder(factor_var, numeric_metric, FUN = median)
+\`\`\`
+
+Im Tidyverse bietet das Paket \`forcats\` mit \`fct_reorder()\` eine elegante funktionale Schnittstelle.
+
+#### ⚠️ Typische Fallstricke (Common Gotchas):
+- **Ungenutzte Faktorstufen (Unused Levels):** Nach dem Filtern von Daten bleiben alte Faktorstufen im Speicher erhalten. Verwende \`droplevels(df)\`, um überflüssige Stufen zu entfernen.
+- **Referenzkategorie in Regressionen:** Die erste Faktorstufe dient in \`lm()\` als Referenz. Mit \`relevel(f, ref = "...")\` lässt sich die Basisstufe gezielt definieren.`,
+    checksLabels: [
+      'ordered_city ist ein Faktor',
+      'Faktorstufen sind nach Medianeinkommen geordnet',
+      'city_levels enthält die sortierten Stufen',
+    ],
+    learning: [
+      'reorder() ordnet Faktorstufen basierend auf einer numerischen Kennzahl neu',
+      'Die Reihenfolge der levels bestimmt die Achsen und Legenden in Diagrammen',
+      'Kategoriale Faktoren definieren die Referenzstufe in Regressionsmodellen',
+    ],
+    fieldNotes: [
+      'Nach Metriken geordnete Visualisierungen reduzieren die kognitive Belastung drastisch.',
+      'Im Tidyverse bietet forcats::fct_reorder() eine funktionale Syntax für ggplot2-Pipelines.',
+    ],
+  },
   'control-flow': {
-    title: '06. Ablaufsteuerung & Bedingungen',
+    title: '07. Ablaufsteuerung & Bedingungen',
     brief: 'ifelse() wertet Bedingungen elementweise über Vektoren aus. Klassifiziere scores in "pass" (>= 50) oder "fail".',
     hint: 'Verwende status <- ifelse(scores >= 50, "pass", "fail").',
     lesson: `### Kapitel 6 — Ablaufsteuerung und Vektorisierung
@@ -984,7 +1208,7 @@ Vektorisierte Operationen vermeiden langsame klassische for-Schleifen.`,
     ],
   },
   functions: {
-    title: '07. Eigene Funktionen & Apply-Familie',
+    title: '08. Eigene Funktionen & Apply-Familie',
     brief: 'Definiere eine Funktion cube für x^3 und wende sie mit sapply() auf 1:4 an.',
     hint: 'Schreibe cube <- function(x) x^3 und res <- sapply(1:4, cube).',
     lesson: `### Kapitel 7 — Eigene Funktionen und die apply-Familie
@@ -1010,8 +1234,43 @@ Die \`apply\`-Funktionen (\`sapply\`, \`lapply\`) wenden Funktionen auf Elemente
       'In geschäftskritischen Paketen garantiert vapply() strikte Typsicherheit für Rückgabewerte.',
     ],
   },
+  'type-safe-apply': {
+    title: '09. Typsichere Iteration mit vapply',
+    brief: 'sapply mutiert Rückgabetypen unvorhersehbar bei leeren oder variablen Listen. Berechne Sensormittelwerte typsicher mit vapply und Vorlage numeric(1) in means.',
+    hint: 'Verwende means <- vapply(metrics, mean, numeric(1)).',
+    lesson: `### Kapitel 9 — Typsichere funktionale Iteration mit vapply
+
+In R bildet die \`apply\`-Familie das Fundament funktionaler Programmierung. Die häufig genutzte Funktion \`sapply()\` birgt in Produktionsumgebungen jedoch ein gravierendes Risiko:
+**Unvorhersehbare, automatische Typ-Vereinfachung!**
+Ist die Eingabe leer, liefert \`sapply\` eine leere Liste; bei gleichlangen Vektoren erzeugt sie eine Matrix; sonst einen Vektor. Dieser Polymorphismus führt zu schwer auffindbaren Fehlern in Daten-Pipelines.
+
+Die Funktion \`vapply(X, FUN, FUN.VALUE)\` erzwingt strikte Typ- und Dimensionsprüfung:
+\`\`\`r
+vapply(metrics, mean, numeric(1))
+\`\`\`
+Entspricht das Ergebnis eines Schleifendurchlaufs nicht der Vorlage \`FUN.VALUE\` (z. B. \`numeric(1)\`), bricht R sofort mit einem aussagekräftigen Fehler ab.
+
+Im Tidyverse-Paket \`purrr\` verfolgen Funktionen wie \`map_dbl()\` und \`map_chr()\` denselben Grundsatz.
+
+#### ⚠️ Typische Fallstricke (Common Gotchas):
+- **Strikte FUN.VALUE-Vorlage:** Die Vorlage muss exakt den Rückgabetyp und die Länge jedes Durchlaufs abbilden (z. B. \`numeric(2)\` bei zweielementigen Vektoren wie \`range\`).`,
+    checksLabels: [
+      'means ist ein numerischer Vektor der Länge 3',
+      'Mittelwerte aller drei Sensoren korrekt berechnet',
+      'Nutzt typsicheres vapply() anstelle von sapply()',
+    ],
+    learning: [
+      'vapply() validiert Typ und Länge jedes Rückgabewerts anhand von FUN.VALUE',
+      'Verhindert unbemerkte Typkonvertierungen durch sapply() in Produktionscode',
+      'Stellt deterministisches Verhalten in Daten-Pipelines sicher',
+    ],
+    fieldNotes: [
+      'CRAN-Richtlinien und Enterprise-Standards empfehlen vapply() für zuverlässige Software.',
+      'In purrr bieten map_dbl(), map_chr() und map_lgl() identische Typsicherheit.',
+    ],
+  },
   'import-flat': {
-    title: '08. Textdateien & CSV-Import',
+    title: '10. Textdateien & CSV-Import',
     brief: 'read.csv() liest tabellarischen Text in einen data.frame ein. Importiere csv_text in df.',
     hint: 'Übergib text = csv_text an read.csv().',
     lesson: `### Kapitel 8 — Importieren von Flat Files und CSVs
@@ -1033,7 +1292,7 @@ Die Funktion \`read.csv()\` liest kommagetrennte Tabellen direkt in ein \`data.f
     ],
   },
   'import-excel': {
-    title: '09. Tabellarische Datenprüfung',
+    title: '11. Tabellarische Datenprüfung',
     brief: 'Inspiziere Tabellen: Berechne avg_math als Mittelwert und n_records als Zeilenanzahl.',
     hint: 'Verwende mean(student_table$math) und nrow(student_table).',
     lesson: `### Kapitel 9 — Tabelleninspektion und Kennzahlen
@@ -1057,7 +1316,7 @@ Nach dem Datenimport liefern Standardfunktionen schnelle Einblicke:
     ],
   },
   'import-db': {
-    title: '10. Relationale Abfragen & Datenbanken',
+    title: '12. Relationale Abfragen & Datenbanken',
     brief: 'subset() filtert Datensätze analog zu SQL WHERE. Filtere sales_data mit amount >= 150 und region == "North".',
     hint: 'Verwende subset(sales_data, amount >= 150 & region == "North").',
     lesson: `### Kapitel 10 — Datenbankabfragen und relationale Filter
@@ -1079,7 +1338,7 @@ In R filtert die Funktion \`subset()\` Zeilen anhand logischer Operatoren (\`&\`
     ],
   },
   'import-web': {
-    title: '11. Webdaten & JSON-Strukturen',
+    title: '13. Webdaten & JSON-Strukturen',
     brief: 'APIs liefern geschachtelte Datensätze. Extrahiere Benutzernamen aus api_data$items in names.',
     hint: 'Extrahiere name mit sapply(api_data$items, function(u) u$name).',
     lesson: `### Kapitel 11 — Web-APIs und hierarchische Daten
@@ -1097,11 +1356,42 @@ Mit funktionalen Mapping-Methoden lassen sich gezielt Attribute aus diesen Struk
       'Geschachtelte API-Antworten werden häufig mit purrr oder tidyr in flache Data Frames transformiert.',
     ],
   },
+  rectangling: {
+    title: '14. Daten-Rechteckung & Hierarchien (Data Rectangling)',
+    brief: 'Web-APIs liefern verschachtelte Baumstrukturen. Transformiere raw_users mit do.call(rbind, ...) in eine 2D-Tabelle user_table und summiere die Logins in total_logins.',
+    hint: 'Verwende user_table <- do.call(rbind, lapply(raw_users, as.data.frame)) und total_logins <- sum(user_table$logins).',
+    lesson: `### Kapitel 14 — Hierarchische Daten entpacken (Data Rectangling)
+
+API-Antworten und NoSQL-Dokumente liegen meist als verschachtelte JSON-Hierarchien vor.
+Als **Data Rectangling** bezeichnet man das Überführen unstrukturierter Baumstrukturen in zweidimensionale, tabellarische Data Frames (\`data.frame\`), um sie für Vektoroperationen und statistische Modelle nutzbar zu machen:
+\`\`\`r
+user_table <- do.call(rbind, lapply(raw_records, as.data.frame))
+\`\`\`
+
+Im Tidyverse (Paket \`tidyr\`) bieten Funktionen wie \`unnest_wider()\`, \`unnest_longer()\` und \`hoist()\` hochgradig spezialisierte Werkzeuge für Listenspalten.
+
+#### ⚠️ Typische Fallstricke (Common Gotchas):
+- **Inkonsistente Felder (Ragged Lists):** Fehlen in einzelnen Datensätzen Attribute, schlägt \`rbind\` wegen ungleicher Spaltenanzahl fehl. Datensätze müssen vorab mit Standardwerten harmonisiert werden.`,
+    checksLabels: [
+      'user_table ist ein 3x4 Data Frame',
+      'Spalten id, name, role und logins bleiben erhalten',
+      'Gesamtzahl der Logins beträgt 64',
+    ],
+    learning: [
+      'Data Rectangling überführt verschachtelte JSON-Listen in rechteckige Tabellen',
+      'do.call(rbind, lapply(...)) verbindet Datensätze effizient in Basis-R',
+      'Tabellarische Data Frames ermöglichen vektorisierte Datenanalysen',
+    ],
+    fieldNotes: [
+      'Data Rectangling ist der unverzichtbare erste Schritt beim Ingest von REST-APIs ins Data Warehouse.',
+      'In tidyr entpacken hoist() und unnest_wider() komplexe JSON-Strukturen deklarativ.',
+    ],
+  },
   'tidy-data': {
-    title: '12. Tidy Data & Fehlende Werte (NA)',
+    title: '15. Tidy Data & Fehlende Werte (NA)',
     brief: 'Fehlende Werte werden durch NA dargestellt. Finde NAs mit is.na() und bereinige mit na.omit().',
     hint: 'Verwende has_na <- is.na(raw_survey$score) und clean_survey <- na.omit(raw_survey).',
-    lesson: `### Kapitel 12 — Tidy Data und fehlende Werte
+    lesson: `### Kapitel 15 — Tidy Data und fehlende Werte
 
 Im Tidy-Data-Paradigma:
 - Fehlende Daten werden durch die Konstante \`NA\` (Not Available) repräsentiert.
@@ -1121,8 +1411,51 @@ Im Tidy-Data-Paradigma:
       'In Machine-Learning-Pipelines wird Imputation (Mittelwert, Median, MICE) oft dem reinen Löschen vorgezogen.',
     ],
   },
+  pivoting: {
+    title: '16. Daten-Reshaping: Wide-zu-Long Pivoting',
+    brief: 'Tabellen liegen oft im breiten Format vor. Überführe quarterly_sales mit reshape() ins lange Format long_sales mit Spalten quarter und revenue.',
+    hint: 'Nutze long_sales <- reshape(quarterly_sales, direction = "long", varying = c("Q1", "Q2"), v.names = "revenue", timevar = "quarter", times = c("Q1", "Q2"), idvar = "dept") und row.names(long_sales) <- NULL.',
+    lesson: `### Kapitel 16 — Daten-Reshaping: Wide zu Long (Pivoting)
+
+Ein Kernprinzip von **Tidy Data** (R for Data Science):
+1. Jede Variable bildet eine Spalte.
+2. Jede Beobachtung bildet eine Zeile.
+3. Jeder Wert steht in einer Zelle.
+
+Oft liegen Reports im **breiten Format (Wide Format)** vor (z. B. Quartalsumsätze Q1 und Q2 als Spaltenköpfe). Für statistische Modelle (\`lm\`) und Grafiken (\`ggplot2\`) müssen diese ins **lange Format (Long Format)** transformiert werden:
+\`\`\`r
+long_df <- reshape(
+  wide_df,
+  direction = "long",
+  varying = c("Q1", "Q2"),
+  v.names = "revenue",
+  timevar = "quarter",
+  times = c("Q1", "Q2"),
+  idvar = "dept"
+)
+\`\`\`
+
+Im Tidyverse übernimmt dies die Funktion \`tidyr::pivot_longer()\`.
+
+#### ⚠️ Typische Fallstricke (Common Gotchas):
+- **Datentyphomogenität beim Pivoting:** Werden Spalten zusammengefasst, müssen sie kompatible Datentypen aufweisen, da R gemischte Werte sonst automatisch in Zeichenketten umwandelt.`,
+    checksLabels: [
+      'long_sales ist in 4 Beobachtungen umgeformt',
+      'long_sales enthält dept, quarter und revenue Spalten',
+      'Gesamtumsatz über alle Quartale beträgt 450',
+    ],
+    learning: [
+      'Wide-to-Long Pivoting überführt wiederholte Messspalten in Schlüssel-Wert-Paare',
+      'Tidy Data im Langformat ist Voraussetzung für multivariate Ästhetiken in ggplot2',
+      'Die Basis-Funktion reshape() steuert Datentransformationen ohne externe Pakete',
+    ],
+    fieldNotes: [
+      'Breite Tabellen erleichtern manuelle Eingaben, Analysedatenbanken benötigen jedoch Langformate.',
+      'In modernem R-Code ersetzt tidyr::pivot_longer() ältere Pakete wie reshape2.',
+    ],
+  },
   'strings-regex': {
-    title: '13. Zeichenketten & Reguläre Ausdrücke',
+    title: '17. Zeichenketten & Reguläre Ausdrücke',
     brief: 'Textbereinigung mit Regex: Ersetze Bindestriche durch Unterstriche in tags mit gsub().',
     hint: 'Führe clean_tags <- gsub("-", "_", tags) aus.',
     lesson: `### Kapitel 13 — Strings und reguläre Ausdrücke (Regex)
@@ -1143,10 +1476,10 @@ Funktionen zur Textbearbeitung in R:
     ],
   },
   dplyr: {
-    title: '14. Daten-Wrangling & Pipelines',
+    title: '18. Daten-Wrangling & Pipelines',
     brief: 'Die Pipe |> verkettet Schritte. Filtere cars_sample nach mpg >= 18 und berechne Leistungsgewicht pwr_ratio = round(hp / wt, 1).',
     hint: 'Verwende valuable <- subset(cars_sample, mpg >= 18) |> transform(pwr_ratio = round(hp / wt, 1)).',
-    lesson: `### Kapitel 14 — Datenmanipulation mit der Pipe |>
+    lesson: `### Kapitel 18 — Datenmanipulation mit der Pipe |>
 
 Die moderne native Pipe in R (\`|>\`):
 Übergibt das Ergebnis des linken Ausdrucks als erstes Argument an die rechte Funktion.
@@ -1174,7 +1507,7 @@ data |> filter(...) |> transform(...)
     ],
   },
   joins: {
-    title: '15. Tabellen verknüpfen (Joins)',
+    title: '19. Tabellen verknüpfen (Joins)',
     brief: 'Verbinde Tabellen über gemeinsame Schlüssel: Führe einen Left Join mit merge(all.x = TRUE) durch.',
     hint: 'Verwende report <- merge(users, orders, by = "user_id", all.x = TRUE).',
     lesson: `### Kapitel 15 — Joins und Tabellenverknüpfung
@@ -1200,8 +1533,44 @@ Tabellen werden mit \`merge()\` verbunden:
       'Prüfe vor jedem Join, ob die Schlüsselspalten identische Datentypen besitzen.',
     ],
   },
+  'anti-joins': {
+    title: '20. Filternde Joins: Anti-Joins & Semi-Joins',
+    brief: 'Filternde Joins filtern Zeilen ohne neue Spalten anzuhängen. Ermittle mit negiertem in-Operator alle inaktiven Nutzer ohne aktives Abonnement in churned_users und extrahiere churned_ids.',
+    hint: 'Verwende churned_users <- subset(all_users, !(user_id %in% active_subscribers$user_id)) und churned_ids <- churned_users$user_id.',
+    lesson: `### Kapitel 20 — Filternde Joins: Anti-Join und Semi-Join
+
+In relationalen Datenbanksystemen gibt es zwei Arten von Joins:
+1. **Mutierende Joins (Mutating Joins):** Wie \`inner_join\` und \`left_join\`, welche Spalten der zweiten Tabelle hinzufügen.
+2. **Filternde Joins (Filtering Joins):** Diese filtern ausschließlich Zeilen der ersten Tabelle basierend auf Übereinstimmungen in der zweiten Tabelle:
+   - **Semi-Join:** Behält Zeilen, die einen Schlüssel in der zweiten Tabelle haben.
+   - **Anti-Join:** Behält Zeilen, die **keinen** Schlüssel in der zweiten Tabelle besitzen.
+
+Anti-Joins sind elementar für Data Auditing, das Aufspüren verwaister Datensätze (Orphan Records) und abgewanderter Kunden (Customer Churn):
+\`\`\`r
+churned <- subset(all_users, !(id %in% active_users$id))
+\`\`\`
+
+In \`dplyr\` erfolgt dies deklarativ über \`anti_join(x, y, by = "id")\`.
+
+#### ⚠️ Typische Fallstricke (Common Gotchas):
+- **Sicheres Verhalten von \`%in%\` bei NA:** Der Operator \`%in%\` behandelt fehlende Werte (\`NA\`) robust und liefert \`FALSE\`, während \`==\` bei \`NA\` selbst \`NA\` zurückgibt und den Filter beschädigt.`,
+    checksLabels: [
+      'churned_users enthält 2 inaktive Nutzer',
+      'churned_ids enthält exakt die IDs 2 und 4',
+      'churned_users isoliert Bob und David',
+    ],
+    learning: [
+      'Filternde Joins selektieren Beobachtungen ohne Modifikation des Spaltenschemas',
+      'Anti-Joins identifizieren Datensätze ohne Entsprechung in Referenztabellen',
+      '!(x %in% y) ist das idiomatische und performante Basis-R-Pattern für Anti-Joins',
+    ],
+    fieldNotes: [
+      'Anti-Joins sichern referenzielle Integrität und decken Datenlecks im ETL-Prozess auf.',
+      'dplyr::anti_join() drückt geschäftliche Absichten klarer aus als manuelle Mengendifferenzen.',
+    ],
+  },
   datetime: {
-    title: '16. Datums- und Zeitwerte',
+    title: '21. Datums- und Zeitwerte',
     brief: 'Konvertiere Datumsstrings mit as.Date() und berechne days_between als numerische Differenz.',
     hint: 'Wandle mit as.Date("YYYY-MM-DD") um und subtrahiere: as.numeric(end_date - start_date).',
     lesson: `### Kapitel 16 — Datum und Zeit in R
@@ -1226,7 +1595,7 @@ Die Subtraktion zweier Date-Objekte berechnet automatisch die Zeitdifferenz in T
     ],
   },
   'data-table': {
-    title: '17. Schnelle Gruppenaggregation',
+    title: '22. Schnelle Gruppenaggregation',
     brief: 'Aggregiere Werte nach Gruppen: Berechne mit aggregate() den durchschnittlichen Verbrauch (mpg) nach Zylinderanzahl (cyl) in mtcars in cyl_summary.',
     hint: 'Verwende cyl_summary <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean).',
     lesson: `### Kapitel 17 — Gruppenaggregation (Split-Apply-Combine)
@@ -1251,10 +1620,10 @@ Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien 
     ],
   },
   'outliers-plots': {
-    title: '18. Ausreißer & Basis-Grafiken',
+    title: '23. Ausreißer & Basis-Grafiken',
     brief: 'Erkenne Ausreißer mit IQR() und visualisiere die Ozonverteilung in airquality mit einem beschrifteten Boxplot.',
     hint: 'Berechne iqr_val <- IQR(ozone_clean) und zeichne boxplot(ozone_clean, col = "#2569bb", main = "Ozone Distribution (ppb)", ylab = "Ozone (ppb)").',
-    lesson: `### Kapitel 18 — Ausreißer und Boxplots
+    lesson: `### Kapitel 23 — Ausreißer und Boxplots
 
 - **Interquartilsabstand (\`IQR\`):** Differenz zwischen 75. und 25. Perzentil.
 - **Tukey-Kriterium für Ausreißer:** Werte außerhalb von \`Q1 - 1.5*IQR\` oder \`Q3 + 1.5*IQR\` gelten als statistische Ausreißer.
@@ -1277,10 +1646,10 @@ Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien 
     ],
   },
   regression: {
-    title: '19. Lineare Regression & Modelldiagnostik',
+    title: '24. Lineare Regression & Modelldiagnostik',
     brief: 'Passe ein multiples lineares Regressionsmodell für mpg basierend auf wt und hp in mtcars an und ermittle r_squared.',
     hint: 'Führe fit <- lm(mpg ~ wt + hp, data = mtcars) und r_squared <- summary(fit)$r.squared aus.',
-    lesson: `### Kapitel 19 — Lineare Regression und statistische Modellierung
+    lesson: `### Kapitel 24 — Lineare Regression und statistische Modellierung
 
 R bietet herausragende Werkzeuge für mathematische Statistik und Modellierung.
 Die Funktion \`lm(formula, data)\` schätzt lineare Regressionsmodelle mittels kleinster Quadrate (OLS):
@@ -1312,7 +1681,7 @@ summary(fit)
     ],
   },
   hypothesis: {
-    title: '20. Hypothesentests & Vorhersagen',
+    title: '25. Hypothesentests & Vorhersagen',
     brief: 'Führe einen Zweistichproben-t-Test für mpg nach Getriebeart (am in mtcars) durch und sage mpg für ein 3000-lbs Auto mit 150 PS vorher.',
     hint: 'Führe ttest_res <- t.test(mpg ~ am, data = mtcars) und pred_mpg <- as.numeric(predict(fit, newdata = data.frame(wt = 3.0, hp = 150))) aus.',
     lesson: `### Kapitel 20 — Statistische Inferenz und Vorhersage
@@ -1341,10 +1710,10 @@ Mit \`predict(model, newdata)\` werden Prognosen für neue Beobachtungen berechn
     ],
   },
   capstone: {
-    title: '21. Abschlussprojekt: Ganzheitliche Datenanalyse',
+    title: '26. Abschlussprojekt: Ganzheitliche Datenanalyse',
     brief: 'Vollständige Pipeline auf airquality: Bereinige NAs, berechne Korrelation zwischen Temp und Ozone und zeichne Streudiagramm mit Regressionslinie (abline).',
     hint: 'Bereinige mit na.omit(), berechne cor() und zeichne plot() gefolgt von abline(lm(...)).',
-    lesson: `### Kapitel 21 — Abschlussprojekt: End-to-End Datenanalyse
+    lesson: `### Kapitel 26 — Abschlussprojekt: End-to-End Datenanalyse
 
 Herzlichen Glückwunsch! Du hast Datenmanipulation, Bereinigung, Datenstrukturen, Statistik, Modellierung und Visualisierung in R gemeistert.
 In diesem Abschlussprojekt:
@@ -1370,10 +1739,10 @@ In diesem Abschlussprojekt:
     ],
   },
   'pkg-anatomy': {
-    title: '22. Paket-Anatomie & DESCRIPTION-Datei',
+    title: '27. Paket-Anatomie & DESCRIPTION-Datei',
     brief: 'Jedes R-Paket basiert auf einer DESCRIPTION-Datei. Erstelle mit write.dcf() valide Metadaten für Package, Title, Version und License.',
     hint: 'Erstelle den Data Frame desc mit Package, Title, Version, License und Description, schreibe ihn mit write.dcf() und lies ihn mit read.dcf() ein.',
-    lesson: `### Kapitel 22 — Paket-Anatomie und die DESCRIPTION-Datei
+    lesson: `### Kapitel 27 — Paket-Anatomie und die DESCRIPTION-Datei
 
 In R sind Pakete die oberste Stufe zur Modularisierung und Weitergabe von Code und Daten.
 Ein kanonisches Paket folgt festen Verzeichnis-Konventionen:
@@ -1403,10 +1772,10 @@ Die \`DESCRIPTION\`-Datei nutzt das Debian Control Format (DCF) und wird nativ �
     ],
   },
   'pkg-deps': {
-    title: '23. Abhängigkeiten: Imports vs. Suggests',
+    title: '28. Abhängigkeiten: Imports vs. Suggests',
     brief: 'Rufe niemals library() in Paketfunktionen auf! Schreibe safe_median mit requireNamespace() und stats::median.',
     hint: 'Definiere safe_median <- function(x) { if (!requireNamespace("stats", quietly = TRUE)) stop("stats needed"); stats::median(x, na.rm = TRUE) }.',
-    lesson: `### Kapitel 23 — Paket-Abhängigkeiten: Imports vs. Suggests
+    lesson: `### Kapitel 28 — Paket-Abhängigkeiten: Imports vs. Suggests
 
 Die Deklaration externer Pakete in der \`DESCRIPTION\`-Datei ist ein Kernbaustein der Softwarearchitektur:
 - **\`Imports\`**: Pakete, die zur Laufzeit zwingend benötigt und bei der Installation automatisch mitinstalliert werden.
@@ -1440,7 +1809,7 @@ if (!requireNamespace("pkg", quietly = TRUE)) {
     ],
   },
   'pkg-code': {
-    title: '24. Paket-Code & Seiteneffekte (on.exit)',
+    title: '29. Paket-Code & Seiteneffekte (on.exit)',
     brief: 'Paketfunktionen dürfen keine permanenten Seiteneffekte hinterlassen. Schreibe with_temp_digits mit on.exit(add = TRUE) für eine saubere Bereinigung.',
     hint: 'Speichere old_opt <- options(digits = digits) und registriere on.exit(options(old_opt), add = TRUE) vor format(x).',
     lesson: `### Kapitel 24 — Seiteneffektfreier Paketcode & on.exit
@@ -1476,7 +1845,7 @@ R garantiert die Ausführung des \`on.exit\`-Handlers selbst dann, wenn während
     ],
   },
   'pkg-roxygen': {
-    title: '25. Funktionsdokumentation mit roxygen2',
+    title: '30. Funktionsdokumentation mit roxygen2',
     brief: 'In R-Paketen wird Dokumentation direkt im Code über roxygen2-Kommentare verfasst. Definiere normalize_vec und die zugehörigen Metadaten-Tags.',
     hint: 'Implementiere normalize_vec und erstelle roxy_tags mit title, param, return und export = TRUE.',
     lesson: `### Kapitel 25 — Moderne Dokumentation mit roxygen2
@@ -1515,7 +1884,7 @@ Der Aufruf \`devtools::document()\` parst diese Blöcke und erzeugt automatisch 
     ],
   },
   'pkg-namespace': {
-    title: '26. NAMESPACE & Information Hiding',
+    title: '31. NAMESPACE & Information Hiding',
     brief: 'Die NAMESPACE-Datei steuert öffentliche Exporte und externe Importe. Erstelle ein NAMESPACE, das normalize_vec exportiert und stats-Funktionen importiert.',
     hint: 'Schreibe export(normalize_vec) und importFrom(stats, median, IQR) in die Datei "NAMESPACE" und lies sie in ns_content.',
     lesson: `### Kapitel 26 — NAMESPACE und Kapselung
@@ -1544,7 +1913,7 @@ Dadurch werden Namenskonflikte (Name Clashes) verhindert: Falls dein Paket und e
     ],
   },
   'pkg-testing': {
-    title: '27. Automatisierte Tests mit testthat',
+    title: '32. Automatisierte Tests mit testthat',
     brief: 'Unit Tests garantieren Paketstabilität. Implementiere expect_equal und expect_error und verifiziere normalize_vec in einer Testsuite.',
     hint: 'Definiere expect_equal mit all.equal() und expect_error mit tryCatch(), führe anschließend test_results aus.',
     lesson: `### Kapitel 27 — Automatisierte Unit-Tests mit testthat
@@ -1575,10 +1944,10 @@ Das Paket \`testthat\` strukturiert Tests in \`test_that()\`-Blöcken mit \`expe
     ],
   },
   'pkg-data': {
-    title: '28. Daten & externe Assets im Paket (inst/extdata)',
+    title: '33. Daten & externe Assets im Paket (inst/extdata)',
     brief: 'Pakete liefern Rohdateien in inst/extdata aus. Erstelle inst/extdata/sample_cars.csv und lade sie mit read.csv() in raw_asset.',
     hint: 'Erstelle den Ordner mit dir.create("inst/extdata", recursive = TRUE), schreibe die Datei mit write.csv() und lies sie in raw_asset.',
-    lesson: `### Kapitel 28 — Paketdaten und Rohdateien in inst/extdata
+    lesson: `### Kapitel 33 — Paketdaten und Rohdateien in inst/extdata
 
 R-Pakete können zwei Arten von Daten bereitstellen:
 1. **Paket-Datensätze (\`data/\`):** Komprimierte \`.rda\`-Dateien (via \`usethis::use_data()\`), die Anwender direkt über \`data(name)\` laden können.
@@ -1607,7 +1976,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     ],
   },
   'pkg-check': {
-    title: '29. Qualitätsprüfung mit R CMD check & CRAN',
+    title: '34. Qualitätsprüfung mit R CMD check & CRAN',
     brief: 'R CMD check ist der härteste Qualitätsstandard. Implementiere check_package zur Validierung von DESCRIPTION und NAMESPACE mit 0 Fehlern.',
     hint: 'Schreibe check_package zur Prüfung von read.dcf-Feldern und NAMESPACE-Exporten und stelle sicher, dass errors, warnings und notes 0 sind.',
     lesson: `### Kapitel 29 — Qualitätskontrolle mit R CMD check
@@ -1695,8 +2064,30 @@ Matrix indexing uses the \`mat[row, col]\` notation starting at index 1.`,
 - **List**: Heterogeneous container storing objects of different types and varying lengths.
 - **Data Frame (\`data.frame\`)**: 2D tabular dataset where each column is an equal-length vector with its own type.`,
   },
+  'factors-reorder': {
+    lesson: `### Chapter 6 — Factors & Categorical Reordering
+
+In R, qualitative data is stored in **factors**. Factors possess an underlying set of \`levels\` that govern how categories appear on plot axes, legends, and which category serves as the baseline reference in regression models.
+
+By default, R sorts factor levels **alphabetically**, which often distorts plots and masks underlying patterns:
+\`\`\`r
+cities <- factor(c("Tokyo", "Berlin", "London"))
+levels(cities) # "Berlin" "London" "Tokyo"
+\`\`\`
+
+To present data logically, reorder factors based on a numerical summary (such as median income):
+\`\`\`r
+ordered_f <- reorder(factor_var, numeric_metric, FUN = median)
+\`\`\`
+
+In the tidyverse, \`forcats::fct_reorder()\` provides a streamlined functional pipeline for ggplot2.
+
+#### ⚠️ Common Gotchas:
+- **Unused Levels Dropping:** Subsetting or filtering rows does not automatically prune unused factor levels. Use \`droplevels(df)\` to drop stale categories.
+- **Regression Baselines:** In \`lm()\`, the first level serves as the reference intercept. Use \`relevel(f, ref = "...")\` to select an interpretable baseline.`,
+  },
   'control-flow': {
-    lesson: `### Chapter 6 — Control Flow & Vectorization
+    lesson: `### Chapter 7 — Control Flow & Vectorization
 
 In R, the vectorized function \`ifelse(test, yes, no)\` evaluates conditions across every element of a vector simultaneously:
 
@@ -1707,7 +2098,7 @@ status <- ifelse(scores >= 50, "pass", "fail")
 Vectorized branching is vastly faster than traditional iterative for-loops.`,
   },
   functions: {
-    lesson: `### Chapter 7 — Custom Functions & Apply
+    lesson: `### Chapter 8 — Custom Functions & Apply
 
 Functions are defined with the \`function\` keyword and return the value of the last evaluated expression:
 
@@ -1717,14 +2108,32 @@ cube <- function(x) x^3
 
 The \`apply\` family (\`sapply\`, \`lapply\`) maps a function across elements of a vector or list without manual loops.`,
   },
+  'type-safe-apply': {
+    lesson: `### Chapter 9 — Type-Safe Iteration with vapply
+
+In R, the \`apply\` family is central to functional data transformations. However, \`sapply()\` carries a severe liability in production pipelines:
+**Silent, unpredictable return-type coercion!**
+If an input list is empty, \`sapply\` returns an empty list; if outputs have uniform length, it returns a matrix; otherwise, an atomic vector. This polymorphism is a notorious source of silent runtime failures.
+
+The standard function \`vapply(X, FUN, FUN.VALUE)\` enforces strict type and dimension contracts:
+\`\`\`r
+vapply(metrics, mean, numeric(1))
+\`\`\`
+If any iteration produces an unexpected type or dimension, R aborts immediately with an informative error rather than propagating corrupted data downstream.
+
+In tidyverse \`purrr\`, typed functions such as \`map_dbl()\` and \`map_chr()\` uphold this same guarantee.
+
+#### ⚠️ Common Gotchas:
+- **FUN.VALUE Template Mismatch:** The template must strictly match the return length of each iteration (e.g., \`numeric(2)\` for two-element outputs like \`range\`).`,
+  },
   'import-flat': {
-    lesson: `### Chapter 8 — Flat Files & CSV Import
+    lesson: `### Chapter 10 — Flat Files & CSV Import
 
 Delimited text files (CSV, TSV) are the most common formats for data exchange.
 The \`read.csv()\` function parses comma-delimited text into a structured \`data.frame\`.`,
   },
   'import-excel': {
-    lesson: `### Chapter 9 — Inspecting Tabular Data
+    lesson: `### Chapter 11 — Inspecting Tabular Data
 
 After importing tabular data, standard functions provide immediate inspection:
 - \`nrow()\` / \`ncol()\`: Dimensions of rows and columns
@@ -1732,27 +2141,67 @@ After importing tabular data, standard functions provide immediate inspection:
 - \`summary()\`: Descriptive 5-number statistics and distributions`,
   },
   'import-db': {
-    lesson: `### Chapter 10 — Relational Queries & DB Logic
+    lesson: `### Chapter 12 — Relational Queries & DB Logic
 
 Filtering records according to logical criteria directly matches the SQL WHERE clause.
 In R, the \`subset()\` function filters rows matching compound boolean conditions (\`&\` for AND, \`|\` for OR).`,
   },
   'import-web': {
-    lesson: `### Chapter 11 — Web Data & JSON Records
+    lesson: `### Chapter 13 — Web Data & JSON Records
 
 Web services and REST APIs deliver hierarchical records in JSON format.
 Vectorized extraction across nested lists allows pulling specific attributes into clean tabular structures.`,
   },
+  rectangling: {
+    lesson: `### Chapter 14 — Data Rectangling & Hierarchies
+
+Web APIs and NoSQL stores return hierarchical trees of JSON records.
+**Data Rectangling** (highlighted by Hadley Wickham in R4DS) is the discipline of flattening nested lists and tree structures into tidy 2D data frames ready for vectorized exploration and modeling:
+\`\`\`r
+user_table <- do.call(rbind, lapply(raw_records, as.data.frame))
+\`\`\`
+
+In the tidyverse, \`tidyr\` provides specialized verbs like \`unnest_wider()\`, \`unnest_longer()\`, and \`hoist()\` to unpack multi-level list-columns.
+
+#### ⚠️ Common Gotchas:
+- **Ragged Records with Missing Keys:** If API records have varying fields, naive \`rbind\` fails due to column count discrepancies. Normalize missing fields with default values before binding.`,
+  },
   'tidy-data': {
-    lesson: `### Chapter 12 — Tidy Data & Missing Values
+    lesson: `### Chapter 15 — Tidy Data & Missing Values
 
 In Tidy Data:
 - Missing observations are represented by the special value \`NA\`.
 - Never use \`x == NA\`; always use \`is.na(x)\` to test for missingness.
 - The \`na.omit(df)\` function strips all incomplete rows from a dataset.`,
   },
+  pivoting: {
+    lesson: `### Chapter 16 — Reshaping Data: Pivoting Wide to Long
+
+A foundational tenet of **Tidy Data** in R for Data Science:
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each value forms a cell.
+
+Business reports frequently store repeated measurements in wide format (e.g., Q1 and Q2 revenue as column names). For statistical modeling (\`lm\`) and multivariate visualization (\`ggplot2\`), tables must be reshaped into tidy long format:
+\`\`\`r
+long_df <- reshape(
+  wide_df,
+  direction = "long",
+  varying = c("Q1", "Q2"),
+  v.names = "revenue",
+  timevar = "quarter",
+  times = c("Q1", "Q2"),
+  idvar = "dept"
+)
+\`\`\`
+
+In tidyverse \`tidyr\`, this workflow is performed via \`pivot_longer()\`.
+
+#### ⚠️ Common Gotchas:
+- **Homogeneous Data Types:** Columns gathered into a single value column must share compatible data types, or R will coerce them into character strings.`,
+  },
   'strings-regex': {
-    lesson: `### Chapter 13 — Strings & Regular Expressions
+    lesson: `### Chapter 17 — Strings & Regular Expressions
 
 For text cleaning and pattern matching in R:
 - \`gsub(pattern, replacement, x)\`: Replace all occurrences of a regular expression pattern
@@ -1760,7 +2209,7 @@ For text cleaning and pattern matching in R:
 - \`paste()\`: Concatenate strings and vectors`,
   },
   dplyr: {
-    lesson: `### Chapter 14 — Data Wrangling & Pipelines
+    lesson: `### Chapter 18 — Data Wrangling & Pipelines
 
 The native pipe operator (\`|>\`):
 Passes the left-hand result into the first argument of the right-hand function.
@@ -1774,7 +2223,7 @@ data |> filter(...) |> transform(...)
 - **Parentheses required in native pipe:** In the legacy \`%>%\` pipe, writing \`x %>% mean\` was permissible; the native \`|>\` pipe strictly requires function call parentheses (\`x |> mean()\`).`,
   },
   joins: {
-    lesson: `### Chapter 15 — Merging & Relational Joins
+    lesson: `### Chapter 19 — Merging & Relational Joins
 
 Combining tables is done with the \`merge()\` function:
 - **Left Join**: Setting \`all.x = TRUE\` preserves all rows of the left table and inserts \`NA\` for unmatched rows in the right table.
@@ -1783,8 +2232,27 @@ Combining tables is done with the \`merge()\` function:
 #### ⚠️ Common Gotchas:
 - **Row explosion with duplicate keys:** If the joining key column contains non-unique values in either table, merge performs a Cartesian product, multiplying row counts unexpectedly.`,
   },
+  'anti-joins': {
+    lesson: `### Chapter 20 — Filtering Joins: Anti-Joins & Semi-Joins
+
+In relational data systems, joins divide into two classes:
+1. **Mutating Joins:** (e.g. \`inner_join\`, \`left_join\`) which append columns from the secondary table.
+2. **Filtering Joins:** Which filter rows of the primary table without altering its column schema:
+   - **Semi-Join:** Keeps rows with matching keys in the second table.
+   - **Anti-Join:** Keeps rows that have **no** matching key in the second table.
+
+Anti-joins are indispensable for data auditing, discovering orphaned foreign keys, finding churned users, and verifying referential integrity:
+\`\`\`r
+churned <- subset(all_users, !(id %in% active_users$id))
+\`\`\`
+
+In \`dplyr\`, this operation is invoked declaratively with \`anti_join(x, y, by = "id")\`.
+
+#### ⚠️ Common Gotchas:
+- **Safe NA Handling with %in%:** The \`%in%\` operator cleanly evaluates \`NA\` values to \`FALSE\`, whereas \`==\` returns \`NA\`, which inadvertently corrupts logical row subsetting.`,
+  },
   datetime: {
-    lesson: `### Chapter 16 — Dates & Times in R
+    lesson: `### Chapter 21 — Dates & Times in R
 
 In R, the \`Date\` class handles calendar dates, while \`POSIXct\` stores timestamps with hours and seconds.
 Subtracting two Date objects automatically yields the duration in days (\`difftime\`).
@@ -1793,7 +2261,7 @@ Subtracting two Date objects automatically yields the duration in days (\`diffti
 - **4-digit vs 2-digit years:** In date formatting, \`%Y\` represents 4-digit years (2026) while \`%y\` represents 2-digit years (26). Confusing them causes century calculation bugs.`,
   },
   'data-table': {
-    lesson: `### Chapter 17 — Group Aggregation (Split-Apply-Combine)
+    lesson: `### Chapter 22 — Group Aggregation (Split-Apply-Combine)
 
 The \`aggregate(formula, data, FUN)\` function groups numeric data by categorical factors and computes summary statistics (such as sum or mean) for each group.
 
@@ -1801,7 +2269,7 @@ The \`aggregate(formula, data, FUN)\` function groups numeric data by categorica
 - **Dropping NA rows by default:** By default, \`aggregate()\` removes rows containing \`NA\` in grouping factors unless \`na.action = na.pass\` is explicitly provided.`,
   },
   'outliers-plots': {
-    lesson: `### Chapter 18 — Outliers & Base Plots
+    lesson: `### Chapter 23 — Outliers & Base Plots
 
 - **Interquartile Range (\`IQR\`):** Difference between the 75th and 25th percentiles.
 - **Tukey's Outlier Criterion:** Observations below \`Q1 - 1.5*IQR\` or above \`Q3 + 1.5*IQR\` are flagged as statistical outliers.
@@ -1811,7 +2279,7 @@ The \`aggregate(formula, data, FUN)\` function groups numeric data by categorica
 - **Blindly deleting outliers:** Outliers should never be removed without investigation; they often carry the most important signals (such as fraud or sensor malfunction).`,
   },
   regression: {
-    lesson: `### Chapter 19 — Linear Regression & Model Diagnostics
+    lesson: `### Chapter 24 — Linear Regression & Model Diagnostics
 
 R was built from the ground up for statistical modeling and inference.
 The \`lm(formula, data)\` function estimates Ordinary Least Squares (OLS) linear regressions:
@@ -1829,7 +2297,7 @@ summary(fit)
 - **The R-squared trap:** Adding irrelevant predictors always increases R-squared. In multiple regressions, always evaluate Adjusted R-squared.`,
   },
   hypothesis: {
-    lesson: `### Chapter 20 — Hypothesis Testing & Predictions
+    lesson: `### Chapter 25 — Hypothesis Testing & Predictions
 
 Hypothesis testing helps distinguish real underlying phenomena from random sample noise.
 The \`t.test()\` function compares means across two independent groups (such as automatic vs. manual transmissions).
@@ -1841,7 +2309,7 @@ The \`predict(model, newdata)\` function uses the fitted model to generate forec
 - **Column names in \`newdata\`:** The \`newdata\` parameter must be a \`data.frame\` with column names strictly matching the predictors defined in the model formula.`,
   },
   capstone: {
-    lesson: `### Chapter 21 — Capstone: End-to-End Data Analysis
+    lesson: `### Chapter 26 — Capstone: End-to-End Data Analysis
 
 Congratulations! You have mastered data wrangling, data structures, relational joins, statistical modeling, and scientific visualization in R.
 In this capstone project:
@@ -1853,7 +2321,7 @@ In this capstone project:
 - **Anscombe's Quartet:** Never rely solely on summary metrics or correlation coefficients without inspecting the underlying graphical distribution.`,
   },
   'pkg-anatomy': {
-    lesson: `### Chapter 22 — Package Anatomy & The DESCRIPTION File
+    lesson: `### Chapter 27 — Package Anatomy & The DESCRIPTION File
 
 In R, packages are the standard unit of shareable, reproducible code, data, and documentation.
 A canonical R package conforms to strict directory conventions:
@@ -1869,7 +2337,7 @@ The \`DESCRIPTION\` file follows the Debian Control Format (DCF) and can be prog
 - **Semantic Versioning:** Always use 3-part semantic versioning (e.g. \`0.1.0\`) to communicate patch, minor, and major API revisions clearly.`,
   },
   'pkg-deps': {
-    lesson: `### Chapter 23 — Package Dependencies: Imports vs. Suggests
+    lesson: `### Chapter 28 — Package Dependencies: Imports vs. Suggests
 
 Declaring dependencies in the \`DESCRIPTION\` file is a fundamental engineering discipline:
 - **\`Imports\`**: Packages essential at runtime. They are installed automatically whenever a user installs your package.
@@ -1889,7 +2357,7 @@ if (!requireNamespace("pkg", quietly = TRUE)) {
 - **The Depends Trap:** The legacy \`Depends\` field attaches the entire foreign package to the user's search path, risking function masking. Modern best practice is to always specify \`Imports\`.`,
   },
   'pkg-code': {
-    lesson: `### Chapter 24 — Package Code & Side Effects (on.exit)
+    lesson: `### Chapter 29 — Package Code & Side Effects (on.exit)
 
 A package function must be a courteous guest in the user's R session!
 It should never permanently modify the global environment (\`.GlobalEnv\`), change working directories (\`setwd()\`), or alter options (\`options()\`) or graphics parameters (\`par()\`) without guaranteed restoration.
@@ -1908,7 +2376,7 @@ R guarantees that the expression registered in \`on.exit()\` will execute when t
 - **Omitting \`add = TRUE\`:** If you forget \`add = TRUE\`, subsequent \`on.exit()\` calls overwrite earlier handlers instead of chaining with them. Always write \`on.exit(..., add = TRUE)\`.`,
   },
   'pkg-roxygen': {
-    lesson: `### Chapter 25 — Documentation with roxygen2
+    lesson: `### Chapter 30 — Documentation with roxygen2
 
 In modern R packages, documentation lives directly above function definitions in special comment blocks prefixed with \`#'\`:
 
@@ -1929,7 +2397,7 @@ Running \`devtools::document()\` parses these roxygen blocks to generate \`.Rd\`
 - **Missing \`@export\` Tag:** If you omit \`@export\`, the function remains internal (private). Users will not be able to call it after \`library(pkg)\` unless they use the internal triple colon operator (\`pkg:::fun\`).`,
   },
   'pkg-namespace': {
-    lesson: `### Chapter 26 — NAMESPACE & Information Hiding
+    lesson: `### Chapter 31 — NAMESPACE & Information Hiding
 
 The \`NAMESPACE\` file enforces encapsulation by managing two interfaces:
 1. **Exports (\`export\`):** Public functions made directly accessible to consumers when the package is attached.
@@ -1941,7 +2409,7 @@ This separation prevents name collisions. If another library also defines a func
 - **Blind \`import(pkg)\` Directives:** Never import an entire package blindly with \`import(pkg)\`. This pollutes your internal namespace with hundreds of identifiers. Always use targeted \`importFrom(pkg, fun1, fun2)\`.`,
   },
   'pkg-testing': {
-    lesson: `### Chapter 27 — Unit Testing with testthat
+    lesson: `### Chapter 32 — Unit Testing with testthat
 
 Unit testing is the foundation of software reliability in R.
 Tests are organized under \`tests/testthat/\` using the \`testthat\` package:
@@ -1955,7 +2423,7 @@ Running **Ctrl + Shift + T** or \`devtools::test()\` executes your entire test s
 - **Testing with \`==\` in Unit Tests:** Never use \`expect_true(val == 0.3)\`! Machine precision differences across OS platforms will cause random CI test failures. Always use \`expect_equal()\`.`,
   },
   'pkg-data': {
-    lesson: `### Chapter 28 — Package Data & Extdata Assets
+    lesson: `### Chapter 33 — Package Data & Extdata Assets
 
 R packages can distribute data in two canonical ways:
 1. **Curated Datasets (\`data/\`):** Binary \`.rda\` datasets created via \`usethis::use_data()\`, accessible immediately via \`data(mydata)\`.
@@ -1970,7 +2438,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 - **Hardcoding \`inst\` in Paths:** Never write \`system.file("inst/extdata", ...)\`! The \`inst/\` prefix is discarded upon package installation.`,
   },
   'pkg-check': {
-    lesson: `### Chapter 29 — Quality Control & CRAN Readiness (R CMD check)
+    lesson: `### Chapter 34 — Quality Control & CRAN Readiness (R CMD check)
 
 \`R CMD check\` (run via \`devtools::check()\`) is the legendary automated quality gate of the R ecosystem.
 It executes over 50 rigorous automated checks:

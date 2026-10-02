@@ -559,6 +559,94 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Use profvis for interactive visualization of CPU and memory bottlenecks in large R scripts.',
     ],
   },
+  'tidyr-separate-unite': {
+    learning: [
+      'separate() splits a single composite character column into multiple columns by delimiter',
+      'unite() concatenates multiple columns into a single column with a specified separator',
+      'Modern tidyr provides separate_wider_delim() and separate_wider_regex() for stricter type safety',
+    ],
+    fieldNotes: [
+      'Use remove = FALSE in separate() or unite() to preserve the original columns for auditing.',
+      'Handle irregular splits with extra = "merge" or fill = "right" to prevent dropped values.',
+    ],
+  },
+  'tidyr-gather-spread': {
+    learning: [
+      'gather() reshapes wide data into long format using key and value arguments',
+      'spread() distributes long records across columns using key and value identifiers',
+      'Understanding legacy gather() and spread() is essential for maintaining older R packages and scripts',
+    ],
+    fieldNotes: [
+      'pivot_longer() and pivot_wider() supersede gather() and spread() with clearer syntax and error handling.',
+      'In gather(), columns not mentioned are automatically treated as identifier (id) variables.',
+    ],
+  },
+  'tidy-hms': {
+    learning: [
+      'hms represents pure time of day (seconds since midnight) independent of calendar dates and timezones',
+      'as_hms() and parse_hms() parse character time strings in HH:MM:SS format',
+      'Differences between hms timestamps yield difftime duration objects for interval arithmetic',
+    ],
+    fieldNotes: [
+      'Use hms columns in tibbles for shift scheduling, daily transit timetables, and recurring diurnal cycles.',
+      'Unlike POSIXct, hms objects never shift across daylight saving transitions.',
+    ],
+  },
+  'import-readxl': {
+    learning: [
+      'readxl imports Excel spreadsheets (.xlsx, .xls) without Java or external system dependencies',
+      'excel_sheets() discovers available sheet names before loading',
+      'read_excel() supports targeted sheet selection, cell ranges (e.g. A1:D50), and custom NA strings',
+    ],
+    fieldNotes: [
+      'Always inspect sheet names with excel_sheets() before calling read_excel() to avoid hardcoded index bugs.',
+      'Use range = cell_rows(5:100) or skip to bypass unformatted title headers in commercial spreadsheets.',
+    ],
+  },
+  'data-rodbc': {
+    learning: [
+      'DBI provides a standard unified database interface across SQLite, PostgreSQL, MySQL, and ODBC',
+      'dbConnect() establishes connections; dbGetQuery() executes SQL and returns data frames',
+      'Always close connections cleanly with dbDisconnect() or on.exit() to prevent socket exhaustion',
+    ],
+    fieldNotes: [
+      'Use dbSendQuery() and dbFetch() to stream huge query results in chunks without exhausting RAM.',
+      'Always use parameterized queries with sqlInterpolate() or dbBind() to prevent SQL injection vulnerabilities.',
+    ],
+  },
+  'prog-r4': {
+    learning: [
+      'R 4.1+ includes a native forward pipe operator (|>) eliminating dependencies on magrittr',
+      'The concise lambda syntax \\(x) provides native anonymous function expressions',
+      'Raw string literals r"(...)" allow backslashes without escape doubling in regex patterns',
+    ],
+    fieldNotes: [
+      'In R 4.2+, use the placeholder _ with named arguments: df |> lm(y ~ x, data = _).',
+      'Since R 4.0.0, stringsAsFactors defaults to FALSE globally across all base data frame constructors.',
+    ],
+  },
+  'adv-s7': {
+    learning: [
+      'S7 is the official modern OOP system developed by the R Consortium to succeed S3 and S4',
+      'new_class() creates classes with strictly typed properties, automated validators, and inheritance',
+      'new_generic() and method() define type-safe generic functions and polymorphic dispatch',
+    ],
+    fieldNotes: [
+      'Properties are accessed with @ and validated automatically at construction time.',
+      'S7 is fully backwards compatible with S3 and S4, enabling gradual codebase modernization.',
+    ],
+  },
+  'repro-rmarkdown': {
+    learning: [
+      'R Markdown blends narrative prose, executable code chunks, and visual outputs into dynamic reports',
+      'YAML frontmatter defines document metadata, output formats (HTML, PDF), and runtime themes',
+      'Chunk options (echo, eval, warning, message, fig.width) control execution and display behavior',
+    ],
+    fieldNotes: [
+      'Use knitr::opts_chunk$set() in a setup chunk to enforce global reproducible defaults across reports.',
+      'Embed dynamic statistics directly into narrative prose using inline R expressions (`r expr`).',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

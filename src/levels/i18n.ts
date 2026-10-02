@@ -1326,6 +1326,158 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
           "اگر کدی با برداری‌سازی سریع نشد، بازنویسی بخش متراکم آن با Rcpp در C++ سرعت را تا ۱۰۰ برابر افزایش می‌دهد."
     ],
   },
+  "tidyr-separate-unite": {
+    title: "۵۱. تجزیه و ادغام ستون‌های متنی با separate و unite در tidyr",
+    brief: "پکیج tidyr تابع separate را برای تفکیک یک ستون ترکیبی به چند ستون مجزا بر اساس جداکننده، و تابع unite را برای اتصال چند ستون به یک ستون واحد با جداکننده دلخواه فراهم می‌کند.",
+    hint: "دستورات sep_df <- separate(patients, col = name_code, into = c('first_name', 'code'), sep = '_') و reunited_df <- unite(sep_df, col = 'full_tag', first_name, code, sep = '-') را اجرا کنید.",
+    lesson: "### فصل ۵۱ — جداسازی و ادغام ستون‌های متنی با tidyr (توابع separate و unite)\n\nدر بسیاری از داده‌های واقعی، چند متغیر در قالب یک ستون ذخیره شده‌اند (مانند `نام_کد` یا `سال-ماه-روز`):\n- **تابع `separate(data, col, into, sep)`:** این تابع یک ستون متنی مرکب را بر اساس کاراکتر جداکننده برش داده و به چند ستون تحلیلی مستقل تبدیل می‌کند.\n- **تابع `unite(data, col, ..., sep)`:** عمل معکوس را انجام می‌دهد؛ چندین متغیر پراکنده را به یک شناسه ترکیبی متصل می‌سازد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **نابرابری تعداد بخش‌ها:** اگر برخی سطرها ۲ تکه و برخی ۳ تکه شوند، `separate` اخطار می‌دهد. با آرگومان `extra = \"merge\"` تکه‌های اضافه را در آخرین ستون ادغام کنید.",
+    checksLabels: [
+          "ستون name_code با separate به دو ستون first_name و code تجزیه شود",
+          "ستون‌های مجزا با unite در قالب ستون full_tag با خط تیره ادغام شوند"
+    ],
+    learning: [
+          "تابع separate ستون‌های متنی ادغام‌شده را با جداکننده یا عبارات منظم به متغیرهای مجزا تفکیک می‌کند",
+          "تابع unite چند ستون را با جداکننده سفارشی ترکیب کرده و ستون‌های اولیه را پاک‌سازی می‌نماید",
+          "توابع مدرن separate_wider_delim و separate_wider_position رفتار مشابه با تایپ‌سیفتی بالاتر ارائه می‌دهند"
+    ],
+    fieldNotes: [
+          "با تنظیم remove = FALSE در separate() ستون اصلی برای بازبینی و تطبیق حفظ می‌شود.",
+          "اگر تعداد اجزای جداشده نابرابر بود، از پارامترهای fill = 'right' یا extra = 'merge' استفاده کنید."
+    ],
+  },
+  "tidyr-gather-spread": {
+    title: "۵۲. تغییر شکل کلاسیک داده‌ها با توابع تاریخی gather و spread در tidyr",
+    brief: "پیش از معرفی pivot_longer و pivot_wider، پکیج tidyr از توابع محبوب gather و spread استفاده می‌کرد. جدول metrics_wide را با gather به ساختار طویل تبدیل کرده و با spread به ساختار عریض بازگردانید.",
+    hint: "دستورات long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram) و wide_metrics <- spread(long_metrics, key = metric, value = usage) را اجرا کنید.",
+    lesson: "### فصل ۵۲ — تغییر شکل کلاسیک با gather و spread (دانش ضروری نگهداری کدها)\n\nمیلیون‌ها خط کد R در سراسر جهان با توابع تاریخی `gather` و `spread` نوشته شده‌اند:\n- **`gather(data, key, value, ...)`:** ستون‌های عریض را جمع کرده و به دو ستون کلید-مقدار (طویل) تبدیل می‌کند.\n- **`spread(data, key, value)`:** مقادیر ستون کلید را به ستون‌های مجزا تبدیل کرده و جدول را عریض می‌کند.\n\nتوابع نسل دوم `pivot_longer` و `pivot_wider` جایگزین این دو شدند تا نام‌گذاری واضح‌تر و کنترل خطای بهتری ارائه دهند، اما شناخت این توابع برای هر متخصص R الزامی است.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم نیاز به کوتیشن برای key و value در gather:** در `gather` نام‌های جدید بدون کوتیشن ارسال می‌شوند که در صورت تشابه با متغیرهای محیطی می‌تواند سردرگمی ایجاد کند.",
+    checksLabels: [
+          "تابع gather داده‌ها را به ۴ سطر طویل با ستون‌های metric و usage تبدیل کند",
+          "تابع spread داده‌های طویل را مجدداً به ساختار عریض اولیه بازگرداند"
+    ],
+    learning: [
+          "توابع gather و spread پایه‌گذار تغییر شکل ساختار داده در اکوسیستم اولیه Tidyverse بودند",
+          "آرگومان‌های کلیدی شامل key (نام متغیر دسته‌بندی) و value (مقدار عددی) هستند",
+          "تسلط بر این توابع برای خواندن، فهمیدن و نگهداری کدهای قدیمی در گیت‌هاب و مقالات ضروری است"
+    ],
+    fieldNotes: [
+          "در کدهای جدید همواره از pivot_longer و pivot_wider استفاده کنید؛ اما هر توسعه‌دهنده R باید توانایی ترجمه gather/spread را داشته باشد.",
+          "ستون‌هایی که در gather به عنوان آرگومان نام برده نمی‌شوند، به صورت خودکار به عنوان شناسه (ID) حفظ می‌شوند."
+    ],
+  },
+  "tidy-hms": {
+    title: "۵۳. مدیریت زمان روز و بازه‌های ساعتی با پکیج hms",
+    brief: "پکیج hms زمان روز را مستقل از تاریخ و تقویم به صورت ثانیه‌های سپری‌شده از نیمه‌شب ذخیره می‌کند. ساعات شروع کار را با parse_hms تجزیه کرده، زمان ناهار را با hms(hours = 12, minutes = 30) تعریف کنید و اختلاف زمانی را بر حسب ساعت بیابید.",
+    hint: "دستورات start_times <- parse_hms(shift_starts) و lunch_time <- hms(hours = 12, minutes = 30) و time_diff <- as.numeric(lunch_time - start_times[1], units = 'secs') / 3600 را وارد کنید.",
+    lesson: "### فصل ۵۳ — مدیریت ساعت روز و بازه‌های زمانی با پکیج hms\n\nدر بسیاری از کاربردها مانند برنامه‌ریزی شیفت‌های بیمارستانی یا زمان‌بندی مترو، ما به **ساعت روز** نیاز داریم نه یک تاریخ تقویمی خاص:\n- **کلاس `hms`:** زمان را به صورت ثانیه‌های بعد از نیمه‌شب ذخیره کرده و به زیبایی در فرمت `HH:MM:SS` نمایش می‌دهد.\n- **محاسبات بازه‌ای:** تفریق دو مقدار `hms` طول مدت فیزیکی بین دو رویداد را بدون تداخل سال یا ماه محاسبه می‌کند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم تفکیک ساعت با تاریخ:** استفاده از `POSIXct` برای ساعت خالی باعث می‌شود R تاریخ امروز را به آن بچسباند که در محاسبات اختلاف روزانه خطاساز است.",
+    checksLabels: [
+          "بردار start_times به عنوان یک بردار معتبر hms به طول ۳ شناخته شود",
+          "زمان lunch_time روی ۱۲:۳۰ تنظیم شده و اختلاف زمانی با شیفت اول ۴ ساعت باشد"
+    ],
+    learning: [
+          "پکیج hms زمان روز را به صورت ثانیه‌های خالص از مبدا ۰۰:۰۰:۰۰ بدون وابستگی به تقویم مدل می‌کند",
+          "توابع as_hms و parse_hms رشته‌های متنی با فرمت HH:MM:SS را مستقیماً تبدیل می‌نمایند",
+          "تفاضل اشیای hms یک شیء difftime برمی‌گرداند که برای محاسبات دقیق بازه‌های کاری ایده‌آل است"
+    ],
+    fieldNotes: [
+          "ستون‌های hms در تیبل‌ها برای برنامه‌ریزی شیفت‌های کاری، حرکت قطارها و الگوهای تکرارشونده شبانه‌روزی استفاده می‌شوند.",
+          "برخلاف POSIXct، اشیاء hms هرگز تحت تاثیر تغییر ساعت تابستانی (DST) جابجا نمی‌شوند."
+    ],
+  },
+  "import-readxl": {
+    title: "۵۴. ورود داده‌های اکسل و مدیریت شیت‌ها با پکیج readxl",
+    brief: "پکیج readxl فایل‌های اکسل (.xlsx و .xls) را با سرعت بالا و بدون نیاز به جاوا یا ابزارهای جانبی می‌خواند. لیست برگه (شیت)های فایل را با excel_sheets دریافت کرده، شیت Q1_Sales را با read_excel وارد کنید و مجموع درآمد q1_revenue را محاسبه نمایید.",
+    hint: "دستورات sheets <- excel_sheets(workbook_path) و q1_data <- read_excel(workbook_path, sheet = 'Q1_Sales') و q1_revenue <- sum(q1_data$revenue) را وارد کنید.",
+    lesson: "### فصل ۵۴ — خواندن فایل‌های اکسل با پکیج استاندارد readxl\n\nفایل‌های اکسل فرمت غالب تبادل گزارش‌های تجاری در سازمان‌ها هستند. پکیج **readxl** استاندارد طلایی R برای کار با اکسل است:\n1. بی‌نیازی کامل از نرم‌افزار جاوا یا نصب آفیس مایکروسافت.\n2. **`excel_sheets(path)`:** استخراج نام تمام تب‌های موجود در فایل.\n3. **`read_excel(path, sheet, range)`:** خواندن تب مشخص و استخراج سلول‌ها در قالب یک `tibble` تمیز.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشکال در سطر اول (هدرها):** اگر سطر اول فایل اکسل حاوی یادداشت یا سلول‌های ادغام‌شده (Merge) باشد، R آن را به اشتباه نام ستون در نظر می‌گیرد. همیشه با `skip = n` سطرهای اضافی را رد کنید.",
+    checksLabels: [
+          "تابع excel_sheets نام هر ۳ شیت موجود در فایل اکسل را برگرداند",
+          "شیت Q1_Sales با موفقیت خوانده شده و درآمد کل ۳۰۵۰۰ محاسبه شود"
+    ],
+    learning: [
+          "پکیج readxl فایل‌های اکسل استاندارد مدرن (.xlsx) و کلاسیک (.xls) را مستقیماً از دیسک می‌خواند",
+          "تابع excel_sheets اسامی برگه‌ها را استخراج می‌کند تا از خطای ارجاع به ایندکس‌های اشتباه جلوگیری شود",
+          "تابع read_excel از انتخاب شیت با نام یا شماره، محدودسازی بازه سلول‌ها (range) و مقادیر گم‌شده پشتیبانی می‌کند"
+    ],
+    fieldNotes: [
+          "همیشه پیش از خواندن فایل‌های ناشناخته اکسل از excel_sheets() برای کشف ساختار تب‌ها استفاده کنید.",
+          "برای حذف سطرهای مقدماتی یا بنرهای تبلیغاتی در بالای فایل اکسل، از آرگومان skip یا range استفاده نمایید."
+    ],
+  },
+  "data-rodbc": {
+    title: "۵۵. اتصال و کوئری پایگاه داده‌های رابطه‌ای با DBI و ODBC",
+    brief: "پروتکل‌های DBI و ODBC استانداردهای اتصال R به دیتابیس‌های SQL (مانند PostgreSQL, MySQL, SQL Server) هستند. با dbConnect یک اتصال باز کرده، ادمین‌ها را با dbGetQuery واکشی کنید و اتصال را با dbDisconnect ببندید.",
+    hint: "دستورات conn <- dbConnect('MockDriver') و admins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\") و is_closed <- dbDisconnect(conn) را اجرا کنید.",
+    lesson: "### فصل ۵۵ — اتصال به پایگاه‌های داده رابطه‌ای با DBI و ODBC\n\nدر محیط‌های سازمانی، داده‌ها در پایگاه‌های داده SQL نگهداری می‌شوند:\n1. **رابط یکپارچه DBI:** صرف‌نظر از اینکه به PostgreSQL، Oracle یا SQLite وصل می‌شوید، ساختار توابع در R یکسان است.\n2. **چرخه حیات اتصال:**\n   - `dbConnect(drv, ...)`: برقراری اتصال امن با سرور\n   - `dbGetQuery(conn, \"SELECT ...\")`: اجرای کوئری و دریافت دیتافریم\n   - `dbDisconnect(conn)`: بستن کانکشن\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فراموش کردن بستن کانکشن:** اتصالات باز رهاشده می‌توانند سقف مجاز اتصالات سرور دیتابیس را پر کرده و کل سیستم را از کار بیندازند. همیشه از `on.exit(dbDisconnect(conn))` استفاده کنید.",
+    checksLabels: [
+          "تابع dbGetQuery رکورد کاربران با نقش Admin را از دیتابیس استخراج کند",
+          "تابع dbDisconnect اتصال باز پایگاه داده را با موفقیت قطع نماید"
+    ],
+    learning: [
+          "پکیج DBI یک اینترفیس پایگاه‌داده یکپارچه برای تمام موتورهای SQL فراهم می‌کند",
+          "تابع dbGetQuery کوئری ارسالی را در سرور دیتابیس اجرا کرده و خروجی را به عنوان data.frame برمی‌گرداند",
+          "بستن اتصالات با dbDisconnect یا الگوی on.exit() از نشت منابع سرور و قفل شدن جداول جلوگیری می‌کند"
+    ],
+    fieldNotes: [
+          "در اسکریپت‌های تحلیلی همیشه دستور on.exit(dbDisconnect(conn), add = TRUE) را بلافاصله پس از اتصال قرار دهید.",
+          "برای جلوگیری از حملات تزریق SQL (SQL Injection)، از توابع پارامتریزه dbBind یا sqlInterpolate استفاده کنید."
+    ],
+  },
+  "prog-r4": {
+    title: "۵۶. ویژگی‌ها و دستور زبان مدرن در R 4.x (پایپ نیتیو و لامبدا)",
+    brief: "نسخه‌های R 4.x تغییرات بنیادینی به همراه داشتند: عملگر پایپ نیتیو (|>) بدون نیاز به هیچ پکیج جانبی، نحو مختصر تابع بی‌نام (لامبدا \\(x)) و رشته‌های خام. با پایپ نیتیو محاسبات quad_sum و پاک‌سازی متن txt را انجام دهید.",
+    hint: "دستورات quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum() و txt <- '  hello world  ' |> trimws() را اجرا نمایید.",
+    lesson: "### فصل ۵۶ — تغییرات و نوآوری‌های مدرن در زبان R نسخه 4.x\n\nزبان R در نسخه‌های ۴ به بعد دستخوش مدرن‌سازی اساسی شد:\n1. **پایپ نیتیو (`|>`):** دیگر نیازی به `library(magrittr)` نیست! پایپ در سطح گرامر مفسر C پیاده‌سازی شده و سریع‌تر است.\n2. **توابع لامبدا (`\\(x)`):** به جای نوشتن `function(x) x * 2`، می‌توانید خیلی شیک و کوتاه بنویسید `\\(x) x * 2`.\n3. **رشته‌های خام (Raw Strings):** با نحو `r\"(^[a-z]+$)\"` دیگر نیازی به نوشتن دو بک‌اسلش در رجکس‌ها نیست.\n4. **حذف تله ۲۵ ساله `stringsAsFactors`:** از R 4.0 به بعد، ستون‌های متنی دیگر به طور خودکار فاکتور نمی‌شوند!\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت پایپ نیتیو با magrittr:** پایپ نیتیو `|>` تابع سمت راست را حتماً به صورت فراخوانی ارزیابی می‌کند، بنابراین `x |> head()` معتبر است اما `x |> head` در برخی نسخه‌ها اخطار می‌دهد.",
+    checksLabels: [
+          "پایپ نیتیو |> و تابع لامبدا \\(x) مقدار quad_sum را به درستی به ۲۰ برسانند",
+          "تبدیل متنی پایپ‌شده در متغیر txt با موفقیت اجرا شود"
+    ],
+    learning: [
+          "عملگر پایپ نیتیو |> در هسته R 4.1 پیاده‌سازی شده و نیازی به بارگذاری پکیج magrittr ندارد",
+          "نحو خلاصه لامبدا \\(x) معادل تابع بی‌نام function(x) بوده و کدها را خواناتر می‌سازد",
+          "از نسخه R 4.0 مقدار پیش‌فرض stringsAsFactors به صورت سراسری FALSE شد"
+    ],
+    fieldNotes: [
+          "در R 4.2+ می‌توانید از عملگر مکان‌نگهدار _ برای ارسال به آرگومان‌های غیر اول استفاده کنید (مانند data = _).",
+          "رشته‌های خام با ساختار r'(...)' امکان نوشتن الگوهای Regex بدون نیاز به دو بار اسکیپ‌کردن بک‌اسلش را فراهم می‌کنند."
+    ],
+  },
+  "adv-s7": {
+    title: "۵۷. سیستم شیءگرایی نوین و یکپارچه S7 در زبان R",
+    brief: "سیستم S7 استاندارد رسمی جدید شیءگرایی است که توسط R Consortium و Posit برای جایگزینی نواقص S3 و پیچیدگی‌های S4 طراحی شده است. کلاس Dog را با خصوصیات مقید به نوع name و age بسازید، تابع ژنریک bark را ثبت کرده و متد آن را اجرا نمایید.",
+    hint: "کلاس را با new_class، تابع ژنریک را با new_generic و متد را با method(bark, 'Dog') تعریف کنید.",
+    lesson: "### فصل ۵۷ — سیستم شیءگرایی یکپارچه و آینده‌نگر S7 در R\n\nزبان R برای دهه‌ها با دوگانگی میان **S3** (بسیار ساده اما غیررسمی و بدون اعتبارسنجی نوع) و **S4** (بسیار پیچیده و سنگین) روبرو بود.\nکنسرسیوم رسمی R (R Consortium) با همکاری طراحان ارشد زبان R و شرکت Posit، سیستم **S7** را به عنوان آینده شیءگرایی R معرفی کردند:\n- **کلاس‌های تایپ‌سیف (`new_class`):** خصوصیات اشیاء دارای نوع تضمین‌شده هستند.\n- **ژنریک‌ها و متدهای مدرن (`new_generic`, `method`):** دیسپچ چندگانه و تمیز بدون سردرگمی نام‌گذاری.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم سازگاری نوع ویژگی‌ها:** در S7 اگر ویژگی `age` از نوع عددی باشد و شما رشته پاس بدهید، سیستم در لحظه ساخت خطا صادر می‌کند که مانع از خطاهای پنهان در اجرای برنامه‌ها می‌شود.",
+    checksLabels: [
+          "متغیر my_dog نمونه‌ای معتبر و مقید به نوع از کلاس S7 با نام Dog باشد",
+          "تابع ژنریک bark با موفقیت به متد تعریف‌شده کلاس Dog دیسپچ شود"
+    ],
+    learning: [
+          "سیستم S7 استاندارد نسل بعدی شیءگرایی در R است که سادگی S3 را با امنیت تایپ‌سیف S4 ترکیب کرده است",
+          "ویژگی‌ها (Properties) در S7 دارای انواع داده اجباری و ولیدیتورهای خودکار هنگام ساخت هستند",
+          "توابع ژنریک و متدها از دیسپچ چندگانه و ارزیابی رسمی پشتیبانی می‌کنند"
+    ],
+    fieldNotes: [
+          "پکیج S7 سازگاری کامل با کلاس‌های سنتی S3 و S4 دارد و امکان مدرن‌سازی تدریجی پکیج‌ها را فراهم می‌آورد.",
+          "دسترسی به ویژگی‌ها در S7 با علامت @ یا $ انجام می‌شود و تلاش برای انتساب داده با نوع نامعتبر بلافاصله خطا پرتاب می‌کند."
+    ],
+  },
+  "repro-rmarkdown": {
+    title: "۵۸. گزارش‌نویسی تکرارپذیر و اسناد پویا با R Markdown",
+    brief: "ابزار R Markdown متن تحلیلی، کدهای قابل اجرای R و نمودارها را در یک سند پویا تلفیق می‌کند. یک سند کامل شامل سربرگ YAML، چانک کد با تنظیمات (echo = FALSE, eval = TRUE) و کدهای درون‌متنی بسازید و با parse_rmd اعتبارسنجی کنید.",
+    hint: "بردار rmd_template را با مشخصات خواسته شده بسازید، با paste و جداکننده خط جدید ادغام کرده و با parse_rmd اعتبارسنجی نمایید.",
+    lesson: "### فصل ۵۸ — تولید گزارش‌های علمی و تکرارپذیر با R Markdown و Knitr\n\nتکرارپذیری (Reproducibility) قلب تپنده علم داده مدرن است. به جای کپی-پیست کردن دستی اعداد و نمودارها در ورد یا پاورپوینت، از **R Markdown** استفاده می‌کنیم:\n1. **سربرگ YAML:** تنظیمات سند بین دو خط `---` در ابتدای فایل.\n2. **چانک‌های کد (Code Chunks):** بلوک‌های کدی که با سه بک‌تیک و `{r}` آغاز می‌شوند.\n3. **تنظیمات کلیدی چانک:**\n   - `echo = FALSE`: اجرای کد بدون نمایش متن کد در گزارش نهایی (ایده‌آل برای مدیران)\n   - `eval = FALSE`: نمایش کد بدون اجرای آن\n   - `warning = FALSE, message = FALSE`: پنهان کردن پیام‌های سیستمی\n4. **کدهای درون‌متنی (Inline R):** تزریق خودکار متغیرها درون متن گزارش با نحو `` `r var` ``.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **محیط کاری ایزوله هنگام رِندر:** فرآیند ساخت گزارش (`render`) کدها را در یک سشن تازه R اجرا می‌کند؛ بنابراین تمام متغیرها و پکیج‌های موردنیاز باید صراحتاً درون خود فایل `.Rmd` بارگذاری و تعریف شده باشند.",
+    checksLabels: [
+          "سند R Markdown دارای سربرگ استاندارد YAML و چانک کد اجرایی باشد",
+          "تنظیم چانک echo = FALSE و کد R درون‌متنی r total_sales در گزارش وجود داشته باشد"
+    ],
+    learning: [
+          "مستندات R Markdown ترکیب یکپارچه‌ای از متن توضیحی، کدهای محاسباتی و خروجی‌ها در فرمت‌های HTML و PDF هستند",
+          "سربرگ YAML متادیتای عنوان، نویسنده، تاریخ و نوع قالب خروجی را تعریف می‌کند",
+          "تنظیمات چانک (Chunk Options) نحوه اجرای کد و نمایش یا پنهان‌سازی خروجی‌ها و اخطارها را کنترل می‌کنند"
+    ],
+    fieldNotes: [
+          "با تنظیم knitr::opts_chunk$set(echo = FALSE) در ابتدای سند، می‌توانید کدهای تمام چانک‌ها را به صورت سراسری در گزارش نهایی پنهان کنید.",
+          "استفاده از کدهای درون‌متنی (`r expr`) تضمین می‌کند که آمار و ارقام داخل متن با تغییر داده‌ها همیشه به روز باقی بمانند."
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -2640,6 +2792,158 @@ Das Ziel jedes R-Entwicklers lautet: **0 errors | 0 warnings | 0 notes**.
           "Für rechenintensive Schleifen ist Rcpp (C++) der Goldstandard im R-Ökosystem."
     ],
   },
+  "tidyr-separate-unite": {
+    title: "51. Spalten teilen und zusammenführen mit tidyr",
+    brief: "tidyr bietet separate(), um zusammengesetzte Textspalten zu trennen, und unite(), um mehrere Spalten mit einem Trennzeichen zusammenzufassen.",
+    hint: "Verwende sep_df <- separate(patients, col = name_code, into = c('first_name', 'code'), sep = '_') und reunited_df <- unite(sep_df, col = 'full_tag', first_name, code, sep = '-').",
+    lesson: "### Kapitel 51 — Textspalten teilen und vereinen mit tidyr\n\nIn der Datenbereinigung müssen Textspalten häufig normalisiert werden:\n- `separate()`: Teilt Strings anhand von Delimitern in neue Spalten auf.\n- `unite()`: Verknüpft mehrere Variablen zu einem einheitlichen Bezeichner.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Ungleichmäßige Split-Längen:** Bei variierender Anzahl von Trennzeichen greift `extra = \"merge\"`.",
+    checksLabels: [
+          "separate() teilt name_code erfolgreich in first_name und code",
+          "unite() verbindet Spalten zu full_tag mit Bindestrich"
+    ],
+    learning: [
+          "separate() zerlegt zusammengesetzte Zeichenketten anhand von Trennzeichen in separate Spalten",
+          "unite() fügt mehrere Spalten mit einem Trennzeichen zu einer einzigen Variablen zusammen",
+          "separate_wider_delim() stellt die moderne, typsichere Weiterentwicklung dar"
+    ],
+    fieldNotes: [
+          "remove = FALSE behält die Originalspalte für Validierungen bei.",
+          "extra = 'merge' verhindert Datenverlust bei ungleichmäßigen Trennzeichen."
+    ],
+  },
+  "tidyr-gather-spread": {
+    title: "52. Klassisches Reshaping mit gather() und spread()",
+    brief: "Vor pivot_longer() und pivot_wider() nutzte tidyr gather() und spread(). Forme metrics_wide mit gather(key = metric, value = usage) um und stelle sie mit spread() wieder her.",
+    hint: "Führe long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram) und wide_metrics <- spread(long_metrics, key = metric, value = usage) aus.",
+    lesson: "### Kapitel 52 — Historisches Reshaping mit gather() und spread()\n\nViele R-Bibliotheken nutzen nach wie vor `gather()` und `spread()`:\n- `gather()` bündelt Spalten zu Key-Value-Paaren.\n- `spread()` verteilt Werte wieder auf separate Spalten.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Unquoted Argumente:** `key` und `value` werden ohne Anführungszeichen deklariert.",
+    checksLabels: [
+          "gather() überführt weite Daten in 4 lange Zeilen mit metric und usage",
+          "spread() stellt das weite Tabellenformat wieder her"
+    ],
+    learning: [
+          "gather() und spread() bildeten das historische Fundament des Tidyverse-Reshapings",
+          "key und value definieren die neuen Bezeichner für Variablen und Messwerte",
+          "Unerlässlich für das Verständnis existierender Codebasen und wissenschaftlicher Skripte"
+    ],
+    fieldNotes: [
+          "In neuen Projekten pivot_longer()/pivot_wider() bevorzugen; Legacy-Syntax dennoch beherrschen.",
+          "Nicht spezifizierte Spalten in gather() fungieren automatisch als ID-Variablen."
+    ],
+  },
+  "tidy-hms": {
+    title: "53. Uhrzeiten und Zeitspannen mit hms",
+    brief: "Das Paket hms modelliert reine Uhrzeiten unabhängig von Kalenderdaten. Parse shift_starts mit parse_hms(), definiere lunch_time mit hms(hours = 12, minutes = 30) und berechne die Differenz in Stunden.",
+    hint: "Setze start_times <- parse_hms(shift_starts), lunch_time <- hms(hours = 12, minutes = 30) und berechne time_diff.",
+    lesson: "### Kapitel 53 — Reine Tageszeiten mit hms\n\nWenn nur die Uhrzeit relevant ist (z.B. Fahrpläne), vermeidet `hms` unnötige Datumsangaben:\n- Speichert Sekunden seit 00:00:00.\n- Erlaubt direkte Differenzberechnungen ohne Zeitzonen-Fehler.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **POSIXct-Falle:** POSIXct hängt immer ein Datum an, was bei reinen Tageszeitvergleichen zu Fehlern führt.",
+    checksLabels: [
+          "start_times als hms-Vektor der Länge 3 geparst",
+          "lunch_time entspricht 12:30 und time_diff beträgt exakt 4 Stunden"
+    ],
+    learning: [
+          "hms speichert Sekunden seit Mitternacht unabhängig von Zeitzonen oder Datumswerten",
+          "parse_hms() konvertiert Zeitstrings direkt in standardisierte Zeitobjekte",
+          "Subtraktionen liefern difftime-Objekte für präzise Intervallberechnungen"
+    ],
+    fieldNotes: [
+          "Ideal für Schichtpläne, Fahrpläne und tägliche Zyklen in Tibbles.",
+          "Immun gegen Zeitumstellungen (Sommerzeit/Winterzeit)."
+    ],
+  },
+  "import-readxl": {
+    title: "54. Excel-Arbeitsblätter importieren mit readxl",
+    brief: "readxl liest .xlsx und .xls Dateien ohne Java-Abhängigkeiten. Ermittle Arbeitsblätter mit excel_sheets(), importiere das Blatt 'Q1_Sales' und summiere den Umsatz in q1_revenue.",
+    hint: "Nutze sheets <- excel_sheets(workbook_path), q1_data <- read_excel(workbook_path, sheet = 'Q1_Sales') und q1_revenue <- sum(q1_data$revenue).",
+    lesson: "### Kapitel 54 — Excel-Dateien importieren mit readxl\n\nExcel ist das dominierende Format in Unternehmen. `readxl` ermöglicht den performanten Import:\n- `excel_sheets()`: Liest alle Tabellenblattnamen aus.\n- `read_excel()`: Lädt das Zielblatt direkt als Tibble.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Verbundene Zellen:** Führen zu NA-Werten; formatiere Excel-Dateien vorab tabellarisch.",
+    checksLabels: [
+          "excel_sheets() ermittelt alle 3 Tabellenblattnamen",
+          "read_excel() importiert Q1_Sales und summiert 30500 Umsatz"
+    ],
+    learning: [
+          "readxl liest .xlsx und .xls nativ und schnell ohne externe Software-Abhängigkeiten",
+          "excel_sheets() listet verfügbare Reiter vor dem Laden auf",
+          "read_excel() unterstützt gezielte Blattauswahl und Zellbereiche (z.B. range = 'A1:D50')"
+    ],
+    fieldNotes: [
+          "Prüfe immer zuerst Blattnamen via excel_sheets(), um Fehler durch verschobene Tabs zu vermeiden.",
+          "Nutze skip, um Kopfzeilen oder Metadatenblöcke vor der eigentlichen Datentabelle zu überspringen."
+    ],
+  },
+  "data-rodbc": {
+    title: "55. Datenbankabfragen mit DBI & ODBC",
+    brief: "DBI und ODBC ermöglichen relationale Datenbankverbindungen in R. Öffne eine Verbindung mit dbConnect(), frage Admins per dbGetQuery() ab und schließe sie mit dbDisconnect().",
+    hint: "Führe conn <- dbConnect('MockDriver'), admins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\") und is_closed <- dbDisconnect(conn) aus.",
+    lesson: "### Kapitel 55 — Datenbankzugriff mit DBI und ODBC\n\nUnternehmen speichern Produktivdaten in relationalen Datenbanken:\n- `dbConnect()`: Baut die Verbindung auf.\n- `dbGetQuery()`: Führt SQL-Select-Statements aus.\n- `dbDisconnect()`: Schließt Sockets sauber.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Offene Verbindungen:** Nicht geschlossene Handles blockieren Verbindungspools.",
+    checksLabels: [
+          "dbGetQuery() ruft Admin-Datensätze per SQL ab",
+          "dbDisconnect() schließt die Datenbankverbindung ordnungsgemäß"
+    ],
+    learning: [
+          "DBI bietet eine konsistente Datenbankschnittstelle für alle gängigen SQL-Systeme",
+          "dbGetQuery() führt SQL auf dem Server aus und liefert Data Frames zurück",
+          "Sauberes Schließen von Verbindungen verhindert Ressourcenlecks auf Datenbankservern"
+    ],
+    fieldNotes: [
+          "Nutze on.exit(dbDisconnect(conn), add = TRUE) für garantiertes Schließen bei Fehlern.",
+          "Verwende stets parametrisierte Abfragen gegen SQL-Injection-Angriffe."
+    ],
+  },
+  "prog-r4": {
+    title: "56. Moderne R 4.x Syntax (Native Pipe & Lambdas)",
+    brief: "R 4.1+ führt die native Pipe |> und Lambda-Kurzschreibweisen \\(x) ein. Verknüpfe Vektoren mit der nativen Pipe und berechne quad_sum und txt.",
+    hint: "Setze quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum() und txt <- '  hello world  ' |> trimws().",
+    lesson: "### Kapitel 56 — Moderne Spracheigenschaften ab R 4.x\n\nR wurde in Version 4 grundlegend modernisiert:\n- **Native Pipe (`|>`):** Schnellere Ausführung ohne Zusatzpakete.\n- **Lambdas (`\\(x)`):** Kompakte funktionale Ausdrücke.\n- **Raw Strings:** Vereinfachen Regex-Definitionen.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Klammerpflicht:** Die native Pipe verlangt stets Klammern beim Funktionsaufruf (`x |> fun()`).",
+    checksLabels: [
+          "Native Pipe |> und Lambda \\(x) berechnen quad_sum korrekt zu 20",
+          "Native Pipe verarbeitet String-Transformation fehlerfrei"
+    ],
+    learning: [
+          "Die native Pipe |> ist direkt in R 4.1+ integriert und unabhängig von magrittr",
+          "\\(x) fungiert als native Kurzform für anonyme Funktionen (function(x))",
+          "Seit R 4.0.0 ist stringsAsFactors = FALSE der globale Standard"
+    ],
+    fieldNotes: [
+          "In R 4.2+ dient der Unterstrich _ als Platzhalter für benannte Argumente.",
+          "Raw Strings r'(...)' eliminieren doppelte Backslashes in regulären Ausdrücken."
+    ],
+  },
+  "adv-s7": {
+    title: "57. Einheitliche moderne Objektorientierung mit S7",
+    brief: "S7 ist das neue offizielle OOP-System des R-Konsortiums als Nachfolger von S3 und S4. Definiere eine Dog-Klasse mit typisierten Properties, erstelle ein Generikum bark und implementiere die Methode.",
+    hint: "Nutze Dog <- new_class('Dog', properties = ...), bark <- new_generic('bark', 'x') und weise die Methode zu.",
+    lesson: "### Kapitel 57 — Das moderne S7-Objektsystem für R\n\nDas R Consortium hat mit **S7** die Zukunft der OOP in R definiert:\n- Löst das Dilemma zwischen informellem S3 und bürokratischem S4.\n- Automatische Typvalidierung bei Objekt-Erzeugung.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Strikte Typen:** Anders als in S3 führt die Zuweisung falscher Datentypen in S7 sofort zum Abbruch.",
+    checksLabels: [
+          "my_dog ist eine valide S7-Instanz mit typisierten Properties",
+          "Generischer bark-Dispatch führt die Dog-Methode korrekt aus"
+    ],
+    learning: [
+          "S7 vereint die Leichtigkeit von S3 mit der Typsicherheit von S4",
+          "Eigenschaften werden bei der Instanziierung automatisch auf Typkorrektheit geprüft",
+          "Volle Rückwärtskompatibilität mit existierenden S3/S4-Codebasen"
+    ],
+    fieldNotes: [
+          "Properties werden über @ oder $ typgeprüft angesprochen.",
+          "S7 wird sukzessive zum neuen Standard für moderne R-Pakete."
+    ],
+  },
+  "repro-rmarkdown": {
+    title: "58. Reproduzierbare Berichte mit R Markdown",
+    brief: "R Markdown kombiniert Fließtext mit ausführbarem R-Code. Erstelle ein Rmd-Dokument mit YAML-Header, Chunk-Optionen (echo = FALSE, eval = TRUE) und inline R-Code.",
+    hint: "Erstelle rmd_template mit YAML, Code-Chunk und Inline-Code und prüfe mit parse_rmd().",
+    lesson: "### Kapitel 58 — Reproduzierbares Reporting mit R Markdown\n\nR Markdown garantiert wissenschaftliche Nachvollziehbarkeit:\n- **YAML-Header:** Definiert Titel und Ausgabemedium.\n- **Code-Chunks:** Ausführbare R-Blöcke mit flexiblen Optionen (`echo`, `eval`).\n- **Inline-Code:** Dynamische Zahlen im Text via `` `r variable` ``.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Isolierte Sitzung beim Rendern:** Knitr startet eine frische R-Instanz; alle Bibliotheken und Daten müssen im Rmd selbst geladen werden.",
+    checksLabels: [
+          "R Markdown Dokument besitzt validen YAML-Header und Code-Chunk",
+          "Dokument enthält Chunk-Option echo = FALSE und inline R-Ausdruck"
+    ],
+    learning: [
+          "R Markdown vereint Text, R-Berechnungen und Visualisierungen in dynamischen HTML/PDF-Reports",
+          "Der YAML-Header steuert Metadaten, Formate und Themes",
+          "Chunk-Optionen (echo, eval, warning) steuern Sichtbarkeit und Ausführung präzise"
+    ],
+    fieldNotes: [
+          "knitr::opts_chunk$set(echo = FALSE) blendet Quellcode global in Management-Berichten aus.",
+          "Inline R-Code (`r expr`) hält Fließtext-Kennzahlen bei Datenupdates automatisch synchron."
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -3132,6 +3436,30 @@ The hallmark of a production-ready package is achieving **0 errors | 0 warnings 
   },
   "adv-profiling": {
     lesson: "### Chapter 50 — Benchmarking & Memory Optimization\n\nWriting high-performance R code requires understanding how memory allocation affects algorithmic complexity:\n- **The Growing Vector Trap:** Calling `vec <- c(vec, new_item)` inside a loop reallocates and copies the entire array every iteration, degrading performance to quadratic $O(N^2)$ time.\n- **Pre-allocation:** Allocating the destination vector upfront with `numeric(n)` or `vector(\"list\", n)` achieves optimal linear $O(N)$ execution.\n- **Native Vectorization:** Compiled C primitives in R outpace interpreted loops by orders of magnitude.\n\n#### ⚠️ Common Gotchas:\n- **Ignoring Existing Vectorized Primitives:** Before writing explicit loops, check if a vectorized primitive (such as `(1:n)^2` or `colSums()`) solves the task natively.",
+  },
+  "tidyr-separate-unite": {
+    lesson: "### Chapter 51 — Column Splitting & Combining with tidyr\n\nData often packs multiple measurements into a single compound string:\n- **`separate(data, col, into, sep)`:** Splits a delimited column into distinct variables.\n- **`unite(data, col, ..., sep)`:** Glues multiple columns together into a single identifier.\n\nModern tidyr also features `separate_wider_delim()` and `separate_wider_regex()` for strict programmatic safety.\n\n#### ⚠️ Common Gotchas:\n- **Mismatched Split Lengths:** When rows contain variable numbers of delimiters, use `extra = \"merge\"` or `fill = \"right\"` to prevent dropped fragments.",
+  },
+  "tidyr-gather-spread": {
+    lesson: "### Chapter 52 — Classic Reshaping with gather() & spread()\n\nBefore `pivot_longer()` and `pivot_wider()` arrived, `gather()` and `spread()` formed the backbone of tidy data transformations:\n- **`gather(data, key, value, ...)`:** Gathers wide columns into key-value pairs.\n- **`spread(data, key, value)`:** Spreads long key-value observations across columns.\n\nUnderstanding their exact mechanics is essential for maintaining production codebases and consulting legacy R scripts.\n\n#### ⚠️ Common Gotchas:\n- **Bare Arguments:** The `key` and `value` names are passed as unquoted symbols, which could clash with column names in complex pipelines.",
+  },
+  "tidy-hms": {
+    lesson: "### Chapter 53 — Time of Day & Durations with hms\n\nMany analytical workflows require pure **time of day** independent of any calendar date:\n- **The `hms` class:** Stores elapsed seconds since midnight and renders cleanly as `HH:MM:SS`.\n- **Interval Arithmetic:** Subtracting two `hms` objects yields clean physical durations without timezone or leap-second interference.\n\n#### ⚠️ Common Gotchas:\n- **Attaching Arbitrary Dates:** Using `POSIXct` for time of day silently prepends today's date, causing bugs when calculating recurring daily deltas.",
+  },
+  "import-readxl": {
+    lesson: "### Chapter 54 — Excel Worksheets Import with readxl\n\nExcel workbooks (.xlsx, .xls) are ubiquitous in enterprise environments. The `readxl` package reads them natively without Java or external dependencies:\n- **`excel_sheets(path)`:** Discovers all available worksheet tab names.\n- **`read_excel(path, sheet = ..., range = ...)`:** Imports data directly into a tidy tibble.\n\n#### ⚠️ Common Gotchas:\n- **Merged Header Cells:** Spreadsheets often include corporate titles in rows 1–3. Use `skip = 3` or `range = cell_limits(...)` to skip metadata headers.",
+  },
+  "data-rodbc": {
+    lesson: "### Chapter 55 — Database Queries with DBI & RODBC\n\nEnterprise data architectures store records in relational SQL databases. The **DBI** interface provides a standardized protocol across drivers:\n- **Connection Lifecycle:** `dbConnect()` connects, `dbGetQuery()` fetches tabular records directly, and `dbDisconnect()` terminates sockets cleanly.\n\n#### ⚠️ Common Gotchas:\n- **Leaking Connections:** Unclosed database handles exhaust server connection pools. Always pair connections with `on.exit(dbDisconnect(conn), add = TRUE)`.",
+  },
+  "prog-r4": {
+    lesson: "### Chapter 56 — Modern R 4.x Syntax & Features\n\nR 4.x introduced transformational language modernizations:\n- **The Native Forward Pipe (`|>`):** Baked directly into the R 4.1+ grammar, operating with zero external package dependencies.\n- **Shorthand Lambdas (`\\(x)`):** Concise syntactic sugar replacing verbose `function(x)` declarations.\n- **Raw String Literals (`r\"(...)\"`):** Eliminates double-escaped backslashes in regex.\n- **`stringsAsFactors = FALSE`:** Made the permanent default in R 4.0.0, eliminating a historic pitfall.\n\n#### ⚠️ Common Gotchas:\n- **Mandatory Parentheses:** Unlike magrittr's `%>%`, the native pipe requires explicit parentheses around function calls (`x |> mean()`).",
+  },
+  "adv-s7": {
+    lesson: "### Chapter 57 — Unified Object-Oriented Programming with S7\n\nFor decades, R developers balanced between S3 (informal, no property type enforcement) and S4 (verbose, steep learning curve).\nDeveloped collaboratively by the R Consortium (R Core & Posit), **S7** represents the unified future of R OOP:\n- **`new_class()`:** Explicit class schemas with strictly typed properties and automatic construction validation.\n- **`new_generic()` & `method()`:** First-class polymorphic dispatch without string-munging conventions.\n\n#### ⚠️ Common Gotchas:\n- **Type Invalidation:** In S7, assigning an incompatible type to a declared property triggers an immediate validation failure rather than silently corrupting downstream calculations.",
+  },
+  "repro-rmarkdown": {
+    lesson: "### Chapter 58 — Reproducible Reporting with R Markdown\n\nReproducibility is the gold standard of scientific computing. R Markdown merges narrative documentation with live R calculations:\n- **YAML Frontmatter:** Configures title, author, and output targets (HTML, PDF, Word).\n- **Code Chunks:** Executable blocks bounded by ````{r} ... ````.\n- **Chunk Options:** `echo = FALSE` (hide code from readers), `eval = TRUE` (execute calculations), `message = FALSE`, `warning = FALSE`.\n- **Inline Code:** Embedding dynamic calculations directly into sentences via ```` `r expr` ````.\n\n#### ⚠️ Common Gotchas:\n- **Clean Environment During Rendering:** Running `rmarkdown::render()` executes in a fresh, isolated background process. Everything your report depends on must be explicitly loaded in the document itself.",
   },
 };
 

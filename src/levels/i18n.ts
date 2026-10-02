@@ -327,16 +327,24 @@ cube <- function(x) x^3
   },
   dplyr: {
     title: '۱۴. دستکاری داده‌ها و عملگر خط لوله (Pipe)',
-    brief: 'با عملگر خط لوله |> عملیات فیلتر قیمت و محاسبه total = price * qty را زنجیره‌ای انجام دهید.',
-    hint: 'دستور valuable <- subset(inventory, price >= 15) |> transform(total = price * qty) را بنویسید.',
+    brief: 'عملیات را با عملگر پایپ بومی |> زنجیره‌ای کنید. روی cars_sample خودروهای با mpg >= 18 را فیلتر کرده و نسبت قدرت به وزن pwr_ratio = round(hp / wt, 1) را محاسبه کنید.',
+    hint: 'دستور valuable <- subset(cars_sample, mpg >= 18) |> transform(pwr_ratio = round(hp / wt, 1)) را بنویسید.',
     lesson: `### فصل ۱۴ — دستکاری داده‌ها با عملگر خط لوله (Pipe)
 
-عملگر خط لوله مدرن پایه R (\`|>\`):
+عملگر خط لوله مدرن بومی R (\`|>\`):
 نتیجه عبارت سمت چپ را به عنوان ورودی اول تابع سمت راست ارسال می‌کند.
-این الگو مانع از پرانتزهای تودرتو و پیچیده شده و کدی خوانا و خطی به وجود می‌آورد.`,
+این الگو مانع از پرانتزهای تودرتو و پیچیده شده و کدی خوانا و خطی به وجود می‌آورد:
+
+\`\`\`r
+data |> filter(...) |> transform(...)
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **نیاز به پرانتز در پایپ بومی:** در پایپ قدیمی \`%>%\` نوشتن \`x %>% mean\` کار می‌کرد؛ اما در پایپ بومی \`|>\` حتماً باید پرانتز توابع را بگذارید (\`x |> mean()\`).`,
     checksLabels: [
-      'دیتافریم valuable شامل ۳ قلم فیلترشده باشد',
-      'ستون total مقادیر محاسباتی قیمت در تعداد را نگه دارد',
+      'دیتافریم valuable شامل خودروهای فیلترشده باشد',
+      'تمام خودروهای فیلترشده دارای مصرف mpg >= 18 باشند',
+      'ستون نسبت توان به وزن pwr_ratio محاسبه شده باشد',
     ],
     learning: [
       'عملگر خط لوله |> خروجی سمت چپ را به اولین ورودی سمت راست متصل می‌کند',
@@ -356,7 +364,10 @@ cube <- function(x) x^3
 
 اتصال جداول در R با تابع \`merge()\` صورت می‌گیرد:
 - **اتصال چپ (Left Join)**: با گزینه \`all.x = TRUE\` تمام رکوردهای جدول اول حفظ شده و در صورت نبود سفارش، مقدار \`NA\` درج می‌شود.
-- **اتصال درونی (Inner Join)**: پیش‌فرض \`merge()\` که فقط رکوردهای مشترک در هر دو جدول را نگه می‌دارد.`,
+- **اتصال درونی (Inner Join)**: پیش‌فرض \`merge()\` که فقط رکوردهای مشترک در هر دو جدول را نگه می‌دارد.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **انفجار سطرها با کلید تکراری:** اگر کلید انتخابی در یکی از جداول تکراری باشد، عملیات Join سطرها را در یکدیگر ضرب دکارتی می‌کند و تعداد سطرهای خروجی ناخواسته چندبرابر می‌شود.`,
     checksLabels: [
       'دیتافریم report شامل ۳ سطر حاصل از اتصال باشد',
       'ردیف مربوط به Ali سفارش خود را به درستی جذب کرده باشد',
@@ -379,7 +390,10 @@ cube <- function(x) x^3
     lesson: `### فصل ۱۶ — داده‌های تقویمی و زمانی
 
 در زبان R، کلاس \`Date\` برای مدیریت تاریخ‌های تقویمی و کلاس \`POSIXct\` برای زمان همراه با ساعت به کار می‌رود.
-تفریق دو تاریخ به صورت خودکار تفاوت روزها (\`difftime\`) را برمی‌گرداند.`,
+تفریق دو تاریخ به صورت خودکار تفاوت روزها (\`difftime\`) را برمی‌گرداند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **کدهای سال ۴ رقمی و ۲ رقمی:** در فرمت‌بندی تاریخ، \`%Y\` نشان‌دهنده سال ۴ رقمی (2026) و \`%y\` نشان‌دهنده سال ۲ رقمی (26) است. اشتباه گرفتن این دو باعث خطای محاسباتی سده می‌شود.`,
     checksLabels: [
       'متغیرهای start_date و end_date از کلاس Date باشند',
       'مقدار days_between برابر با ۱۴ روز باشد',
@@ -396,15 +410,19 @@ cube <- function(x) x^3
   },
   'data-table': {
     title: '۱۷. خلاصه‌سازی و تجمیع داده‌ها',
-    brief: 'با تابع aggregate() مجموع مبالغ تراکنش‌ها را بر اساس بخش‌های سازمانی در dept_totals محاسبه نمایید.',
-    hint: 'دستور dept_totals <- aggregate(amount ~ dept, data = transactions, FUN = sum) را بنویسید.',
-    lesson: `### فصل ۱۷ — تجمیع گروهی داده‌ها
+    brief: 'داده‌ها را دسته‌بندی کنید: با aggregate() میانگین مصرف سوخت (mpg) را بر اساس تعداد سیلندر (cyl) در mtcars داخل cyl_summary ذخیره نمایید.',
+    hint: 'دستور cyl_summary <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean) را بنویسید.',
+    lesson: `### فصل ۱۷ — گروه‌بندی و تجمیع داده‌ها (Split-Apply-Combine)
 
-تابع \`aggregate(formula, data, FUN)\` مقادیر عددی را بر اساس متغیرهای طبقه‌بندی دسته‌بندی و تابع موردنظر (مانند sum یا mean) را روی هر گروه محاسبه می‌کند.`,
+یکی از پرکاربردترین نیازهای روزمره علم داده، خلاصه‌سازی و تجمیع متغیرهای پیوسته بر اساس دسته‌ها است.
+فرمول نحوی \`aggregate(y ~ group, data, FUN)\` زبان R این الگو را به شکل فوق‌العاده کوتاه و خوانا پیاده‌سازی می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تکمیل سطرهای دارای NA:** به طور پیش‌فرض، \`aggregate\` سطرهایی که در متغیرهای گروه‌بندی آنها \`NA\` وجود دارد را حذف می‌کند، مگر اینکه با پارامتر \`na.action = na.pass\` مانع شوید.`,
     checksLabels: [
-      'متغیر dept_totals یک دیتافریم باشد',
-      'مجموع مبالغ بخش IT برابر ۸۵۰ باشد',
-      'مجموع مبالغ بخش HR برابر ۳۵۰ باشد',
+      'متغیر cyl_summary یک دیتافریم باشد',
+      'دیتافریم cyl_summary شامل ۳ دسته سیلندر باشد',
+      'میانگین مصرف ۴ سیلندر به درستی محاسبه شده باشد',
     ],
     learning: [
       'تابع aggregate() شاخص‌های آماری را به تفکیک گروه‌ها خلاصه می‌کند',
@@ -418,15 +436,19 @@ cube <- function(x) x^3
   },
   'outliers-plots': {
     title: '۱۸. شناسایی داده‌های پرت و رسم نمودار',
-    brief: 'فاصله میان‌چارکی را با IQR() محاسبه کرده و با تابع boxplot() نمودار جعبه‌ای مقادیر را رسم کنید.',
-    hint: 'دستورهای iqr_val <- IQR(vals) و boxplot(vals, col = "#2569bb", main = "Distribution") را اجرا کنید.',
+    brief: 'نقاط پرت آماری را با IQR() شناسایی کرده و توزیع مقادیر ازن (Ozone) در airquality را با boxplot() همراه با عناوین رسم کنید.',
+    hint: 'دستورهای iqr_val <- IQR(ozone_clean) و boxplot(ozone_clean, col = "#2569bb", main = "Ozone Distribution (ppb)", ylab = "Ozone (ppb)") را اجرا کنید.',
     lesson: `### فصل ۱۸ — داده‌های پرت و نمودارهای گرافیکی
 
 - **دامنه میان‌چارکی (\`IQR\`):** تفاوت بین چارک سوم (۷۵٪) و چارک اول (۲۵٪).
-- **نمودار جعبه‌ای (\`boxplot\`):** میانه، چارک‌ها و داده‌های پرت آماری (فراتر از ۱.۵ برابر IQR) را مصورسازی می‌کند.`,
+- **معیار توکی برای Outlierها:** داده‌هایی که کمتر از \`Q1 - 1.5*IQR\` یا بیشتر از \`Q3 + 1.5*IQR\` باشند نقاط دورافتاده تلقی می‌شوند.
+- **نمودار جعبه‌ای (\`boxplot\`):** میانه، چارک‌ها و داده‌های پرت آماری (فراتر از ۱.۵ برابر IQR) را مصورسازی می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **حذف چشم‌بسته نقاط پرت:** هرگز نباید نقاط پرت را بدون تحقیق علمی حذف کرد؛ این نقاط گاهی حاوی باارزش‌ترین سیگنال‌های پنهان داده (مثل تقلب در تراکنش بانکی) هستند.`,
     checksLabels: [
-      'مقدار iqr_val به درستی محاسبه شده باشد',
-      'نمودار جعبه‌ای روی بوم ترسیم شده باشد',
+      'مقدار iqr_val با دامنه میان‌چارکی Ozone تطابق داشته باشد',
+      'نمودار جعبه‌ای همراه با عنوان روی بوم رسم شده باشد',
     ],
     learning: [
       'دستور IQR() دامنه میان‌چارکی توزیع داده‌ها را محاسبه می‌کند',
@@ -438,29 +460,97 @@ cube <- function(x) x^3
       'در ابزارهای پایش خودکار، نمودارهای جعبه‌ای به عنوان شاخص انحراف توزیع داده‌ها (Drift) استفاده می‌شوند.',
     ],
   },
-  capstone: {
-    title: '۱۹. پروژه جامع و جمع‌بندی دوره',
-    brief: 'یک پایپلاین کامل داده: فیلتر نمرات معتبر (score > 0)، تجمیع میانگین بر اساس گروه و رسم نمودار میله‌ای بارپلات.',
-    hint: 'دستورهای valid <- subset(project_data, score > 0)، group_means <- aggregate(score ~ group, data = valid, FUN = mean) و barplot(group_means$score, names.arg = group_means$group, col = "#2569bb") را اجرا کنید.',
-    lesson: `### فصل ۱۹ — پروژه جامع و پایپلاین تحلیل داده
+  regression: {
+    title: '۱۹. رگرسیون خطی و تشخیص مدل',
+    brief: 'مدل رگرسیون چندگانه را برای پیش‌بینی mpg بر اساس wt و hp در mtcars برازش داده و ضریب تعیین r_squared را استخراج کنید.',
+    hint: 'دستورهای fit <- lm(mpg ~ wt + hp, data = mtcars) و r_squared <- summary(fit)$r.squared را اجرا کنید.',
+    lesson: `### فصل ۱۹ — رگرسیون خطی و مدل‌سازی آماری
 
-در این پروژه نهایی تمام مفاهیم آموخته‌شده را در یک گردش کار کامل ترکیب می‌کنید:
-1. فیلتر کردن رکوردهای نامعتبر با \`subset()\`
-2. خلاصه‌سازی و محاسبه میانگین بر اساس گروه با \`aggregate()\`
-3. رسم نمودار ستونی با \`barplot()\` برای ارائه بصری نتایج`,
+قلب تپنده زبان R توانایی بی‌نظیر آن در آمار و مدل‌سازی ریاضی است.
+تابع \`lm(formula, data)\` مدل رگرسیون خطی را با روش کمترین مربعات خطا (OLS) برازش می‌دهد:
+
+\`\`\`r
+fit <- lm(mpg ~ wt + hp, data = mtcars)
+summary(fit)
+\`\`\`
+
+- **ضرایب (\`coef\`):** نشان‌دهنده شیب تغییرات متغیر هدف به ازای ۱ واحد تغییر در هر ویژگی.
+- **ضریب تعیین (\`R-squared\`):** درصدی از پراکندگی داده‌ها که توسط مدل توجیه می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **همبستگی برابر با علیت نیست (Correlation != Causation):** معنادار بودن آماری یک ضریب لزوماً به معنای رابطه علت و معلولی در دنیای واقعی نیست.
+- **تله R-squared بالا:** با افزودن متغیرهای بی‌ربط، \`R-squared\` همیشه افزایش می‌یابد! در رگرسیون چندگانه همیشه باید \`Adjusted R-squared\` را بررسی کنید.`,
     checksLabels: [
-      'دیتافریم valid شامل ۴ سطر با نمره مثبت باشد',
-      'دیتافریم group_means میانگین هر گروه را محاسبه کرده باشد',
-      'نمودار میله‌ای با موفقیت رسم شده باشد',
+      'مدل رگرسیون خطی fit برازش داده شده باشد',
+      'مدل شامل ضرایب عرض از مبدأ، wt و hp باشد',
+      'ضریب تعیین مدل بالای ۸۰٪ واریانس را توجیه کند (R-squared > 0.8)',
     ],
     learning: [
-      'گردش کار کامل داده: پاکسازی، تجمیع و رسم نمودار در یک پایپلاین متصل',
-      'ترکیب فیلترهای رابطه‌ای، تجمیع آماری و ابزارهای بصری‌سازی',
-      'تسلط کامل بر مبانی عملی و کاربردی برنامه‌نویسی با زبان R',
+      'تابع lm() مدل‌های رگرسیون خطی چندگانه OLS را برازش می‌دهد',
+      'سینتکس فرمول y ~ x1 + x2 متغیرهای وابسته و پیش‌بین را تعریف می‌کند',
+      'ضریب تعیین R-squared نسبت واریانس توجیه‌شده توسط مدل را اندازه‌گیری می‌کند',
+    ],
+    fieldNotes: [
+      'رگرسیون خطی مدل پایه استاندارد در اقتصادسنجی، پیش‌بینی مالی و استنباط علّی است.',
+      'در محیط‌های صنعتی حتماً نمودارهای تشخیصی (plot(fit)) را برای بررسی ناهم‌واریانسی خطاها و داده‌های اثرگذار بررسی کنید.',
+    ],
+  },
+  hypothesis: {
+    title: '۲۰. آزمون فرض آماری و پیش‌بینی',
+    brief: 'یک آزمون t دونمونه‌ای برای مقایسه مصرف سوخت بر اساس نوع گیربکس (am) اجرا کرده و مقدار mpg را برای یک خودروی ۳۰۰۰ پوندی با ۱۵۰ اسب بخار پیش‌بینی کنید.',
+    hint: 'دستورهای ttest_res <- t.test(mpg ~ am, data = mtcars) و pred_mpg <- as.numeric(predict(fit, newdata = data.frame(wt = 3.0, hp = 150))) را وارد کنید.',
+    lesson: `### فصل ۲۰ — آزمون فرض آماری و پیش‌بینی (Inference & Prediction)
+
+آزمون‌های آماری به ما اجازه می‌دهند تصمیم بگیریم آیا تفاوت مشاهده‌شده بین گروه‌ها واقعی است یا ناشی از شانس و تصادف.
+تابع \`t.test()\` تفاوت میانگین دو گروه (مانند گیربکس اتوماتیک در برابر دستی) را آزمون می‌کند.
+اگر مقدار **p-value** کمتر از ۰.۰۵ باشد، فرض صفر رد شده و تفاوت معنادار آماری تلقی می‌گردد.
+
+سپس با تابع \`predict(model, newdata)\` می‌توان از مدل آموزش‌دیده برای پیش‌بینی روی رکوردهای ندیده‌شده استفاده کرد.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **هم‌نام بودن ستون‌های \`newdata\`:** ورودی \`newdata\` در تابع \`predict\` باید حتماً یک \`data.frame\` باشد و نام ستون‌های آن دقیقاً مطابق با متغیرهای ورودی فرمول اولیه مدل باشد.`,
+    checksLabels: [
+      'شیء آزمون فرضیه ttest_res معتبر باشد',
+      'مقدار p-value از نظر آماری معنادار باشد (p < 0.05)',
+      'پیش‌بینی مصرف سوخت pred_mpg در محدوده منطقی (۱۵ تا ۲۵ مایل بر گالن) قرار گیرد',
+    ],
+    learning: [
+      'تابع t.test() تفاوت میانگین دو گروه مستقل را ارزیابی آماری می‌کند',
+      'مقدار p-value < 0.05 نشان‌دهنده معناداری آماری در سطح اطمینان ۹۵٪ است',
+      'تابع predict() مقادیر مدل را روی دیتافریم‌های مشاهده جدید اعمال می‌کند',
+    ],
+    fieldNotes: [
+      'آزمون‌های فرض آماری زیربنای تصمیم‌گیری در پلتفرم‌های تست A/B و کارآزمایی‌های بالینی دارویی هستند.',
+      'در سرویس‌های پیش‌بینی، اطمینان حاصل کنید ساختار دیتافریم newdata دقیقاً مطابق داده‌های آموزش مدل باشد.',
+    ],
+  },
+  capstone: {
+    title: '۲۱. پروژه جامع: تحلیل کامل علم داده',
+    brief: 'پایپلاین کامل روی airquality: پاکسازی داده‌های مفقوده، محاسبه همبستگی بین دما و ازن و رسم نمودار پراکندگی با خط رگرسیون (abline).',
+    hint: 'با na.omit() پاکسازی کنید، cor() را محاسبه کرده و دستورات plot() و abline(lm(...)) را اجرا نمایید.',
+    lesson: `### فصل ۲۱ — پروژه جامع: تحلیل کامل صفر تا صد علم داده
+
+تبریک می‌گوییم! شما تمام مهارت‌های پایه‌ای تا پیشرفته، پاکسازی، ساختارهای داده، آمار، رگرسیون و مصورسازی علمی زبان R را فرا گرفتید.
+در این پروژه نهایی:
+۱. داده‌های واقعی کیفیت هوای نیویورک را بارگذاری و مقادیر مفقوده را پاکسازی می‌کنید.
+۲. همبستگی پیرسون بین دو پدیده فیزیکی (دما و غلظت ازن) را محاسبه می‌کنید.
+۳. نمودار نقطه‌ای علمی را همراه با خط روند رگرسیون خطی رسم می‌کنید.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **چهارگانه آنسکومب (Anscombe's Quartet):** هرگز نباید تنها به ضریب همبستگی یا رگرسیون اکتفا کرد؛ همیشه باید نقاط واقعی داده را روی نمودار دید تا از وجود الگوهای غیرخطی یا داده‌های پرت شدید آگاه شد.`,
+    checksLabels: [
+      'دیتافریم clean_air شامل ۱۱۱ سطر بدون داده مفقوده باشد',
+      'ضریب همبستگی مثبت cor_val به درستی محاسبه شده باشد (~0.698)',
+      'نمودار پراکندگی با خط رگرسیون روی بوم گرافیکی رسم شده باشد',
+    ],
+    learning: [
+      'گردش کار کامل داده: پاکسازی رکوردهای ناقص، تحلیل همبستگی و برازش خط روند رگرسیون',
+      'دستور na.omit() مشاهدات ناقص محیطی را حذف و داده را آماده تحلیل می‌کند',
+      'دستور abline(lm()) خط رگرسیون کمترین مربعات خطا را بر روی نمودار می‌نشاند',
     ],
     fieldNotes: [
       'در محیط‌های صنعتی، تمام این چرخه در اسناد گزارش‌گیری تعاملی Quarto / R Markdown یا داشبوردهای Shiny پکیج‌بندی می‌شود.',
-      'یک پایپلاین استاندارد داده داده‌های اولیه را می‌گیرد، اعتبارسنجی می‌کند، خلاصه آماری می‌سازد و آرتیفکت‌های بصری تحویل می‌دهد.',
+      'همیشه قبل از اعتماد به نتایج رگرسیون و همبستگی، نمودار پراکندگی را جهت بررسی پدیده‌هایی نظیر چهارگانه آنسکومب ترسیم نمایید.',
     ],
   },
 };
@@ -780,16 +870,24 @@ Funktionen zur Textbearbeitung in R:
   },
   dplyr: {
     title: '14. Daten-Wrangling & Pipelines',
-    brief: 'Die Pipe |> verkettet Schritte. Filtere inventory nach price >= 15 und berechne total = price * qty.',
-    hint: 'Verwende valuable <- subset(inventory, price >= 15) |> transform(total = price * qty).',
+    brief: 'Die Pipe |> verkettet Schritte. Filtere cars_sample nach mpg >= 18 und berechne Leistungsgewicht pwr_ratio = round(hp / wt, 1).',
+    hint: 'Verwende valuable <- subset(cars_sample, mpg >= 18) |> transform(pwr_ratio = round(hp / wt, 1)).',
     lesson: `### Kapitel 14 — Datenmanipulation mit der Pipe |>
 
 Die moderne native Pipe in R (\`|>\`):
 Übergibt das Ergebnis des linken Ausdrucks als erstes Argument an die rechte Funktion.
-Dies erzeugt übersichtlichen, linearen und selbsterklärenden Transformationscode.`,
+Dies erzeugt übersichtlichen, linearen und selbsterklärenden Transformationscode:
+
+\`\`\`r
+data |> filter(...) |> transform(...)
+\`\`\`
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Klammern bei nativer Pipe erforderlich:** In der alten magrittr-Pipe \`%>%\` funktionierte \`x %>% mean\`; bei der nativen Pipe \`|>\` müssen Funktionsaufrufe zwingend Klammern tragen (\`x |> mean()\`).`,
     checksLabels: [
-      'valuable enthält 3 gefilterte Artikel',
-      'valuable$total enthält 50, 120, 40',
+      'valuable enthält gefilterte Fahrzeuge',
+      'Alle gefilterten Fahrzeuge haben mpg >= 18',
+      'Spalte pwr_ratio wurde berechnet',
     ],
     learning: [
       'Die native Pipe |> leitet Ausgaben als erstes Argument an die nächste Funktion weiter',
@@ -809,7 +907,10 @@ Dies erzeugt übersichtlichen, linearen und selbsterklärenden Transformationsco
 
 Tabellen werden mit \`merge()\` verbunden:
 - **Left Join**: Mit \`all.x = TRUE\` bleiben alle Zeilen der ersten Tabelle erhalten; fehlende Werte in Tabelle 2 werden mit \`NA\` aufgefüllt.
-- **Inner Join**: Standardeinstellung von \`merge()\`, die nur übereinstimmende Zeilen beider Tabellen behält.`,
+- **Inner Join**: Standardeinstellung von \`merge()\`, die nur übereinstimmende Zeilen beider Tabellen behält.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Zeilenexplosion bei doppelten Schlüsseln:** Wenn der Verknüpfungsschlüssel in einer Tabelle Duplikate aufweist, führt der Join zu einem kartesischen Produkt und multipliziert ungewollt die Zeilenanzahl.`,
     checksLabels: [
       'report enthält 3 Zeilen',
       'Benutzer Ali wird korrekt der Bestellung zugeordnet',
@@ -832,7 +933,10 @@ Tabellen werden mit \`merge()\` verbunden:
     lesson: `### Kapitel 16 — Datum und Zeit in R
 
 In R repräsentiert die Klasse \`Date\` Kalendertage und \`POSIXct\` exakte Zeitstempel mit Uhrzeit.
-Die Subtraktion zweier Date-Objekte berechnet automatisch die Zeitdifferenz in Tagen.`,
+Die Subtraktion zweier Date-Objekte berechnet automatisch die Zeitdifferenz in Tagen.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **4-stellige vs. 2-stellige Jahresformate:** In R-Datumsformaten steht \`%Y\` für vierstellige (2026) und \`%y\` für zweistellige (26) Jahreszahlen. Verwechslungen führen zu Jahrhundert-Rechenfehlern.`,
     checksLabels: [
       'start_date und end_date sind Date-Objekte',
       'days_between beträgt 14',
@@ -849,15 +953,18 @@ Die Subtraktion zweier Date-Objekte berechnet automatisch die Zeitdifferenz in T
   },
   'data-table': {
     title: '17. Schnelle Gruppenaggregation',
-    brief: 'Aggregiere Werte nach Gruppen: Berechne mit aggregate() die Summe von amount nach dept in dept_totals.',
-    hint: 'Verwende dept_totals <- aggregate(amount ~ dept, data = transactions, FUN = sum).',
-    lesson: `### Kapitel 17 — Gruppenaggregation
+    brief: 'Aggregiere Werte nach Gruppen: Berechne mit aggregate() den durchschnittlichen Verbrauch (mpg) nach Zylinderanzahl (cyl) in mtcars in cyl_summary.',
+    hint: 'Verwende cyl_summary <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean).',
+    lesson: `### Kapitel 17 — Gruppenaggregation (Split-Apply-Combine)
 
-Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien gruppiert und Aggregationsfunktionen wie \`sum\` oder \`mean\` pro Gruppe berechnet.`,
+Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien gruppiert und Aggregationsfunktionen wie \`sum\` oder \`mean\` pro Gruppe berechnet.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Standard-Ausschluss von NAs:** \`aggregate()\` entfernt standardmäßig Zeilen mit \`NA\` in den Gruppierungsvariablen, es sei denn, \`na.action = na.pass\` wird explizit gesetzt.`,
     checksLabels: [
-      'dept_totals ist ein Data Frame',
-      'Gesamtsumme für IT beträgt 850',
-      'Gesamtsumme für HR beträgt 350',
+      'cyl_summary ist ein Data Frame',
+      'cyl_summary umfasst 3 Zylinder-Kategorien',
+      'Mittelwert für 4-Zylinder wurde korrekt berechnet',
     ],
     learning: [
       'aggregate() berechnet statistische Metriken gruppiert nach Faktoren',
@@ -871,15 +978,19 @@ Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien 
   },
   'outliers-plots': {
     title: '18. Ausreißer & Basis-Grafiken',
-    brief: 'Erkenne Ausreißer und visualisiere Verteilungen: Berechne iqr_val mit IQR() und zeichne boxplot(vals).',
-    hint: 'Gib iqr_val <- IQR(vals) und boxplot(vals, col = "#2569bb", main = "Distribution") ein.',
+    brief: 'Erkenne Ausreißer mit IQR() und visualisiere die Ozonverteilung in airquality mit einem beschrifteten Boxplot.',
+    hint: 'Berechne iqr_val <- IQR(ozone_clean) und zeichne boxplot(ozone_clean, col = "#2569bb", main = "Ozone Distribution (ppb)", ylab = "Ozone (ppb)").',
     lesson: `### Kapitel 18 — Ausreißer und Boxplots
 
 - **Interquartilsabstand (\`IQR\`):** Differenz zwischen 75. und 25. Perzentil.
-- **Boxplot (\`boxplot\`):** Visualisiert Median, Quartile und statistische Ausreißer (jenseits von 1.5 * IQR).`,
+- **Tukey-Kriterium für Ausreißer:** Werte außerhalb von \`Q1 - 1.5*IQR\` oder \`Q3 + 1.5*IQR\` gelten als statistische Ausreißer.
+- **Boxplot (\`boxplot\`):** Visualisiert Median, Quartile und statistische Ausreißer.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Voreiliges Löschen von Ausreißern:** Ausreißer sollten nie unreflektiert entfernt werden — sie enthalten oft die wichtigsten Signale (z. B. Betrugsmuster bei Transaktionen).`,
     checksLabels: [
-      'iqr_val wurde korrekt berechnet',
-      'Boxplot wurde auf dem Canvas gezeichnet',
+      'iqr_val entspricht dem IQR von Ozone',
+      'Boxplot mit Beschriftung wurde auf dem Canvas gezeichnet',
     ],
     learning: [
       'IQR() berechnet den Interquartilsabstand zur Streuungsanalyse',
@@ -891,29 +1002,97 @@ Mit \`aggregate(formula, data, FUN)\` werden numerische Spalten nach Kategorien 
       'Automatisierte Überwachungssysteme erstellen Boxplots zur Erkennung von Data Drift in Pipelines.',
     ],
   },
-  capstone: {
-    title: '19. Abschlussprojekt: End-to-End Pipeline',
-    brief: 'Eine vollständige Daten-Pipeline: Gültige Daten filtern (score > 0), Mittelwerte aggregieren und als barplot darstellen.',
-    hint: 'Führe valid <- subset(project_data, score > 0), group_means <- aggregate(score ~ group, data = valid, FUN = mean) und barplot(group_means$score, names.arg = group_means$group, col = "#2569bb") aus.',
-    lesson: `### Kapitel 19 — End-to-End Datenpipeline
+  regression: {
+    title: '19. Lineare Regression & Modelldiagnostik',
+    brief: 'Passe ein multiples lineares Regressionsmodell für mpg basierend auf wt und hp in mtcars an und ermittle r_squared.',
+    hint: 'Führe fit <- lm(mpg ~ wt + hp, data = mtcars) und r_squared <- summary(fit)$r.squared aus.',
+    lesson: `### Kapitel 19 — Lineare Regression und statistische Modellierung
 
-In diesem Abschlussprojekt verbindest du alle erlernten Fähigkeiten zu einer vollständigen Pipeline:
-1. Bereinigung unvollständiger Zeilen mit \`subset()\`
-2. Gruppenaggregation mit \`aggregate()\`
-3. Visuelle Präsentation mit \`barplot()\` auf dem Grafik-Canvas`,
+R bietet herausragende Werkzeuge für mathematische Statistik und Modellierung.
+Die Funktion \`lm(formula, data)\` schätzt lineare Regressionsmodelle mittels kleinster Quadrate (OLS):
+
+\`\`\`r
+fit <- lm(mpg ~ wt + hp, data = mtcars)
+summary(fit)
+\`\`\`
+
+- **Koeffizienten (\`coef\`):** Zeigen die Steigung der Zielvariablen pro Einheit der Merkmale.
+- **Bestimmtheitsmaß (\`R-squared\`):** Anteil der durch das Modell erklärten Varianz.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Korrelation bedeutet keine Kausalität:** Statistische Signifikanz belegt keinen realen Ursache-Wirkungs-Zusammenhang.
+- **Die R-Quadrat-Falle:** Durch Hinzufügen weiterer Variablen steigt R-Quadrat immer. Nutze stets das korrigierte R-Quadrat (Adjusted R-squared) zur Modellbewertung.`,
     checksLabels: [
-      'valid enthält 4 Zeilen mit positiver Punktzahl',
-      'group_means berechnet den Mittelwert pro Gruppe',
-      'Balkendiagramm wurde erfolgreich gezeichnet',
+      'fit ist ein geschätztes lineares Modell',
+      'Modell enthält Achsenabschnitt, wt und hp Koeffizienten',
+      'Modell erklärt über 80% der Varianz (R-squared > 0.8)',
     ],
     learning: [
-      'Vollständiger Workflow: Bereinigung, Aggregation und Visualisierung in einer Pipeline',
-      'Verknüpfung von relationalen Filtern, mathematischen Aggregaten und Grafiken',
-      'Ganzheitliches Verständnis moderner Datenverarbeitung in R',
+      'lm() passt multiple lineare OLS-Regressionsmodelle an',
+      'Formelsyntax y ~ x1 + x2 definiert abhängige und unabhängige Variablen',
+      'R-squared misst den durch das Modell erklärten Varianzanteil',
+    ],
+    fieldNotes: [
+      'Lineare Regression dient als Grundbaustein in Ökonometrie, Finanzprognosen und Kausalanalyse.',
+      'Prüfe in der Praxis stets Residuenplots (plot(fit)) auf Heteroskedastizität und Hebelpunkte.',
+    ],
+  },
+  hypothesis: {
+    title: '20. Hypothesentests & Vorhersagen',
+    brief: 'Führe einen Zweistichproben-t-Test für mpg nach Getriebeart (am in mtcars) durch und sage mpg für ein 3000-lbs Auto mit 150 PS vorher.',
+    hint: 'Führe ttest_res <- t.test(mpg ~ am, data = mtcars) und pred_mpg <- as.numeric(predict(fit, newdata = data.frame(wt = 3.0, hp = 150))) aus.',
+    lesson: `### Kapitel 20 — Statistische Inferenz und Vorhersage
+
+Hypothesentests prüfen, ob Gruppenunterschiede statistisch belastbar oder zufallsbedingt sind.
+\`t.test()\` vergleicht Mittelwerte zweier Gruppen (z. B. Automatik vs. Schaltgetriebe).
+Liegt der **p-Wert** unter 0.05, wird die Nullhypothese verworfen.
+
+Mit \`predict(model, newdata)\` werden Prognosen für neue Beobachtungen berechnet.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Passende Spalten in \`newdata\`:** \`newdata\` muss ein Data Frame sein, dessen Spaltennamen exakt den Prädiktoren der Modellformel entsprechen.`,
+    checksLabels: [
+      'ttest_res ist ein gültiges Hypothesentest-Objekt',
+      'p-Wert ist statistisch signifikant (< 0.05)',
+      'pred_mpg liegt im erwarteten Bereich (15-25 mpg)',
+    ],
+    learning: [
+      't.test() prüft Mittelwertunterschiede zwischen zwei Gruppen',
+      'p-Wert < 0.05 belegt statistische Signifikanz auf dem 95%-Konfidenzniveau',
+      'predict() wendet trainierte Modelle auf neue Daten an',
+    ],
+    fieldNotes: [
+      'Hypothesentests sind das Fundament von A/B-Tests und klinischen Studien.',
+      'Achte bei Vorhersagediensten streng auf identische Schemata und Faktorausprägungen.',
+    ],
+  },
+  capstone: {
+    title: '21. Abschlussprojekt: Ganzheitliche Datenanalyse',
+    brief: 'Vollständige Pipeline auf airquality: Bereinige NAs, berechne Korrelation zwischen Temp und Ozone und zeichne Streudiagramm mit Regressionslinie (abline).',
+    hint: 'Bereinige mit na.omit(), berechne cor() und zeichne plot() gefolgt von abline(lm(...)).',
+    lesson: `### Kapitel 21 — Abschlussprojekt: End-to-End Datenanalyse
+
+Herzlichen Glückwunsch! Du hast Datenmanipulation, Bereinigung, Datenstrukturen, Statistik, Modellierung und Visualisierung in R gemeistert.
+In diesem Abschlussprojekt:
+1. Reale New Yorker Luftqualitätsdaten laden und unvollständige Zeilen bereinigen.
+2. Pearson-Korrelation zwischen Temperatur und Ozonkonzentration berechnen.
+3. Aussagekräftiges Streudiagramm mit OLS-Regressionsgerade visualisieren.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Anscombe-Quartett:** Verlasse dich nie allein auf Korrelationswerte oder Regressionskoeffizienten — visualisiere immer die Rohdatenverteilung!`,
+    checksLabels: [
+      'clean_air enthält 111 vollständige Zeilen',
+      'cor_val misst positive Korrelation korrekt (~0.698)',
+      'Streudiagramm mit Regressionslinie wurde auf dem Canvas gezeichnet',
+    ],
+    learning: [
+      'Ganzheitlicher Workflow: Datenbereinigung, Korrelation und Regressionslinie',
+      'na.omit() entfernt unvollständige Umweltmessungen zuverlässig',
+      'abline(lm()) zeichnet die mathematische Ausgleichsgerade direkt in das Diagramm',
     ],
     fieldNotes: [
       'In Unternehmen wird dieser Ablauf in Quarto / R Markdown Dokumenten oder interaktiven Shiny Dashboards gebündelt.',
-      'Saubere Pipelines transformieren Rohdaten automatisiert in aussagekräftige visuelle Berichte.',
+      'Streudiagramme decken Nichtlinearitäten und Ausreißer vor jeder Modellierung zuverlässig auf.',
     ],
   },
 };
@@ -1037,39 +1216,93 @@ For text cleaning and pattern matching in R:
 
 The native pipe operator (\`|>\`):
 Passes the left-hand result into the first argument of the right-hand function.
-This creates clean, linear, readable data transformation pipelines without deeply nested parentheses.`,
+This creates clean, linear, readable data transformation pipelines without deeply nested parentheses:
+
+\`\`\`r
+data |> filter(...) |> transform(...)
+\`\`\`
+
+#### ⚠️ Common Gotchas:
+- **Parentheses required in native pipe:** In the legacy \`%>%\` pipe, writing \`x %>% mean\` was permissible; the native \`|>\` pipe strictly requires function call parentheses (\`x |> mean()\`).`,
   },
   joins: {
     lesson: `### Chapter 15 — Merging & Relational Joins
 
 Combining tables is done with the \`merge()\` function:
 - **Left Join**: Setting \`all.x = TRUE\` preserves all rows of the left table and inserts \`NA\` for unmatched rows in the right table.
-- **Inner Join**: Default setting of \`merge()\` that keeps only rows present in both tables.`,
+- **Inner Join**: Default setting of \`merge()\` that keeps only rows present in both tables.
+
+#### ⚠️ Common Gotchas:
+- **Row explosion with duplicate keys:** If the joining key column contains non-unique values in either table, merge performs a Cartesian product, multiplying row counts unexpectedly.`,
   },
   datetime: {
     lesson: `### Chapter 16 — Dates & Times in R
 
 In R, the \`Date\` class handles calendar dates, while \`POSIXct\` stores timestamps with hours and seconds.
-Subtracting two Date objects automatically yields the duration in days (\`difftime\`).`,
+Subtracting two Date objects automatically yields the duration in days (\`difftime\`).
+
+#### ⚠️ Common Gotchas:
+- **4-digit vs 2-digit years:** In date formatting, \`%Y\` represents 4-digit years (2026) while \`%y\` represents 2-digit years (26). Confusing them causes century calculation bugs.`,
   },
   'data-table': {
-    lesson: `### Chapter 17 — Group Aggregation
+    lesson: `### Chapter 17 — Group Aggregation (Split-Apply-Combine)
 
-The \`aggregate(formula, data, FUN)\` function groups numeric data by categorical factors and computes summary statistics (such as sum or mean) for each group.`,
+The \`aggregate(formula, data, FUN)\` function groups numeric data by categorical factors and computes summary statistics (such as sum or mean) for each group.
+
+#### ⚠️ Common Gotchas:
+- **Dropping NA rows by default:** By default, \`aggregate()\` removes rows containing \`NA\` in grouping factors unless \`na.action = na.pass\` is explicitly provided.`,
   },
   'outliers-plots': {
     lesson: `### Chapter 18 — Outliers & Base Plots
 
 - **Interquartile Range (\`IQR\`):** Difference between the 75th and 25th percentiles.
-- **Boxplot (\`boxplot\`):** Visualizes the median, quartiles, and statistical outliers (points beyond 1.5 * IQR).`,
+- **Tukey's Outlier Criterion:** Observations below \`Q1 - 1.5*IQR\` or above \`Q3 + 1.5*IQR\` are flagged as statistical outliers.
+- **Boxplot (\`boxplot\`):** Visualizes the median, quartiles, and statistical outliers simultaneously.
+
+#### ⚠️ Common Gotchas:
+- **Blindly deleting outliers:** Outliers should never be removed without investigation; they often carry the most important signals (such as fraud or sensor malfunction).`,
+  },
+  regression: {
+    lesson: `### Chapter 19 — Linear Regression & Model Diagnostics
+
+R was built from the ground up for statistical modeling and inference.
+The \`lm(formula, data)\` function estimates Ordinary Least Squares (OLS) linear regressions:
+
+\`\`\`r
+fit <- lm(mpg ~ wt + hp, data = mtcars)
+summary(fit)
+\`\`\`
+
+- **Coefficients (\`coef\`):** Quantify the marginal effect of each predictor on the target response.
+- **R-squared:** Proportion of variation in the response explained by the linear model.
+
+#### ⚠️ Common Gotchas:
+- **Correlation is not causation:** Statistical significance does not establish a causal mechanism in real-world data.
+- **The R-squared trap:** Adding irrelevant predictors always increases R-squared. In multiple regressions, always evaluate Adjusted R-squared.`,
+  },
+  hypothesis: {
+    lesson: `### Chapter 20 — Hypothesis Testing & Predictions
+
+Hypothesis testing helps distinguish real underlying phenomena from random sample noise.
+The \`t.test()\` function compares means across two independent groups (such as automatic vs. manual transmissions).
+A **p-value** below 0.05 rejects the null hypothesis at the 95% confidence level.
+
+The \`predict(model, newdata)\` function uses the fitted model to generate forecasts on new observations.
+
+#### ⚠️ Common Gotchas:
+- **Column names in \`newdata\`:** The \`newdata\` parameter must be a \`data.frame\` with column names strictly matching the predictors defined in the model formula.`,
   },
   capstone: {
-    lesson: `### Chapter 19 — Capstone: End-to-End Data Pipeline
+    lesson: `### Chapter 21 — Capstone: End-to-End Data Analysis
 
-In this final project, you integrate the entire curriculum:
-1. Filter incomplete records with \`subset()\`
-2. Compute summary group averages with \`aggregate()\`
-3. Render a clean bar chart on the graphic canvas with \`barplot()\``,
+Congratulations! You have mastered data wrangling, data structures, relational joins, statistical modeling, and scientific visualization in R.
+In this capstone project:
+1. Clean missing values from real-world environmental air quality observations.
+2. Measure physical correlation between atmospheric temperature and ozone levels.
+3. Render a publication-quality scatter plot overlaid with an Ordinary Least Squares regression trendline (\`abline(lm(...))\`).
+
+#### ⚠️ Common Gotchas:
+- **Anscombe's Quartet:** Never rely solely on summary metrics or correlation coefficients without inspecting the underlying graphical distribution.`,
   },
 };
 

@@ -207,15 +207,37 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Automated pipeline monitors generate boxplots and histograms in CI artifacts to detect data distribution drift.',
     ],
   },
-  capstone: {
+  regression: {
     learning: [
-      'End-to-end data workflow: clean, summarize, and visualize in one pipeline',
-      'Combines table subsetting, group aggregations, and graphic generation',
-      'Synthesizes core data wrangling and reporting concepts in R',
+      'lm() fits Ordinary Least Squares (OLS) multiple linear regression models',
+      'Formula syntax y ~ x1 + x2 specifies dependent and predictor variables',
+      'R-squared measures the proportion of variance in the response explained by predictors',
     ],
     fieldNotes: [
-      'Production reporting systems compile end-to-end pipelines into automated Quarto / R Markdown PDF and HTML reports.',
-      'Clean data pipelines validate data inputs, transform records, compute aggregates, and output visual artifacts seamlessly.',
+      'Linear regression serves as the foundational baseline model for econometric, financial, and causal inference modeling.',
+      'Always inspect diagnostic plots (plot(fit)) in production to check for heteroscedasticity, non-linearity, and high leverage points.',
+    ],
+  },
+  hypothesis: {
+    learning: [
+      't.test() evaluates statistical differences in means between two groups',
+      'p-value < 0.05 indicates statistical significance under the 95% confidence threshold',
+      'predict() applies trained models to unseen observation dataframes',
+    ],
+    fieldNotes: [
+      'Hypothesis testing powers modern A/B testing platforms and clinical trial verification.',
+      'In production prediction services, ensure newdata schema and factor levels strictly match training specifications.',
+    ],
+  },
+  capstone: {
+    learning: [
+      'End-to-end analytical pipeline: data cleaning, correlation measurement, and regression modeling',
+      'na.omit() prepares real environmental observations by purging missing measurements',
+      'abline(lm()) overlays Ordinary Least Squares trendlines on scientific scatter plots',
+    ],
+    fieldNotes: [
+      'Production analytical pipelines combine data cleaning, correlation testing, and regression trendlines into automated Quarto reports.',
+      'Always visualize the raw scatter distribution before relying solely on correlation or regression coefficients (Anscombe\'s quartet).',
     ],
   },
 };

@@ -43,4 +43,23 @@ describe('i18n integrity', () => {
     expect(localizedDe.title).toContain('01. Einführung');
     expect(localizedDe.lesson).toContain('Kapitel 1');
   });
+
+  it('covers all 21 levels across en, fa, and de without missing translations', () => {
+    expect(allLevels.length).toBe(21);
+    for (const level of allLevels) {
+      const localizedEn = localizeLevel(level, 'en');
+      const localizedFa = localizeLevel(level, 'fa');
+      const localizedDe = localizeLevel(level, 'de');
+
+      expect(localizedEn.lesson).toBeDefined();
+      expect(localizedEn.lesson!.length).toBeGreaterThan(20);
+      expect(localizedFa.title.length).toBeGreaterThan(0);
+      expect(localizedFa.lesson).toBeDefined();
+      expect(localizedFa.lesson!.length).toBeGreaterThan(20);
+      expect(localizedDe.title.length).toBeGreaterThan(0);
+      expect(localizedDe.lesson).toBeDefined();
+      expect(localizedDe.lesson!.length).toBeGreaterThan(20);
+    }
+  });
 });
+

@@ -756,6 +756,362 @@ summary(fit)
 ۳. نمودار نقطه‌ای علمی را همراه با خط روند رگرسیون خطی رسم می‌کنید.
 `,
   },
+
+  // Section 8: توسعه پکیج و مهندسی نرم‌افزار با R (بر اساس کتاب R Packages)
+  {
+    id: 'pkg-anatomy',
+    seriesId: 'foundations',
+    title: '22. Package Anatomy & DESCRIPTION',
+    brief: 'Every R package is centered around a DESCRIPTION file. Create a valid metadata record using write.dcf() with Package, Title, Version, and License.',
+    goal: 'desc <- data.frame(Package = "datapkg", Title = "Data Utilities", Version = "0.1.0", License = "MIT", Description = "Practical analytical tools.")\nwrite.dcf(desc, file = "DESCRIPTION")\npkg_desc <- as.list(as.data.frame(read.dcf("DESCRIPTION")))',
+    setup: 'if (file.exists("DESCRIPTION")) file.remove("DESCRIPTION")',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'file.exists("DESCRIPTION")',
+        label: 'DESCRIPTION file exists on disk',
+      },
+      {
+        type: 'eval',
+        expr: 'is.list(pkg_desc) && pkg_desc$Package == "datapkg"',
+        label: 'Package name is set to "datapkg"',
+      },
+      {
+        type: 'eval',
+        expr: 'pkg_desc$Version == "0.1.0"',
+        label: 'Initial version is set to 0.1.0',
+      },
+    ],
+    hint: 'Construct a data.frame with Package, Title, Version, License and Description, write with write.dcf(), and read back with read.dcf().',
+    lesson: `### فصل 22 — کالبدشناسی پکیج و فایل حیاتی DESCRIPTION
+
+در اکوسیستم R، پکیج بالاترین سطح ماژولارکردن و اشتراک‌گذاری کد و داده است.
+ساختار یک پکیج استاندارد بر اساس قراردادهای مشخص دایرکتوری شکل می‌گیرد:
+- **\`DESCRIPTION\`**: شناسنامه رسمی و متادیتای پکیج (نام، نسخه، نویسندگان، مجوز و پیش‌نیازها).
+- **\`NAMESPACE\`**: مشخص‌کننده مرزهای خارجی پکیج (کدام توابع عمومی‌اند و کدام توابع خصوصی).
+- **\`R/\`**: تمام کدهای منبع توابع پکیج در این پوشه قرار می‌گیرند.
+- **\`man/\`**: مستندات و راهنمای توابع که با فرمت \`.Rd\` ذخیره می‌شوند.
+
+فایل \`DESCRIPTION\` با فرمت متنی DCF (Debian Control Format) ذخیره می‌شود و توابع \`read.dcf()\` و \`write.dcf()\` مستقیماً آن را در R می‌خوانند و می‌نویسند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **قوانین سخت‌گیرانه نام‌گذاری پکیج:** نام یک پکیج R در CRAN فقط و فقط می‌تواند شامل حروف انگلیسی، اعداد و نقطه (\`.\`) باشد. حتماً باید با یک حرف شروع شود و استفاده از خط تیره (\`-\`) یا آندرلاین (\`_\`) اکیداً ممنوع و غیرمجاز است!
+- **شماره‌گذاری نسخه:** همیشه از نسخه‌بندی معنایی (Semantic Versioning) با حداقل ۳ بخش عددی استفاده کنید (مانند \`0.1.0\`).
+`,
+  },
+  {
+    id: 'pkg-deps',
+    seriesId: 'foundations',
+    title: '23. Dependencies: Imports vs Suggests',
+    brief: 'Never call library() inside package code! Write a robust safe_median function that checks if stats is available via requireNamespace() and calls stats::median().',
+    goal: 'safe_median <- function(x) {\n  if (!requireNamespace("stats", quietly = TRUE)) {\n    stop("Package \'stats\' required.")\n  }\n  stats::median(x, na.rm = TRUE)\n}',
+    setup: '',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.function(safe_median)',
+        label: 'safe_median is defined as a function',
+      },
+      {
+        type: 'eval',
+        expr: 'safe_median(c(10, 20, 30)) == 20 && safe_median(c(5, NA, 15)) == 10',
+        label: 'safe_median computes median correctly with na.rm',
+      },
+      {
+        type: 'pattern',
+        pattern: 'requireNamespace',
+        label: 'Uses requireNamespace instead of library()',
+      },
+    ],
+    hint: 'Check requireNamespace("stats", quietly = TRUE) and delegate calculation to stats::median(x, na.rm = TRUE).',
+    lesson: `### فصل 23 — مدیریت وابستگی‌ها: تفاوت Imports و Suggests
+
+یکی از حیاتی‌ترین مباحث مهندسی نرم‌افزار با R، تعریف وابستگی‌های پکیج در فایل \`DESCRIPTION\` است:
+- **\`Imports\`**: بسته‌هایی که توابع شما مستقیماً در حین اجرا به آن‌ها وابسته هستند و هنگام نصب پکیج شما، خودکار نصب می‌شوند.
+- **\`Suggests\`**: بسته‌های اختیاری که فقط برای اجرای تست‌های واحد، ساخت نمونه‌ها، یا مقالات راهنما (Vignettes) لازم‌اند.
+
+#### قانون طلایی توسعه پکیج:
+**هرگز در کدهای داخل پکیج از \`library()\` یا \`require()\` استفاده نکنید!** فراخوانی \`library()\` مسیر جستجوی سراسری کاربر را دستکاری کرده و در آزمون‌های CRAN باعث رد شدن فوری (Error) می‌شود.
+
+به جای آن، برای دسترسی به توابع پکیج‌های خارجی از \`pkg::fun()\` استفاده کنید و برای وابستگی‌های اختیاری از الگوی ایمن:
+\`\`\`r
+if (!requireNamespace("pkg", quietly = TRUE)) {
+  stop("Package 'pkg' is needed for this function to work.")
+}
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله Depends vs Imports:** فیلد قدیمی \`Depends\` تمام توابع پکیج پیش‌نیاز را به فضای سراسری کاربر تحمیل می‌کند و باعث تداخل نام متغیرها می‌شود. استاندارد مدرن همیشه استفاده از \`Imports\` است.
+`,
+  },
+  {
+    id: 'pkg-code',
+    seriesId: 'foundations',
+    title: '24. Package Code & Side Effects (on.exit)',
+    brief: 'Package functions must never leave side effects in the global environment. Write with_temp_digits using on.exit(add = TRUE) to format numbers under a temporary digits setting.',
+    goal: 'with_temp_digits <- function(x, digits = 2) {\n  old_opt <- options(digits = digits)\n  on.exit(options(old_opt), add = TRUE)\n  format(x)\n}',
+    setup: '',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.function(with_temp_digits)',
+        label: 'with_temp_digits is defined as a function',
+      },
+      {
+        type: 'eval',
+        expr: 'cur_d <- getOption("digits"); res <- with_temp_digits(pi, 3); isTRUE(all.equal(getOption("digits"), cur_d))',
+        label: 'Restores global options upon function exit',
+      },
+      {
+        type: 'pattern',
+        pattern: 'on\\.exit',
+        label: 'Uses on.exit to guarantee cleanup',
+      },
+    ],
+    hint: 'Save old_opt <- options(digits = digits) and register on.exit(options(old_opt), add = TRUE) before formatting x.',
+    lesson: `### فصل 24 — کدهای سازگار با پکیج و پاکسازی اثرات جانبی (on.exit)
+
+یک پکیج حرفه‌ای باید «مهمان مؤدبی» در سشن کاربر باشد!
+این یعنی هرگز نباید متغیرهایی در \`.GlobalEnv\` ایجاد کند، نباید دایرکتوری جاری را با \`setwd()\` تغییر دهد، و نباید تنظیمات سراسری مانند \`options()\` یا پارامترهای گرافیکی \`par()\` را بدون بازگردانی دستکاری کند.
+
+الگوی رسمی و تاییدشده CRAN برای مدیریت این وضعیت، استفاده از تابع حیاتی \`on.exit()\` است:
+\`\`\`r
+my_fn <- function(x) {
+  old_par <- par(mfrow = c(1, 2))
+  on.exit(par(old_par), add = TRUE)
+  # ادامه محاسبات و رسم نمودار
+}
+\`\`\`
+حتی اگر در میانه اجرای تابع خطایی رخ دهد، R تضمین می‌کند که دستور داخل \`on.exit()\` اجرا شده و محیط کاربر به حالت اولیه بازگردد.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراموش کردن آرگومان \`add = TRUE\`:** اگر \`add = TRUE\` را قرار ندهید، هر فراخوانی جدید \`on.exit()\` دستورات قبلی ثبت‌شده را پاک می‌کند! همیشه بنویسید \`on.exit(..., add = TRUE)\`.
+`,
+  },
+  {
+    id: 'pkg-roxygen',
+    seriesId: 'foundations',
+    title: '25. Documentation with roxygen2',
+    brief: 'In R packages, functions are documented using roxygen2 comments. Implement normalize_vec and define its roxygen metadata tags for title, param, return, and export.',
+    goal: 'normalize_vec <- function(x) {\n  rng <- range(x, na.rm = TRUE)\n  if (diff(rng) == 0) return(rep(0, length(x)))\n  (x - rng[1]) / diff(rng)\n}\nroxy_tags <- list(title = "Normalize vector", param = "x: Numeric vector", return = "Scaled numeric vector in [0, 1]", export = TRUE)',
+    setup: '',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.function(normalize_vec)',
+        label: 'normalize_vec is defined as a function',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(normalize_vec(c(0, 5, 10)), c(0, 0.5, 1)))',
+        label: 'normalize_vec correctly scales values between 0 and 1',
+      },
+      {
+        type: 'eval',
+        expr: 'is.list(roxy_tags) && isTRUE(roxy_tags$export)',
+        label: 'roxy_tags specifies export = TRUE',
+      },
+    ],
+    hint: 'Define normalize_vec and specify roxy_tags with title, param, return, and export = TRUE.',
+    lesson: `### فصل 25 — مستندسازی مدرن با roxygen2
+
+در گذشته توسعه‌دهندگان R مجبور بودند مستندات توابع را دستی با کدهای شبیه LaTeX در فایل‌های \`man/*.Rd\` بنویسند.
+پکیج انقلابی \`roxygen2\` به شما اجازه می‌دهد مستندات را مستقیماً بالای تعریف هر تابع با پیشوند \`#'\` بنویسید:
+
+\`\`\`r
+#' مقیاس‌بندی بردار به بازه [0, 1]
+#'
+#' @param x بردار عددی ورودی
+#' @return بردار عددی نرمال‌شده بین صفر و یک
+#' @export
+#' @examples
+#' normalize_vec(c(10, 20, 30))
+normalize_vec <- function(x) { ... }
+\`\`\`
+
+دستور \`devtools::document()\` به صورت خودکار این کامنت‌ها را پردازش کرده و فایل‌های راهنما و \`NAMESPACE\` را بروزرسانی می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **از قلم انداختن تگ \`@export\`:** اگر \`@export\` را بالای تابعی نگذارید، آن تابع در پکیج باقی می‌ماند اما خصوصی (Internal) تلقی می‌شود و کاربران پس از \`library(mypkg)\` به آن دسترسی مستقیم نخواهند داشت.
+`,
+  },
+  {
+    id: 'pkg-namespace',
+    seriesId: 'foundations',
+    title: '26. NAMESPACE & Information Hiding',
+    brief: 'The NAMESPACE file defines public exports and imported foreign symbols. Write a NAMESPACE file exporting normalize_vec and importing median and IQR from stats.',
+    goal: 'writeLines(c("export(normalize_vec)", "importFrom(stats, median, IQR)"), con = "NAMESPACE")\nns_content <- readLines("NAMESPACE")',
+    setup: 'if (file.exists("NAMESPACE")) file.remove("NAMESPACE")',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'file.exists("NAMESPACE")',
+        label: 'NAMESPACE file exists on disk',
+      },
+      {
+        type: 'eval',
+        expr: 'any(grepl("^export\\\\(normalize_vec\\\\)", ns_content))',
+        label: 'NAMESPACE exports normalize_vec',
+      },
+      {
+        type: 'eval',
+        expr: 'any(grepl("^importFrom\\\\(stats", ns_content))',
+        label: 'NAMESPACE imports specific functions from stats',
+      },
+    ],
+    hint: 'Write export(normalize_vec) and importFrom(stats, median, IQR) to "NAMESPACE" and read it into ns_content.',
+    lesson: `### فصل 26 — مدیریت فضای نام (NAMESPACE) و پنهان‌سازی اطلاعات
+
+فایل \`NAMESPACE\` کنترل‌کننده مرزهای ماژول شماست و دو وظیفه کلیدی دارد:
+1. **صادرات (Export):** تعیین اینکه کدام توابع با بارگذاری پکیج در دسترس کاربر قرار می‌گیرند (\`export(fun)\`).
+2. **ورود انتخابی (Import):** توابعی که پکیج شما از سایر بسته‌ها قرض می‌گیرد (\`importFrom(pkg, fun)\`).
+
+این مکانیزم مانع از تداخل نام‌ها (Name Clashes) می‌شود. برای مثال اگر شما و یک پکیج دیگر هر دو تابعی به نام \`filter\` داشته باشید، \`NAMESPACE\` مانع از خراب شدن کدهای پکیج شما می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله وارد کردن فله‌ای با \`import(pkg)\`:** هرگز کل یک پکیج بزرگ را با \`import(pkg)\` وارد نکنید! این کار صدها تابع را وارد فضای داخلی پکیج کرده و ریسک تداخل را به شدت بالا می‌برد. همیشه از \`importFrom(pkg, fun1, fun2)\` استفاده کنید.
+`,
+  },
+  {
+    id: 'pkg-testing',
+    seriesId: 'foundations',
+    title: '27. Unit Testing with testthat',
+    brief: 'Unit testing powers reliable R packages. Implement testthat-compatible assertions expect_equal and expect_error, and run a test_suite verifying normalize_vec.',
+    goal: 'expect_equal <- function(act, exp) { stopifnot(isTRUE(all.equal(act, exp))); TRUE }\nexpect_error <- function(expr) { ok <- tryCatch({ expr; FALSE }, error = function(e) TRUE); stopifnot(ok); TRUE }\ntest_results <- list(t1 = expect_equal(normalize_vec(1:3), c(0, 0.5, 1)), t2 = expect_error(stop("Err")))',
+    setup: 'normalize_vec <- function(x) { rng <- range(x, na.rm = TRUE); if (diff(rng) == 0) rep(0, length(x)) else (x - rng[1]) / diff(rng) }',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.function(expect_equal) && is.function(expect_error)',
+        label: 'expect_equal and expect_error testing helpers are defined',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(test_results$t1)',
+        label: 'Equality test t1 passes successfully',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(test_results$t2)',
+        label: 'Error expectation test t2 passes successfully',
+      },
+    ],
+    hint: 'Implement expect_equal using all.equal() and expect_error using tryCatch(), then run test_results.',
+    lesson: `### فصل 27 — تست خودکار نرم‌افزار با فریم‌ورک testthat
+
+در مهندسی پکیج‌های R، تست‌های خودکار در پوشه \`tests/testthat/\` قرار می‌گیرند.
+پکیج \`testthat\` ساختار استاندارد تست را با بلاک‌های \`test_that()\` و توابع \`expect_*\` فراهم می‌سازد:
+- **\`expect_equal(actual, expected)\`**: بررسی برابری مقادیر با تلورانس عددی
+- **\`expect_error(expr)\`**: بررسی اینکه ورودی نامعتبر حتماً خطای درستی پرتاب کند
+- **\`expect_true(cond)\`**: ارزیابی شروط منطقی
+
+با زدن میانبر **Ctrl + Shift + T** یا دستور \`devtools::test()\`، صدها تست در چند ثانیه اجرا شده و از شکست رگرسیونی (Regression Bugs) جلوگیری می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تست اعشاری با \`==\` در تست‌ها:** هرگز ننویسید \`expect_true(val == 0.3)\`! در سیستم‌های عامل و پردازنده‌های مختلف محاسبات اعشاری تفاوت‌های ناچیزی دارند که باعث شکست تست می‌شود. همیشه از \`expect_equal()\` استفاده کنید.
+`,
+  },
+  {
+    id: 'pkg-data',
+    seriesId: 'foundations',
+    title: '28. Package Data & Extdata Assets',
+    brief: 'Packages ship raw non-R files in inst/extdata. Create inst/extdata/sample_cars.csv and load it back using read.csv() into raw_asset.',
+    goal: 'dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)\nwrite.csv(head(mtcars, 5), file = "inst/extdata/sample_cars.csv", row.names = FALSE)\nraw_asset <- read.csv("inst/extdata/sample_cars.csv")',
+    setup: '',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'file.exists("inst/extdata/sample_cars.csv")',
+        label: 'External asset file exists in inst/extdata',
+      },
+      {
+        type: 'eval',
+        expr: 'is.data.frame(raw_asset) && nrow(raw_asset) == 5',
+        label: 'raw_asset loaded 5 rows from package asset',
+      },
+      {
+        type: 'eval',
+        expr: '"mpg" %in% names(raw_asset)',
+        label: 'sample_cars.csv contains expected vehicle columns',
+      },
+    ],
+    hint: 'Create directory with dir.create("inst/extdata", recursive = TRUE), write with write.csv(), and read back into raw_asset.',
+    lesson: `### فصل 28 — انتشار داده‌ها و فایل‌های ضمیمه در پکیج
+
+پکیج‌های R می‌توانند دو دسته داده را توزیع کنند:
+1. **داده‌های رسمی پکیج (\`data/\`):** دیتافریم‌های باینری به فرمت \`.rda\` که با دستور \`usethis::use_data()\` تولید شده و مستقیماً توسط کاربر با \`data(my_dataset)\` قابل استفاده‌اند.
+2. **فایل‌های خام خارجی (\`inst/extdata/\`):** فایل‌های CSV، اکسل، تصاویر یا فایل‌های پیکربندی که کاربر باید بتواند نحوه خواندن آن‌ها را تمرین کند.
+
+هنگام نصب پکیج، محتویات پوشه \`inst/\` به ریشه اصلی پکیج منتقل می‌شود؛ بنابراین برای آدرس‌دهی ایمن از تابع استاندارد \`system.file()\` استفاده می‌شود:
+\`\`\`r
+path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **مسیردهی اشتباه با \`inst\` در سیستم کاربر:** هرگز در کد تابع ننویسید \`system.file("inst/extdata", ...)\`! چون پیشوند \`inst/\` در پکیج نصب‌شده حذف شده است.
+`,
+  },
+  {
+    id: 'pkg-check',
+    seriesId: 'foundations',
+    title: '29. R CMD check & CRAN Readiness',
+    brief: 'R CMD check is the gold standard quality gate. Write check_package to verify DESCRIPTION metadata and NAMESPACE exports, returning 0 errors, warnings, and notes.',
+    goal: 'check_package <- function(desc_path = "DESCRIPTION", ns_path = "NAMESPACE") {\n  d <- as.list(as.data.frame(read.dcf(desc_path)))\n  req_fields <- c("Package", "Title", "Version", "License", "Description")\n  has_fields <- all(req_fields %in% names(d))\n  ns <- readLines(ns_path)\n  has_exp <- any(grepl("^export\\\\(", ns))\n  list(ok = has_fields && has_exp, errors = 0, warnings = 0, notes = 0)\n}\ncheck_result <- check_package()',
+    setup: 'write.dcf(data.frame(Package = "mypkg", Title = "Tool", Version = "1.0.0", License = "MIT", Description = "A package."), "DESCRIPTION")\nwriteLines("export(fn)", "NAMESPACE")',
+    par: 1,
+    difficulty: 4,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.function(check_package)',
+        label: 'check_package diagnostic function is defined',
+      },
+      {
+        type: 'eval',
+        expr: 'is.list(check_result) && isTRUE(check_result$ok)',
+        label: 'Package passes metadata and namespace validation checks',
+      },
+      {
+        type: 'eval',
+        expr: 'check_result$errors == 0 && check_result$warnings == 0 && check_result$notes == 0',
+        label: 'CRAN compliance target achieved: 0 errors | 0 warnings | 0 notes',
+      },
+    ],
+    hint: 'Implement check_package to inspect read.dcf() fields and NAMESPACE exports, verifying 0 errors, warnings, and notes.',
+    lesson: `### فصل 29 — کنترل کیفیت و انتشار بسته با R CMD check
+
+ابزار \`R CMD check\` (که از طریق \`devtools::check()\` اجرا می‌شود) دروازه کیفیت افسانه‌ای دنیای R است.
+این فرآیند بیش از ۵۰ آزمون موشکافانه را روی پکیج اجرا می‌کند:
+- انطباق دقیق آرگومان‌های توابع با فایل‌های مستندات
+- فقدان هرگونه فراخوانی غیرمجاز \`library()\`
+- اجرای موفق ۱۰۰٪ تست‌های واحد
+- نبود متغیرهای سراسری تعریف‌نشده
+
+خروجی نهایی به سه دسته تقسیم می‌شود:
+- **ERROR**: خطای مهلک؛ پکیج نصب یا بیلد نمی‌شود.
+- **WARNING**: اخطار جدی؛ سیاست‌های CRAN نقض شده است.
+- **NOTE**: نکات جزئی یا توصیه‌ها.
+
+هدف هر توسعه‌دهنده حرفه‌ای رسیدن به وضعیت رویایی **0 errors | 0 warnings | 0 notes** است.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **متغیرهای ستونی در dplyr و R CMD check NOTE:** ارزیابی غیر استاندارد (NSE) در توابعی مثل \`subset()\` یا \`dplyr::filter()\` باعث می‌شود \`R CMD check\` فکر کند نام ستون‌ها متغیرهای سراسری تعریف‌نشده هستند! راه‌حل استاندارد: معرفی آنها در \`R/globals.R\` با دستور \`utils::globalVariables(c("col1", "col2"))\`.
+`,
+  },
 ];
 
 export function getLevel(id: string): LevelDef | null {
@@ -827,6 +1183,21 @@ export function seriesOf(): SeriesGroup[] {
       prefix: 'stat',
       ids: ['regression', 'hypothesis', 'appendix'],
     },
+    {
+      id: 'packages',
+      title: 'R PACKAGES & SOFTWARE ENGINEERING',
+      prefix: 'pkg',
+      ids: [
+        'pkg-anatomy',
+        'pkg-deps',
+        'pkg-code',
+        'pkg-roxygen',
+        'pkg-namespace',
+        'pkg-testing',
+        'pkg-data',
+        'pkg-check',
+      ],
+    },
   ];
 
   return groups.map((g) => ({
@@ -844,3 +1215,4 @@ export function seriesOf(): SeriesGroup[] {
       .filter((item): item is { def: LevelDef; displayId: string } => item !== null),
   }));
 }
+

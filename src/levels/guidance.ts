@@ -240,6 +240,94 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Always visualize the raw scatter distribution before relying solely on correlation or regression coefficients (Anscombe\'s quartet).',
     ],
   },
+  'pkg-anatomy': {
+    learning: [
+      'The DESCRIPTION file stores formal package metadata using Debian Control Format (DCF)',
+      'write.dcf() and read.dcf() format tabular lists into canonical package headers',
+      'Package naming rules strictly enforce letters, numbers, and periods starting with a letter',
+    ],
+    fieldNotes: [
+      'In production, usethis::create_package() sets up a standard CRAN-compliant package scaffold in seconds.',
+      'Semantic Versioning (MAJOR.MINOR.PATCH) in DESCRIPTION communicates breaking changes to enterprise consumers.',
+    ],
+  },
+  'pkg-deps': {
+    learning: [
+      'Imports: defines mandatory runtime dependencies installed automatically with your package',
+      'Suggests: specifies optional packages for vignettes, examples, or test suites',
+      'requireNamespace() checks optional dependency availability without polluting the search path',
+    ],
+    fieldNotes: [
+      'Never call library() or require() inside package functions — it mutates the global search path and fails R CMD check.',
+      'Use the double colon operator (pkg::fun) or @importFrom in roxygen to access foreign functions safely.',
+    ],
+  },
+  'pkg-code': {
+    learning: [
+      'Package functions must remain pure without modifying the user global environment',
+      'on.exit(..., add = TRUE) guarantees restoration of options, par, and directories even on errors',
+      'Never hardcode setwd() or source() calls inside package code files in R/',
+    ],
+    fieldNotes: [
+      'Always include add = TRUE in on.exit() to prevent accidental overwrites of existing exit handlers.',
+      'Using withr functions (like withr::with_options) provides idiomatic scoped state management in modern packages.',
+    ],
+  },
+  'pkg-roxygen': {
+    learning: [
+      'roxygen2 comments start with #\' and live directly above function definitions',
+      'Key tags include @param, @return, @examples, and @export',
+      '@export exposes functions to the public package API; omitting it keeps them internal',
+    ],
+    fieldNotes: [
+      'Running devtools::document() generates standardized .Rd manuals in man/ and updates NAMESPACE automatically.',
+      'Internal non-exported helper functions can still be accessed for debugging using the triple colon (pkg:::helper).',
+    ],
+  },
+  'pkg-namespace': {
+    learning: [
+      'The NAMESPACE file controls the public interface and external symbol imports of a package',
+      'export() declares functions visible to consumers after library(pkg)',
+      'importFrom(pkg, fun) imports individual symbols cleanly without full package collisions',
+    ],
+    fieldNotes: [
+      'Avoid blind import(pkg) directives in NAMESPACE; surgical @importFrom prevents subtle masking bugs across dependencies.',
+      'A well-architected NAMESPACE minimizes API surface and makes refactoring internal helpers risk-free.',
+    ],
+  },
+  'pkg-testing': {
+    learning: [
+      'testthat provides structured unit testing with test_that() blocks and expect_* assertions',
+      'expect_equal() tests numeric equality with tolerance for floating point representations',
+      'expect_error() verifies that invalid arguments trigger clean, informative error messages',
+    ],
+    fieldNotes: [
+      'Continuous Integration (GitHub Actions) runs devtools::test() on every pull request across Linux, macOS, and Windows.',
+      'Aim for high test coverage on critical edge cases, missing data (NA), and boundary conditions.',
+    ],
+  },
+  'pkg-data': {
+    learning: [
+      'Raw, non-R files (CSVs, JSON, templates) are distributed in the inst/extdata directory',
+      'system.file("extdata", ..., package = "pkg") resolves filepaths portably across installed environments',
+      'Clean tabular datasets are packaged as binary .rda files in data/ via usethis::use_data()',
+    ],
+    fieldNotes: [
+      'Never rely on relative filepaths in package code; always resolve assets with system.file().',
+      'All datasets in data/ must be documented in R/data.R with @docType data and @format tags.',
+    ],
+  },
+  'pkg-check': {
+    learning: [
+      'R CMD check is the automated quality gate for package completeness, tests, and documentation',
+      'The ultimate target for release is: 0 errors | 0 warnings | 0 notes',
+      'Checks detect undeclared dependencies, missing documentation arguments, and broken examples',
+    ],
+    fieldNotes: [
+      'Run devtools::check() frequently during development, not just before publishing to CRAN.',
+      'Declare global column variables using utils::globalVariables() to satisfy R CMD check in tidyverse pipelines.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

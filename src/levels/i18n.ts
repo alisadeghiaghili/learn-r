@@ -553,6 +553,280 @@ summary(fit)
       'همیشه قبل از اعتماد به نتایج رگرسیون و همبستگی، نمودار پراکندگی را جهت بررسی پدیده‌هایی نظیر چهارگانه آنسکومب ترسیم نمایید.',
     ],
   },
+  'pkg-anatomy': {
+    title: '۲۲. کالبدشناسی پکیج و فایل DESCRIPTION',
+    brief: 'تمام پکیج‌های R حول محور فایل DESCRIPTION ساخته می‌شوند. یک متادیتای معتبر با write.dcf() حاوی نام بسته، عنوان، نسخه و مجوز بسازید.',
+    hint: 'دیتافریم desc را با فیلدهای Package, Title, Version, License و Description ساخته، با write.dcf() ذخیره و با read.dcf() بازخوانی کنید.',
+    lesson: `### فصل ۲۲ — کالبدشناسی پکیج و فایل حیاتی DESCRIPTION
+
+در اکوسیستم R، پکیج بالاترین سطح ماژولارکردن و اشتراک‌گذاری کد و داده است.
+ساختار یک پکیج استاندارد بر اساس قراردادهای مشخص دایرکتوری شکل می‌گیرد:
+- **\`DESCRIPTION\`**: شناسنامه رسمی و متادیتای پکیج (نام، نسخه، نویسندگان، مجوز و پیش‌نیازها).
+- **\`NAMESPACE\`**: مشخص‌کننده مرزهای خارجی پکیج (کدام توابع عمومی‌اند و کدام توابع خصوصی).
+- **\`R/\`**: تمام کدهای منبع توابع پکیج در این پوشه قرار می‌گیرند.
+- **\`man/\`**: مستندات و راهنمای توابع که با فرمت \`.Rd\` ذخیره می‌شوند.
+
+فایل \`DESCRIPTION\` با فرمت متنی DCF (Debian Control Format) ذخیره می‌شود و توابع \`read.dcf()\` و \`write.dcf()\` مستقیماً آن را در R می‌خوانند و می‌نویسند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **قوانین سخت‌گیرانه نام‌گذاری پکیج:** نام یک پکیج R در CRAN فقط و فقط می‌تواند شامل حروف انگلیسی، اعداد و نقطه (\`.\`) باشد. حتماً باید با یک حرف شروع شود و استفاده از خط تیره (\`-\`) یا آندرلاین (\`_\`) اکیداً ممنوع و غیرمجاز است!
+- **شماره‌گذاری نسخه:** همیشه از نسخه‌بندی معنایی (Semantic Versioning) با حداقل ۳ بخش عددی استفاده کنید (مانند \`0.1.0\`).`,
+    checksLabels: [
+      'فایل DESCRIPTION در دیسک ایجاد شده باشد',
+      'نام پکیج برابر با datapkg تنظیم شده باشد',
+      'شماره نسخه اولیه برابر 0.1.0 باشد',
+    ],
+    learning: [
+      'فایل DESCRIPTION متادیتای ساختاریافته پکیج را در قالب DCF نگهداری می‌کند',
+      'توابع write.dcf و read.dcf ساختارهای جدولی را مستقیماً به هدرهای پکیج تبدیل می‌کنند',
+      'قوانین نام‌گذاری پکیج در R بسیار سخت‌گیرانه بوده و فقط حروف، اعداد و نقطه مجاز است',
+    ],
+    fieldNotes: [
+      'در محیط‌های صنعتی، دستور usethis::create_package() ساختار استاندارد پکیج را در چند ثانیه برپا می‌کند.',
+      'نسخه‌بندی معنایی (SemVer) تغییرات ناسازگار را به مصرف‌کنندگان بسته اعلام می‌دارد.',
+    ],
+  },
+  'pkg-deps': {
+    title: '۲۳. مدیریت وابستگی‌ها: تفاوت Imports و Suggests',
+    brief: 'هرگز در کدهای پکیج library() را صدا نزنید! تابع امن safe_median را بنویسید که وجود پکیج stats را با requireNamespace() بررسی کرده و stats::median را صدا بزند.',
+    hint: 'دستور safe_median <- function(x) { if (!requireNamespace("stats", quietly = TRUE)) stop("stats required"); stats::median(x, na.rm = TRUE) } را بنویسید.',
+    lesson: `### فصل ۲۳ — مدیریت وابستگی‌ها: تفاوت Imports و Suggests
+
+یکی از حیاتی‌ترین مباحث مهندسی نرم‌افزار با R، تعریف وابستگی‌های پکیج در فایل \`DESCRIPTION\` است:
+- **\`Imports\`**: بسته‌هایی که توابع شما مستقیماً در حین اجرا به آن‌ها وابسته هستند و هنگام نصب پکیج شما، خودکار نصب می‌شوند.
+- **\`Suggests\`**: بسته‌های اختیاری که فقط برای اجرای تست‌های واحد، ساخت نمونه‌ها، یا مقالات راهنما (Vignettes) لازم‌اند.
+
+#### قانون طلایی توسعه پکیج:
+**هرگز در کدهای داخل پکیج از \`library()\` یا \`require()\` استفاده نکنید!** فراخوانی \`library()\` مسیر جستجوی سراسری کاربر را دستکاری کرده و در آزمون‌های CRAN باعث رد شدن فوری (Error) می‌شود.
+
+به جای آن، برای دسترسی به توابع پکیج‌های خارجی از \`pkg::fun()\` استفاده کنید و برای وابستگی‌های اختیاری از الگوی ایمن:
+\`\`\`r
+if (!requireNamespace("pkg", quietly = TRUE)) {
+  stop("Package 'pkg' is needed for this function to work.")
+}
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله Depends vs Imports:** فیلد قدیمی \`Depends\` تمام توابع پکیج پیش‌نیاز را به فضای سراسری کاربر تحمیل می‌کند و باعث تداخل نام متغیرها می‌شود. استاندارد مدرن همیشه استفاده از \`Imports\` است.`,
+    checksLabels: [
+      'تابع safe_median در حافظه تعریف شده باشد',
+      'تابع safe_median میانه را به درستی با احتساب na.rm محاسبه کند',
+      'به جای library از requireNamespace استفاده شده باشد',
+    ],
+    learning: [
+      'بخش Imports وابستگی‌های الزامی زمان اجرای پکیج را معین می‌کند',
+      'بخش Suggests پکیج‌های اختیاری برای تست و نمونه‌ها را مدیریت می‌سازد',
+      'تابع requireNamespace امکان بررسی پکیج‌های اختیاری را بدون دستکاری مسیر سراسری فراهم می‌کند',
+    ],
+    fieldNotes: [
+      'هرگز در توابع پکیج library() را صدا نزنید؛ این کار باعث رد شدن بسته در بررسی R CMD check می‌شود.',
+      'استفاده از عملگر دو نقطه دوبل (pkg::fun) فراخوانی شفاف و بدون ابهام توابع وابسته را تضمین می‌کند.',
+    ],
+  },
+  'pkg-code': {
+    title: '۲۴. کدهای پکیج و پاکسازی اثرات جانبی (on.exit)',
+    brief: 'توابع پکیج هرگز نباید اثرات جانبی در محیط کاربر بر جای بگذارند. تابع with_temp_digits را با on.exit(add = TRUE) بنویسید تا تنظیمات اعداد اعشاری به حالت اول بازگردد.',
+    hint: 'دستور old_opt <- options(digits = digits) را ذخیره کرده و on.exit(options(old_opt), add = TRUE) را قبل از format(x) ثبت کنید.',
+    lesson: `### فصل ۲۴ — کدهای سازگار با پکیج و پاکسازی اثرات جانبی (on.exit)
+
+یک پکیج حرفه‌ای باید «مهمان مؤدبی» در سشن کاربر باشد!
+این یعنی هرگز نباید متغیرهایی در \`.GlobalEnv\` ایجاد کند، نباید دایرکتوری جاری را با \`setwd()\` تغییر دهد، و نباید تنظیمات سراسری مانند \`options()\` یا پارامترهای گرافیکی \`par()\` را بدون بازگردانی دستکاری کند.
+
+الگوی رسمی و تاییدشده CRAN برای مدیریت این وضعیت، استفاده از تابع حیاتی \`on.exit()\` است:
+\`\`\`r
+my_fn <- function(x) {
+  old_par <- par(mfrow = c(1, 2))
+  on.exit(par(old_par), add = TRUE)
+  # ادامه محاسبات و رسم نمودار
+}
+\`\`\`
+حتی اگر در میانه اجرای تابع خطایی رخ دهد، R تضمین می‌کند که دستور داخل \`on.exit()\` اجرا شده و محیط کاربر به حالت اولیه بازگردد.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراموش کردن آرگومان \`add = TRUE\`:** اگر \`add = TRUE\` را قرار ندهید، هر فراخوانی جدید \`on.exit()\` دستورات قبلی ثبت‌شده را پاک می‌کند! همیشه بنویسید \`on.exit(..., add = TRUE)\`.`,
+    checksLabels: [
+      'تابع with_temp_digits تعریف شده باشد',
+      'تنظیمات سراسری digits پس از خروج از تابع به حالت اولیه بازگردد',
+      'از دستور on.exit برای پاکسازی تضمینی استفاده شده باشد',
+    ],
+    learning: [
+      'توابع پکیج باید خالص بوده و نباید وضعیت سراسری کاربر را بدون بازگردانی تغییر دهند',
+      'دستور on.exit(..., add = TRUE) اجرای قطعی پاکسازی را حتی در صورت بروز خطا تضمین می‌کند',
+      'هرگز از setwd() یا source() درون کدهای پکیج استفاده نکنید',
+    ],
+    fieldNotes: [
+      'همواره آرگومان add = TRUE را در on.exit بگنجانید تا هندلرهای خروج قبلی بازنویسی نشوند.',
+      'پکیج withr توابع جامعی مانند withr::with_options برای مدیریت اسکوپ وضعیت ارائه می‌دهد.',
+    ],
+  },
+  'pkg-roxygen': {
+    title: '۲۵. مستندسازی مدرن با roxygen2',
+    brief: 'در پکیج‌های R، مستندسازی با کامنت‌های roxygen2 انجام می‌شود. تابع normalize_vec را پیاده‌سازی کرده و تگ‌های roxygen آن را تعریف کنید.',
+    hint: 'تابع normalize_vec را تعریف کرده و متغیر roxy_tags را با title, param, return و export = TRUE مقداردهی نمایید.',
+    lesson: `### فصل ۲۵ — مستندسازی مدرن با roxygen2
+
+در گذشته توسعه‌دهندگان R مجبور بودند مستندات توابع را دستی با کدهای شبیه LaTeX در فایل‌های \`man/*.Rd\` بنویسند.
+پکیج انقلابی \`roxygen2\` به شما اجازه می‌دهد مستندات را مستقیماً بالای تعریف هر تابع با پیشوند \`#'\` بنویسید:
+
+\`\`\`r
+#' مقیاس‌بندی بردار به بازه [0, 1]
+#'
+#' @param x بردار عددی ورودی
+#' @return بردار عددی نرمال‌شده بین صفر و یک
+#' @export
+#' @examples
+#' normalize_vec(c(10, 20, 30))
+normalize_vec <- function(x) { ... }
+\`\`\`
+
+دستور \`devtools::document()\` به صورت خودکار این کامنت‌ها را پردازش کرده و فایل‌های راهنما و \`NAMESPACE\` را بروزرسانی می‌کند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **از قلم انداختن تگ \`@export\`:** اگر \`@export\` را بالای تابعی نگذارید، آن تابع در پکیج باقی می‌ماند اما خصوصی (Internal) تلقی می‌شود و کاربران پس از \`library(mypkg)\` به آن دسترسی مستقیم نخواهند داشت.`,
+    checksLabels: [
+      'تابع normalize_vec در حافظه تعریف شده باشد',
+      'تابع normalize_vec مقادیر را به بازه صفر تا یک مقیاس‌بندی کند',
+      'تنظیم roxy_tags شامل export = TRUE باشد',
+    ],
+    learning: [
+      'کامنت‌های roxygen2 با #\' شروع شده و مستقیماً بالای تعریف توابع درج می‌شوند',
+      'تگ‌های کلیدی شامل @param، @return، @examples و @export هستند',
+      'تگ @export توابع را به رابط عمومی پکیج اضافه کرده و بدون آن تابع خصوصی می‌ماند',
+    ],
+    fieldNotes: [
+      'دستور devtools::document() فایل‌های راهنما را در پوشه man/ و فایل NAMESPACE را خودکار می‌سازد.',
+      'توابع کمکی خصوصی همچنان با سه نقطه (pkg:::helper) برای اهداف عیب‌یابی قابل دسترسی‌اند.',
+    ],
+  },
+  'pkg-namespace': {
+    title: '۲۶. مدیریت فضای نام (NAMESPACE) و پنهان‌سازی',
+    brief: 'فایل NAMESPACE رابط عمومی و ورودی‌های خارجی پکیج را کنترل می‌کند. یک فایل NAMESPACE ایجاد کنید که normalize_vec را export کرده و توابع median و IQR را import کند.',
+    hint: 'دستورات export(normalize_vec) و importFrom(stats, median, IQR) را در فایل NAMESPACE بنویسید و بخوانید.',
+    lesson: `### فصل ۲۶ — مدیریت فضای نام (NAMESPACE) و پنهان‌سازی اطلاعات
+
+فایل \`NAMESPACE\` کنترل‌کننده مرزهای ماژول شماست و دو وظیفه کلیدی دارد:
+1. **صادرات (Export):** تعیین اینکه کدام توابع با بارگذاری پکیج در دسترس کاربر قرار می‌گیرند (\`export(fun)\`).
+2. **ورود انتخابی (Import):** توابعی که پکیج شما از سایر بسته‌ها قرض می‌گیرد (\`importFrom(pkg, fun)\`).
+
+این مکانیزم مانع از تداخل نام‌ها (Name Clashes) می‌شود. برای مثال اگر شما و یک پکیج دیگر هر دو تابعی به نام \`filter\` داشته باشید، \`NAMESPACE\` مانع از خراب شدن کدهای پکیج شما می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله وارد کردن فله‌ای با \`import(pkg)\`:** هرگز کل یک پکیج بزرگ را با \`import(pkg)\` وارد نکنید! این کار صدها تابع را وارد فضای داخلی پکیج کرده و ریسک تداخل را به شدت بالا می‌برد. همیشه از \`importFrom(pkg, fun1, fun2)\` استفاده کنید.`,
+    checksLabels: [
+      'فایل NAMESPACE روی دیسک ایجاد شده باشد',
+      'فایل NAMESPACE تابع normalize_vec را صادر کند',
+      'فایل NAMESPACE توابع اختصاصی stats را با importFrom وارد کند',
+    ],
+    learning: [
+      'فایل NAMESPACE رابط عمومی و ورودی‌های خارجی پکیج را معین می‌کند',
+      'دستور export توابع در دسترس کاربر را پس از فراخوانی library معرفی می‌کند',
+      'دستور importFrom سمبل‌های خارجی را به صورت انتخابی و بدون خطر تداخل نام وارد می‌سازد',
+    ],
+    fieldNotes: [
+      'از وارد کردن فله‌ای بسته‌ها با import(pkg) خودداری کرده و با @importFrom توابع را دقیق انتخاب کنید.',
+      'طراحی دقیق NAMESPACE سطح تماس API را کاهش داده و ریفکتور کدهای داخلی را بی‌خطر می‌سازد.',
+    ],
+  },
+  'pkg-testing': {
+    title: '۲۷. تست خودکار نرم‌افزار با testthat',
+    brief: 'تست‌های واحد پایداری پکیج‌های R را تضمین می‌کنند. توابع expect_equal و expect_error را پیاده‌سازی کرده و تست‌های normalize_vec را اجرا کنید.',
+    hint: 'توابع کمکی expect_equal و expect_error را پیاده کرده و خروجی تست‌ها را در test_results ذخیره کنید.',
+    lesson: `### فصل ۲۷ — تست خودکار نرم‌افزار با فریم‌ورک testthat
+
+در مهندسی پکیج‌های R، تست‌های خودکار در پوشه \`tests/testthat/\` قرار می‌گیرند.
+پکیج \`testthat\` ساختار استاندارد تست را با بلاک‌های \`test_that()\` و توابع \`expect_*\` فراهم می‌سازد:
+- **\`expect_equal(actual, expected)\`**: بررسی برابری مقادیر با تلورانس عددی
+- **\`expect_error(expr)\`**: بررسی اینکه ورودی نامعتبر حتماً خطای درستی پرتاب کند
+- **\`expect_true(cond)\`**: ارزیابی شروط منطقی
+
+با زدن میانبر **Ctrl + Shift + T** یا دستور \`devtools::test()\`، صدها تست در چند ثانیه اجرا شده و از شکست رگرسیونی (Regression Bugs) جلوگیری می‌شود.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تست اعشاری با \`==\` در تست‌ها:** هرگز ننویسید \`expect_true(val == 0.3)\`! در سیستم‌های عامل و پردازنده‌های مختلف محاسبات اعشاری تفاوت‌های ناچیزی دارند که باعث شکست تست می‌شود. همیشه از \`expect_equal()\` استفاده کنید.`,
+    checksLabels: [
+      'توابع کمکی تست expect_equal و expect_error تعریف شده باشند',
+      'تست برابری مقادیر t1 با موفقیت پاس شود',
+      'تست انتظار خطا t2 با موفقیت پاس شود',
+    ],
+    learning: [
+      'پکیج testthat تست‌های ساختاریافته را با بلاک‌های test_that و توابع expect فراهم می‌کند',
+      'دستور expect_equal برابری مقادیر را با تلورانس اعشاری می‌سنجد',
+      'دستور expect_error ارسال پیام خطای صحیح را به ازای ورودی‌های نامعتبر کنترل می‌کند',
+    ],
+    fieldNotes: [
+      'ابزارهای Continuous Integration با اجرای خودکار devtools::test() کیفیت کدها را در هر Pull Request می‌سنجند.',
+      'پوشش تست بالا برای حالت‌های مرزی و داده‌های مفقوده (NA) پایداری پکیج را تضمین می‌کند.',
+    ],
+  },
+  'pkg-data': {
+    title: '۲۸. انتشار داده‌ها و فایل‌های ضمیمه در پکیج',
+    brief: 'پکیج‌ها فایل‌های خام را در inst/extdata توزیع می‌کنند. فایل inst/extdata/sample_cars.csv را ساخته و با read.csv() در raw_asset بارگذاری کنید.',
+    hint: 'پوشه را با dir.create("inst/extdata", recursive = TRUE) بسازید، با write.csv() بنویسید و در raw_asset بخوانید.',
+    lesson: `### فصل ۲۸ — انتشار داده‌ها و فایل‌های ضمیمه در پکیج
+
+پکیج‌های R می‌توانند دو دسته داده را توزیع کنند:
+1. **داده‌های رسمی پکیج (\`data/\`):** دیتافریم‌های باینری به فرمت \`.rda\` که با دستور \`usethis::use_data()\` تولید شده و مستقیماً توسط کاربر با \`data(my_dataset)\` قابل استفاده‌اند.
+2. **فایل‌های خام خارجی (\`inst/extdata/\`):** فایل‌های CSV، اکسل، تصاویر یا فایل‌های پیکربندی که کاربر باید بتواند نحوه خواندن آن‌ها را تمرین کند.
+
+هنگام نصب پکیج، محتویات پوشه \`inst/\` به ریشه اصلی پکیج منتقل می‌شود؛ بنابراین برای آدرس‌دهی ایمن از تابع استاندارد \`system.file()\` استفاده می‌شود:
+\`\`\`r
+path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **مسیردهی اشتباه با \`inst\` در سیستم کاربر:** هرگز در کد تابع ننویسید \`system.file("inst/extdata", ...)\`! چون پیشوند \`inst/\` در پکیج نصب‌شده حذف شده است.`,
+    checksLabels: [
+      'فایل ضمیمه خارجی در مسیر inst/extdata موجود باشد',
+      'متغیر raw_asset شامل ۵ سطر از داده‌های فایل پکیج باشد',
+      'فایل sample_cars.csv شامل ستون‌های استاندارد خودرو باشد',
+    ],
+    learning: [
+      'فایل‌های غیرکد (CSV، قالب‌ها و JSON) در مسیر inst/extdata پکیج توزیع می‌شوند',
+      'تابع system.file مسیر فایل‌ها را به صورت مستقل از پلتفرم پیدا می‌کند',
+      'داده‌های رسمی جدولی در قالب باینری .rda و درون پوشه data/ قرار می‌گیرند',
+    ],
+    fieldNotes: [
+      'هرگز از مسیرهای فایلی نسبی در کدهای پکیج استفاده نکنید؛ همیشه از system.file بهره بگیرید.',
+      'تمام دیتاست‌های داخل data/ باید در فایل R/data.R مستندسازی شوند.',
+    ],
+  },
+  'pkg-check': {
+    title: '۲۹. کنترل کیفیت و انتشار بسته با R CMD check',
+    brief: 'ابزار R CMD check استاندارد طلایی کیفیت در R است. تابع check_package را برای اعتبارسنجی متادیتای DESCRIPTION و NAMESPACE بنویسید و نتیجه صفر خطا بگیرید.',
+    hint: 'تابع check_package را برای بررسی فیلدهای read.dcf و دستورات NAMESPACE بنویسید و مطمئن شوید errors, warnings و notes برابر 0 هستند.',
+    lesson: `### فصل ۲۹ — کنترل کیفیت و انتشار بسته با R CMD check
+
+ابزار \`R CMD check\` (که از طریق \`devtools::check()\` اجرا می‌شود) دروازه کیفیت افسانه‌ای دنیای R است.
+این فرآیند بیش از ۵۰ آزمون موشکافانه را روی پکیج اجرا می‌کند:
+- انطباق دقیق آرگومان‌های توابع با فایل‌های مستندات
+- فقدان هرگونه فراخوانی غیرمجاز \`library()\`
+- اجرای موفق ۱۰۰٪ تست‌های واحد
+- نبود متغیرهای سراسری تعریف‌نشده
+
+خروجی نهایی به سه دسته تقسیم می‌شود:
+- **ERROR**: خطای مهلک؛ پکیج نصب یا بیلد نمی‌شود.
+- **WARNING**: اخطار جدی؛ سیاست‌های CRAN نقض شده است.
+- **NOTE**: نکات جزئی یا توصیه‌ها.
+
+هدف هر توسعه‌دهنده حرفه‌ای رسیدن به وضعیت رویایی **0 errors | 0 warnings | 0 notes** است.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **متغیرهای ستونی در dplyr و R CMD check NOTE:** ارزیابی غیر استاندارد (NSE) در توابعی مثل \`subset()\` یا \`dplyr::filter()\` باعث می‌شود \`R CMD check\` فکر کند نام ستون‌ها متغیرهای سراسری تعریف‌نشده هستند! راه‌حل استاندارد: معرفی آنها در \`R/globals.R\` با دستور \`utils::globalVariables(c("col1", "col2"))\`.`,
+    checksLabels: [
+      'تابع تشخیصی check_package تعریف شده باشد',
+      'پکیج آزمون‌های اعتبارسنجی متادیتا و فضای نام را پاس کند',
+      'استاندارد انتشار CRAN محقق شود: 0 errors | 0 warnings | 0 notes',
+    ],
+    learning: [
+      'دستور R CMD check فرآیند ارزیابی خودکار کیفیت، تست‌ها و مستندات بسته را انجام می‌دهد',
+      'هدف اصلی برای انتشار رسمی رسیدن به وضعیت 0 errors | 0 warnings | 0 notes است',
+      'آزمون‌های اعتبارسنجی متغیرهای بدون اعلان و تناقض آرگومان‌ها را شناسایی می‌کنند',
+    ],
+    fieldNotes: [
+      'دستور devtools::check() را مکرراً در طول فرآیند توسعه اجرا کنید، نه فقط در زمان انتشار.',
+      'متغیرهای ستونی پایپلاین‌ها را با utils::globalVariables معرفی کنید تا از ایجاد Note جلوگیری شود.',
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -1095,6 +1369,280 @@ In diesem Abschlussprojekt:
       'Streudiagramme decken Nichtlinearitäten und Ausreißer vor jeder Modellierung zuverlässig auf.',
     ],
   },
+  'pkg-anatomy': {
+    title: '22. Paket-Anatomie & DESCRIPTION-Datei',
+    brief: 'Jedes R-Paket basiert auf einer DESCRIPTION-Datei. Erstelle mit write.dcf() valide Metadaten für Package, Title, Version und License.',
+    hint: 'Erstelle den Data Frame desc mit Package, Title, Version, License und Description, schreibe ihn mit write.dcf() und lies ihn mit read.dcf() ein.',
+    lesson: `### Kapitel 22 — Paket-Anatomie und die DESCRIPTION-Datei
+
+In R sind Pakete die oberste Stufe zur Modularisierung und Weitergabe von Code und Daten.
+Ein kanonisches Paket folgt festen Verzeichnis-Konventionen:
+- **\`DESCRIPTION\`**: Der Ausweis des Pakets mit Metadaten (Name, Version, Autoren, Lizenz und Abhängigkeiten).
+- **\`NAMESPACE\`**: Definiert die Schnittstelle nach außen (welche Funktionen öffentlich und welche intern sind).
+- **\`R/\`**: Sämtlicher R-Code liegt in diesem Ordner.
+- **\`man/\`**: Dokumentationsdateien im \`.Rd\`-Format.
+
+Die \`DESCRIPTION\`-Datei nutzt das Debian Control Format (DCF) und wird nativ über \`read.dcf()\` und \`write.dcf()\` verarbeitet.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Strenge Namenskonventionen:** Paketnamen auf CRAN dürfen nur aus Buchstaben, Zahlen und Punkten (\`.\`) bestehen. Sie müssen mit einem Buchstaben beginnen; Unterstriche (\`_\`) und Bindestriche (\`-\`) sind unzulässig!
+- **Semantische Versionierung:** Verwende stets mindestens 3-teilige Versionsnummern (z. B. \`0.1.0\`).`,
+    checksLabels: [
+      'DESCRIPTION-Datei existiert auf der Festplatte',
+      'Paketname ist als "datapkg" definiert',
+      'Startversion ist auf 0.1.0 gesetzt',
+    ],
+    learning: [
+      'Die DESCRIPTION-Datei speichert Paketmetadaten im strukturierten DCF-Format',
+      'write.dcf() und read.dcf() konvertieren tabellarische Listen in standardisierte Header',
+      'R-Paketnamen unterliegen strengen Formatierungsregeln ohne Binde- oder Unterstriche',
+    ],
+    fieldNotes: [
+      'In der Praxis richtet usethis::create_package() ein CRAN-konformes Paketgerüst in Sekunden ein.',
+      'Semantische Versionierung (SemVer) signalisiert Breaking Changes verlässlich an Anwender.',
+    ],
+  },
+  'pkg-deps': {
+    title: '23. Abhängigkeiten: Imports vs. Suggests',
+    brief: 'Rufe niemals library() in Paketfunktionen auf! Schreibe safe_median mit requireNamespace() und stats::median.',
+    hint: 'Definiere safe_median <- function(x) { if (!requireNamespace("stats", quietly = TRUE)) stop("stats needed"); stats::median(x, na.rm = TRUE) }.',
+    lesson: `### Kapitel 23 — Paket-Abhängigkeiten: Imports vs. Suggests
+
+Die Deklaration externer Pakete in der \`DESCRIPTION\`-Datei ist ein Kernbaustein der Softwarearchitektur:
+- **\`Imports\`**: Pakete, die zur Laufzeit zwingend benötigt und bei der Installation automatisch mitinstalliert werden.
+- **\`Suggests\`**: Optionale Pakete für Tests, Beispieldatensätze oder Vignettes.
+
+#### Die goldene Regel:
+**Nutze niemals \`library()\` oder \`require()\` im Paketcode!** Dies verändert den globalen Suchpfad des Nutzers und führt bei \`R CMD check\` zu einem sofortigen Fehler.
+
+Nutze stattdessen qualifizierte Aufrufe \`pkg::fun()\` und für optionale Abhängigkeiten das sichere Schema:
+\`\`\`r
+if (!requireNamespace("pkg", quietly = TRUE)) {
+  stop("Paket 'pkg' wird für diese Funktion benötigt.")
+}
+\`\`\`
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Die Depends-Falle:** Das veraltete Feld \`Depends\` lädt alle Funktionen eines Fremdpakets in die Nutzersitzung und erzeugt Namenskonflikte. Moderner Standard ist ausnahmslos \`Imports\`.`,
+    checksLabels: [
+      'safe_median ist als Funktion definiert',
+      'safe_median berechnet den Median korrekt mit na.rm',
+      'requireNamespace wird anstelle von library() verwendet',
+    ],
+    learning: [
+      'Imports definiert zwingend erforderliche Laufzeitabhängigkeiten',
+      'Suggests verwaltet optionale Zusatzpakete für Tests und Dokumentation',
+      'requireNamespace() prüft Pakete sicher, ohne den globalen Namespace zu verschmutzen',
+    ],
+    fieldNotes: [
+      'Aufrufe von library() im Paketcode führen unweigerlich zur Ablehnung auf CRAN.',
+      'Der Doppelpunkt-Operator (pkg::fun) sorgt für eindeutige Funktionsauflösung.',
+    ],
+  },
+  'pkg-code': {
+    title: '24. Paket-Code & Seiteneffekte (on.exit)',
+    brief: 'Paketfunktionen dürfen keine permanenten Seiteneffekte hinterlassen. Schreibe with_temp_digits mit on.exit(add = TRUE) für eine saubere Bereinigung.',
+    hint: 'Speichere old_opt <- options(digits = digits) und registriere on.exit(options(old_opt), add = TRUE) vor format(x).',
+    lesson: `### Kapitel 24 — Seiteneffektfreier Paketcode & on.exit
+
+Ein professionelles R-Paket verhält sich wie ein rücksichtsvoller Gast!
+Es verändert niemals ungefragt die globale Umgebung (\`.GlobalEnv\`), wechselt nicht das Arbeitsverzeichnis (\`setwd()\`) und stellt geänderte Grafikparameter (\`par()\`) oder Optionen (\`options()\`) zuverlässig wieder her.
+
+Das kanonische Muster dafür ist \`on.exit()\`:
+\`\`\`r
+my_fn <- function(x) {
+  old_par <- par(mfrow = c(1, 2))
+  on.exit(par(old_par), add = TRUE)
+  # Berechnungen und Plots
+}
+\`\`\`
+R garantiert die Ausführung des \`on.exit\`-Handlers selbst dann, wenn während der Funktionsausführung ein Fehler auftritt.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Fehlendes \`add = TRUE\`:** Ohne \`add = TRUE\` überschreibt ein neuer Aufruf von \`on.exit()\` alle zuvor registrierten Aufräumbefehle!`,
+    checksLabels: [
+      'with_temp_digits ist als Funktion definiert',
+      'Globale digits-Option wird beim Beenden zuverlässig wiederhergestellt',
+      'on.exit wird zur garantierten Bereinigung eingesetzt',
+    ],
+    learning: [
+      'Paketfunktionen müssen zustandslos und frei von globalen Seiteneffekten bleiben',
+      'on.exit(..., add = TRUE) sichert die Bereinigung selbst bei Programmabbrüchen ab',
+      'Verzichte im Paketcode strikt auf setwd() und source()',
+    ],
+    fieldNotes: [
+      'Setze in on.exit() stets add = TRUE, um Handler-Kollisionen zu vermeiden.',
+      'Das Paket withr bietet moderne Scoped-State-Helfer wie withr::with_options.',
+    ],
+  },
+  'pkg-roxygen': {
+    title: '25. Funktionsdokumentation mit roxygen2',
+    brief: 'In R-Paketen wird Dokumentation direkt im Code über roxygen2-Kommentare verfasst. Definiere normalize_vec und die zugehörigen Metadaten-Tags.',
+    hint: 'Implementiere normalize_vec und erstelle roxy_tags mit title, param, return und export = TRUE.',
+    lesson: `### Kapitel 25 — Moderne Dokumentation mit roxygen2
+
+Früher mussten R-Dokumentationen mühsam von Hand in LaTeX-ähnlichen \`man/*.Rd\`-Dateien geschrieben werden.
+Mit \`roxygen2\` schreibst du Kommentare direkt über den Funktionscode mit dem Präfix \`#'\`:
+
+\`\`\`r
+#' Vektor auf Intervall [0, 1] skalieren
+#'
+#' @param x Numerischer Eingabevektor
+#' @return Skalierter numerischer Vektor im Bereich 0 bis 1
+#' @export
+#' @examples
+#' normalize_vec(c(10, 20, 30))
+normalize_vec <- function(x) { ... }
+\`\`\`
+
+Der Aufruf \`devtools::document()\` parst diese Blöcke und erzeugt automatisch die Handbuchseiten sowie die \`NAMESPACE\`-Einträge.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Vergessenes \`@export\`:** Ohne \`@export\` bleibt eine Funktion paketintern (privat) und steht Anwendern nach \`library(pkg)\` nicht zur Verfügung.`,
+    checksLabels: [
+      'normalize_vec ist als Funktion definiert',
+      'normalize_vec skaliert Vektoren korrekt zwischen 0 und 1',
+      'roxy_tags deklariert export = TRUE',
+    ],
+    learning: [
+      'roxygen2-Kommentare beginnen mit #\' und stehen direkt über der Funktionsdefinition',
+      'Zentrale Tags sind @param, @return, @examples und @export',
+      '@export macht Funktionen öffentlich zugänglich; ohne das Tag bleiben sie privat',
+    ],
+    fieldNotes: [
+      'devtools::document() aktualisiert Handbücher in man/ und NAMESPACE vollautomatisch.',
+      'Interne Hilfsfunktionen können für Debugging-Zwecke über pkg:::helper aufgerufen werden.',
+    ],
+  },
+  'pkg-namespace': {
+    title: '26. NAMESPACE & Information Hiding',
+    brief: 'Die NAMESPACE-Datei steuert öffentliche Exporte und externe Importe. Erstelle ein NAMESPACE, das normalize_vec exportiert und stats-Funktionen importiert.',
+    hint: 'Schreibe export(normalize_vec) und importFrom(stats, median, IQR) in die Datei "NAMESPACE" und lies sie in ns_content.',
+    lesson: `### Kapitel 26 — NAMESPACE und Kapselung
+
+Die \`NAMESPACE\`-Datei definiert die Schnittstellen deines Moduls:
+1. **Exporte (\`export\`):** Funktionen, die nach dem Laden des Pakets für den Nutzer sichtbar sind.
+2. **Importe (\`importFrom\`):** Externe Symbole, die dein Paket aus anderen Paketen gezielt einbindet.
+
+Dadurch werden Namenskonflikte (Name Clashes) verhindert: Falls dein Paket und ein anderes eine Funktion namens \`filter\` besitzen, sorgt der \`NAMESPACE\` dafür, dass interner Code stabil bleibt.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Unüberlegtes \`import(pkg)\`:** Binde nie ein komplettes Paket mit \`import(pkg)\` ein! Das flutet deinen Namespace mit hunderten Funktionen. Nutze stets das gezielte \`importFrom(pkg, fun1, fun2)\`.`,
+    checksLabels: [
+      'NAMESPACE-Datei existiert auf der Festplatte',
+      'NAMESPACE exportiert normalize_vec',
+      'NAMESPACE importiert gezielt Funktionen aus stats',
+    ],
+    learning: [
+      'NAMESPACE trennt die öffentliche Paket-API von internen Implementierungsdetails',
+      'export() steuert die nach library() sichtbaren Funktionen',
+      'importFrom() importiert Fremdfunktionen gezielt und vermeidet Namenskonflikte',
+    ],
+    fieldNotes: [
+      'Chirurgisches @importFrom in roxygen ist CRAN-Best-Practice.',
+      'Ein minimal gehaltener Export vereinfacht künftige Refactorings enorm.',
+    ],
+  },
+  'pkg-testing': {
+    title: '27. Automatisierte Tests mit testthat',
+    brief: 'Unit Tests garantieren Paketstabilität. Implementiere expect_equal und expect_error und verifiziere normalize_vec in einer Testsuite.',
+    hint: 'Definiere expect_equal mit all.equal() und expect_error mit tryCatch(), führe anschließend test_results aus.',
+    lesson: `### Kapitel 27 — Automatisierte Unit-Tests mit testthat
+
+Im R-Paketbau werden automatisierte Tests unter \`tests/testthat/\` abgelegt.
+Das Paket \`testthat\` strukturiert Tests in \`test_that()\`-Blöcken mit \`expect_*\`-Prüfungen:
+- **\`expect_equal(actual, expected)\`**: Prüft numerische Gleichheit mit Toleranz
+- **\`expect_error(expr)\`**: Prüft, ob fehlerhafte Eingaben saubere Fehler werfen
+- **\`expect_true(cond)\`**: Prüft logische Bedingungen
+
+Über das Tastenkürzel **Strg + Umschalt + T** oder \`devtools::test()\` werden alle Tests in Sekunden ausgeführt.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Exakte Gleichheit mit \`==\` in Tests:** Nutze in Tests niemals \`expect_true(x == 0.3)\`! Gleitkomma-Ungenauigkeiten führen auf verschiedenen Plattformen zu Fehlern. Nutze immer \`expect_equal()\`.`,
+    checksLabels: [
+      'Testhelfer expect_equal und expect_error sind definiert',
+      'Gleichheitstest t1 wird erfolgreich bestanden',
+      'Fehlererwartungstest t2 wird erfolgreich bestanden',
+    ],
+    learning: [
+      'testthat strukturiert automatisierte Tests über test_that-Blöcke und Assertions',
+      'expect_equal gleicht Werte unter Berücksichtigung von Gleitkommatoleranzen ab',
+      'expect_error validiert das gezielte Auslösen von Fehlermeldungen bei Falscheingaben',
+    ],
+    fieldNotes: [
+      'Continuous Integration (GitHub Actions) führt Tests bei jedem Pull Request plattformübergreifend aus.',
+      'Hohe Testabdeckung für Randwerte und NAs verhindert Regressionen zuverlässig.',
+    ],
+  },
+  'pkg-data': {
+    title: '28. Daten & externe Assets im Paket (inst/extdata)',
+    brief: 'Pakete liefern Rohdateien in inst/extdata aus. Erstelle inst/extdata/sample_cars.csv und lade sie mit read.csv() in raw_asset.',
+    hint: 'Erstelle den Ordner mit dir.create("inst/extdata", recursive = TRUE), schreibe die Datei mit write.csv() und lies sie in raw_asset.',
+    lesson: `### Kapitel 28 — Paketdaten und Rohdateien in inst/extdata
+
+R-Pakete können zwei Arten von Daten bereitstellen:
+1. **Paket-Datensätze (\`data/\`):** Komprimierte \`.rda\`-Dateien (via \`usethis::use_data()\`), die Anwender direkt über \`data(name)\` laden können.
+2. **Externe Rohdaten (\`inst/extdata/\`):** Unveränderte CSV-, JSON- oder Textdateien für Übungs- und Importzwecke.
+
+Bei der Installation wird der Inhalt von \`inst/\` direkt ins Hauptverzeichnis des installierten Pakets kopiert. Pfade werden plattformunabhängig über \`system.file()\` aufgelöst:
+\`\`\`r
+path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
+\`\`\`
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Falscher Pfad mit \`inst\`:** Schreibe im Code niemals \`system.file("inst/extdata", ...)\`! Der Ordnername \`inst\` existiert im installierten Paket nicht mehr.`,
+    checksLabels: [
+      'Externe Datei existiert in inst/extdata',
+      'raw_asset enthält 5 Zeilen aus dem Paket-Asset',
+      'sample_cars.csv enthält die erwarteten Fahrzeugspalten',
+    ],
+    learning: [
+      'Nicht-R-Dateien (CSV, JSON, Vorlagen) werden in inst/extdata ausgeliefert',
+      'system.file() ermittelt Installationspfade zuverlässig und plattformunabhängig',
+      'Kurierte Datensätze gehören als Binärdateien (.rda) in den Ordner data/',
+    ],
+    fieldNotes: [
+      'Verwende im Paketcode niemals relative Dateipfade; nutze ausnahmslos system.file().',
+      'Dokumentiere jeden Datensatz in data/ sorgfältig in R/data.R.',
+    ],
+  },
+  'pkg-check': {
+    title: '29. Qualitätsprüfung mit R CMD check & CRAN',
+    brief: 'R CMD check ist der härteste Qualitätsstandard. Implementiere check_package zur Validierung von DESCRIPTION und NAMESPACE mit 0 Fehlern.',
+    hint: 'Schreibe check_package zur Prüfung von read.dcf-Feldern und NAMESPACE-Exporten und stelle sicher, dass errors, warnings und notes 0 sind.',
+    lesson: `### Kapitel 29 — Qualitätskontrolle mit R CMD check
+
+\`R CMD check\` (ausgeführt via \`devtools::check()\`) ist das Herzstück der Qualitätssicherung im R-Ökosystem.
+Es führt über 50 vollautomatische Prüfungen durch:
+- Exakte Übereinstimmung aller Funktionsargumente mit den Manpages
+- Keine unzulässigen \`library()\`-Aufrufe
+- Vollständige, fehlerfreie Ausführung der Testsuite
+- Keine undeclarierten globalen Variablen
+
+Ergebnisse werden kategorisiert in:
+- **ERROR**: Fataler Fehler; Paket kann nicht gebaut werden.
+- **WARNING**: Ernsthafte Warnung; CRAN-Richtlinien verletzt.
+- **NOTE**: Hinweise und Empfehlungen.
+
+Das Ziel jedes R-Entwicklers lautet: **0 errors | 0 warnings | 0 notes**.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Spaltennamen in dplyr und R CMD check NOTE:** Non-Standard Evaluation (NSE) in Funktionen wie \`subset()\` oder \`dplyr::filter()\` führt zu Notes über "no visible binding for global variable". Lösung: Deklariere Spaltennamen in \`R/globals.R\` via \`utils::globalVariables(c("col1", "col2"))\`.`,
+    checksLabels: [
+      'Diagnosefunktion check_package ist definiert',
+      'Paket besteht Metadaten- und Namespace-Prüfungen',
+      'CRAN-Zielvorgabe erreicht: 0 errors | 0 warnings | 0 notes',
+    ],
+    learning: [
+      'R CMD check prüft Code-Qualität, Dokumentationskonsistenz und Tests automatisiert ab',
+      'Der CRAN-Standard verlangt strikt 0 errors | 0 warnings | 0 notes',
+      'Checks decken unvollständige Manpages und fehlende Namespace-Exporte zuverlässig auf',
+    ],
+    fieldNotes: [
+      'Führe devtools::check() regelmäßig während der Entwicklung aus, nicht erst vor dem Release.',
+      'Deklariere Tidyverse-Spalten mit utils::globalVariables, um Notizen zu eliminieren.',
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -1303,6 +1851,143 @@ In this capstone project:
 
 #### ⚠️ Common Gotchas:
 - **Anscombe's Quartet:** Never rely solely on summary metrics or correlation coefficients without inspecting the underlying graphical distribution.`,
+  },
+  'pkg-anatomy': {
+    lesson: `### Chapter 22 — Package Anatomy & The DESCRIPTION File
+
+In R, packages are the standard unit of shareable, reproducible code, data, and documentation.
+A canonical R package conforms to strict directory conventions:
+- **\`DESCRIPTION\`**: The manifest defining package metadata (Package name, Version, Title, License, and Dependencies).
+- **\`NAMESPACE\`**: Declares the public API boundary (exported and imported symbols).
+- **\`R/\`**: Directory containing all R source code.
+- **\`man/\`**: Documentation manual files generated in \`.Rd\` format.
+
+The \`DESCRIPTION\` file follows the Debian Control Format (DCF) and can be programmatically inspected or generated using base R's \`read.dcf()\` and \`write.dcf()\`.
+
+#### ⚠️ Common Gotchas:
+- **Strict Package Naming Rules:** Package names can only contain ASCII letters, numbers, and periods (\`.\`). They must start with a letter, and hyphens (\`-\`) or underscores (\`_\`) are strictly forbidden on CRAN.
+- **Semantic Versioning:** Always use 3-part semantic versioning (e.g. \`0.1.0\`) to communicate patch, minor, and major API revisions clearly.`,
+  },
+  'pkg-deps': {
+    lesson: `### Chapter 23 — Package Dependencies: Imports vs. Suggests
+
+Declaring dependencies in the \`DESCRIPTION\` file is a fundamental engineering discipline:
+- **\`Imports\`**: Packages essential at runtime. They are installed automatically whenever a user installs your package.
+- **\`Suggests\`**: Optional packages needed only for unit tests, vignettes, or optional specialized functions.
+
+#### The Golden Rule of Package Code:
+**Never call \`library()\` or \`require()\` inside package functions!** Calling \`library()\` mutates the user's global search path and immediately triggers an ERROR in \`R CMD check\`.
+
+Instead, use explicit qualified calls like \`pkg::fun()\` and guard optional dependencies using:
+\`\`\`r
+if (!requireNamespace("pkg", quietly = TRUE)) {
+  stop("Package 'pkg' is required for this function.")
+}
+\`\`\`
+
+#### ⚠️ Common Gotchas:
+- **The Depends Trap:** The legacy \`Depends\` field attaches the entire foreign package to the user's search path, risking function masking. Modern best practice is to always specify \`Imports\`.`,
+  },
+  'pkg-code': {
+    lesson: `### Chapter 24 — Package Code & Side Effects (on.exit)
+
+A package function must be a courteous guest in the user's R session!
+It should never permanently modify the global environment (\`.GlobalEnv\`), change working directories (\`setwd()\`), or alter options (\`options()\`) or graphics parameters (\`par()\`) without guaranteed restoration.
+
+The idiomatic R solution is \`on.exit()\`:
+\`\`\`r
+my_fn <- function(x) {
+  old_par <- par(mfrow = c(1, 2))
+  on.exit(par(old_par), add = TRUE)
+  # Plotting operations...
+}
+\`\`\`
+R guarantees that the expression registered in \`on.exit()\` will execute when the function terminates, even if an error is raised midway.
+
+#### ⚠️ Common Gotchas:
+- **Omitting \`add = TRUE\`:** If you forget \`add = TRUE\`, subsequent \`on.exit()\` calls overwrite earlier handlers instead of chaining with them. Always write \`on.exit(..., add = TRUE)\`.`,
+  },
+  'pkg-roxygen': {
+    lesson: `### Chapter 25 — Documentation with roxygen2
+
+In modern R packages, documentation lives directly above function definitions in special comment blocks prefixed with \`#'\`:
+
+\`\`\`r
+#' Normalize a numeric vector to [0, 1]
+#'
+#' @param x Input numeric vector
+#' @return Scaled vector bounded between 0 and 1
+#' @export
+#' @examples
+#' normalize_vec(c(10, 20, 30))
+normalize_vec <- function(x) { ... }
+\`\`\`
+
+Running \`devtools::document()\` parses these roxygen blocks to generate \`.Rd\` files in \`man/\` and update \`NAMESPACE\` exports automatically.
+
+#### ⚠️ Common Gotchas:
+- **Missing \`@export\` Tag:** If you omit \`@export\`, the function remains internal (private). Users will not be able to call it after \`library(pkg)\` unless they use the internal triple colon operator (\`pkg:::fun\`).`,
+  },
+  'pkg-namespace': {
+    lesson: `### Chapter 26 — NAMESPACE & Information Hiding
+
+The \`NAMESPACE\` file enforces encapsulation by managing two interfaces:
+1. **Exports (\`export\`):** Public functions made directly accessible to consumers when the package is attached.
+2. **Imports (\`importFrom\`):** Foreign functions your package borrows from other packages.
+
+This separation prevents name collisions. If another library also defines a function with the same name, your package continues to resolve its own internal dependencies reliably.
+
+#### ⚠️ Common Gotchas:
+- **Blind \`import(pkg)\` Directives:** Never import an entire package blindly with \`import(pkg)\`. This pollutes your internal namespace with hundreds of identifiers. Always use targeted \`importFrom(pkg, fun1, fun2)\`.`,
+  },
+  'pkg-testing': {
+    lesson: `### Chapter 27 — Unit Testing with testthat
+
+Unit testing is the foundation of software reliability in R.
+Tests are organized under \`tests/testthat/\` using the \`testthat\` package:
+- **\`expect_equal(actual, expected)\`**: Tests value equality within numerical floating-point tolerances.
+- **\`expect_error(expr)\`**: Asserts that invalid inputs cleanly throw informative exceptions.
+- **\`expect_true(condition)\`**: Verifies boolean invariants.
+
+Running **Ctrl + Shift + T** or \`devtools::test()\` executes your entire test suite in seconds, guarding against regression bugs.
+
+#### ⚠️ Common Gotchas:
+- **Testing with \`==\` in Unit Tests:** Never use \`expect_true(val == 0.3)\`! Machine precision differences across OS platforms will cause random CI test failures. Always use \`expect_equal()\`.`,
+  },
+  'pkg-data': {
+    lesson: `### Chapter 28 — Package Data & Extdata Assets
+
+R packages can distribute data in two canonical ways:
+1. **Curated Datasets (\`data/\`):** Binary \`.rda\` datasets created via \`usethis::use_data()\`, accessible immediately via \`data(mydata)\`.
+2. **External Raw Files (\`inst/extdata/\`):** Unaltered CSV, JSON, or template files for demonstrating parsing pipelines.
+
+During installation, everything inside \`inst/\` is promoted to the installed package root directory. Files are resolved portably using \`system.file()\`:
+\`\`\`r
+path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
+\`\`\`
+
+#### ⚠️ Common Gotchas:
+- **Hardcoding \`inst\` in Paths:** Never write \`system.file("inst/extdata", ...)\`! The \`inst/\` prefix is discarded upon package installation.`,
+  },
+  'pkg-check': {
+    lesson: `### Chapter 29 — Quality Control & CRAN Readiness (R CMD check)
+
+\`R CMD check\` (run via \`devtools::check()\`) is the legendary automated quality gate of the R ecosystem.
+It executes over 50 rigorous automated checks:
+- Strict consistency between function arguments and \`roxygen2\` documentation.
+- Absence of unauthorized \`library()\` calls.
+- Full execution of all unit tests and reproducible examples without error.
+- Zero undeclared global variables.
+
+Diagnostics are reported in three tiers:
+- **ERROR**: Critical flaw preventing package installation or building.
+- **WARNING**: Serious issue violating CRAN policy.
+- **NOTE**: Minor advisory notes.
+
+The hallmark of a production-ready package is achieving **0 errors | 0 warnings | 0 notes**.
+
+#### ⚠️ Common Gotchas:
+- **Tidyverse Columns & R CMD check Notes:** Non-standard evaluation (NSE) in functions like \`subset()\` or \`dplyr::filter()\` flags column names as undefined global variables! Fix this by declaring them in \`R/globals.R\` via \`utils::globalVariables(c("col1", "col2"))\`.`,
   },
 };
 

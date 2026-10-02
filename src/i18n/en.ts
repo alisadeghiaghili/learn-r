@@ -52,7 +52,7 @@ export const en: UiStrings = {
   welcomeIntro: 'Interactive **R** tutorial — sandbox + guided levels.',
   welcomeBoard: 'The board shows **Environment Objects** and **Plot Canvas**. That is the data and visual flow R manages.',
   welcomeTracks:
-    '- Basics: `c()`, vectors, types, indexing\n- Data: `data.frame()`, `matrix()`, subsetting\n- Flow & Functions: `if`, `for`, `function()`, `apply()`\n- Graphics: `plot()`, `hist()`, `barplot()`, `par()`',
+    '- Introduction: `print()`, RStudio environment, workspace `ls()`\n- R Basics: Math `%/%`, `%%`, vectors `c()`, matrices `matrix()`, factors & lists\n- Programming: Control flow `ifelse()`, custom functions, `sapply()`\n- Data Import: Flat CSV `read.csv()`, tabular inspection, DB queries, Web & APIs\n- Data Wrangling: Tidy data `is.na()`, regex `gsub()`, pipelines `|>`, joins `merge()`\n- Advanced & Graphics: Dates `as.Date()`, `aggregate()`, `boxplot()`, capstone project',
   welcomeMeta: 'Meta: `levels`, `lesson`, `hint`, `solution`, `undo`, `reset`, `sandbox`.',
   welcomeLevelsCount: (n: number) => `**${n}** levels included. Open Levels to begin, or stay in sandbox.`,
   welcomeWhat: '**What is LearnR?**',

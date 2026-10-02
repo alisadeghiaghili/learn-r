@@ -4,15 +4,16 @@ export const SERIES: SeriesDef[] = [
   {
     id: 'foundations',
     title: 'Foundations',
-    description: 'Core concepts of R: vectors, subsetting, functions, pipelines, and graphics.',
+    description: 'Complete R curriculum based on the r-book chapters.',
   },
 ];
 
 export const allLevels: LevelDef[] = [
+  // Section 1: مقدمه
   {
     id: 'hello',
     seriesId: 'foundations',
-    title: 'Hello, R',
+    title: '01. Introduction / Hello, R',
     brief: 'R prints evaluated values to the console. Create a character string and print it.',
     goal: 'print("Hello, R!")',
     setup: '',
@@ -26,404 +27,573 @@ export const allLevels: LevelDef[] = [
       },
     ],
     hint: 'Use print() with a double-quoted string: print("Hello, R!")',
-    lesson: `### Welcome to R
+    lesson: `### فصل 1 — مقدمه
 
-R is a premier statistical computing and data science environment.
+زبان R یکی از محبوب‌ترین زبان‌های برنامه‌نویسی برای تحلیل داده، محاسبات آماری و مصورسازی است.
 
-Expressions typed in the console are evaluated immediately and the resulting object is displayed:
+در کنسول R، هر عبارتی که تایپ شود بلافاصله ارزیابی شده و نتیجه نمایش داده می‌شود:
 
 \`\`\`r
 print("Hello, R!")
 \`\`\`
 
-Press **Run** or use **Ctrl / Cmd + Enter** to execute.
+برای اجرا کافی است کلید **Enter** یا **Ctrl + Enter** را فشار دهید.
 `,
   },
   {
+    id: 'rstudio',
+    seriesId: 'foundations',
+    title: '02. RStudio & Workspace',
+    brief: 'In RStudio, variables live in the global workspace. Inspect existing variables with ls().',
+    goal: 'active_vars <- ls()',
+    setup: 'item_a <- 10\nitem_b <- 20',
+    par: 1,
+    difficulty: 1,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'exists("active_vars", envir = .GlobalEnv, inherits = FALSE)',
+        label: 'Variable active_vars exists in the workspace',
+      },
+      {
+        type: 'eval',
+        expr: '"item_a" %in% active_vars && "item_b" %in% active_vars',
+        label: 'active_vars contains workspace objects',
+      },
+    ],
+    hint: 'Call active_vars <- ls() to capture the names of all objects in memory.',
+    lesson: `### فصل 2 — آشنایی با RStudio و محیط کاری
+
+محیط RStudio قدرتمندترین IDE برای زبان R است:
+- کلید میانبر **Ctrl + Enter**: اجرای خط جاری در Console
+- کلید میانبر **Ctrl + L**: پاک کردن صفحه کنسول
+- کلید میانبر **Alt + -**: نوشتن خودکار عملگر تخصیص \`<-\`
+
+تابع \`ls()\` نام تمام متغیرهای موجود در حافظه (Workspace) را به صورت بردار رشته‌ای برمی‌گرداند.
+`,
+  },
+
+  // Section 2: مبانی R
+  {
     id: 'numbers',
     seriesId: 'foundations',
-    title: 'Numbers & Arithmetic',
-    brief: 'R excels as an interactive calculator. Compute the square root of 144 and assign it to root.',
-    goal: 'root <- sqrt(144)',
+    title: '03. Math Operations & Variables',
+    brief: 'R supports integer division (%/%), modulo (%%), and powers (^). Compute quotient q, remainder r, and power p.',
+    goal: 'q <- 17 %/% 5\nr <- 17 %% 5\np <- 2^4',
     setup: '',
     par: 1,
     difficulty: 1,
     checks: [
       {
         type: 'eval',
-        expr: 'exists("root", envir = .GlobalEnv, inherits = FALSE)',
-        label: 'Variable root exists in the environment',
+        expr: 'isTRUE(all.equal(q, 3))',
+        label: 'q equals 17 %/% 5 (3)',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(root, 12))',
-        label: 'root equals 12',
+        expr: 'isTRUE(all.equal(r, 2))',
+        label: 'r equals 17 %% 5 (2)',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(p, 16))',
+        label: 'p equals 2^4 (16)',
       },
     ],
-    hint: 'In R, the assignment operator is <-. Use root <- sqrt(144)',
-    lesson: `### Assignment in R
+    hint: 'Enter all three expressions in the editor: q <- 17 %/% 5, r <- 17 %% 5, p <- 2^4.',
+    lesson: `### فصل 3 — عملیات ریاضی و متغیرها
 
-In R, the standard idiomatic assignment operator is \`<-\` (less-than followed by a hyphen).
-
-\`\`\`r
-root <- sqrt(144)
-\`\`\`
-
-Built-in mathematical functions like \`sqrt()\`, \`log()\`, and \`abs()\` operate directly on numeric scalars and vectors.
+علاوه بر عملگرهای جمع و ضرب، R عملگرهای اختصاصی زیر را دارد:
+- تقسیم صحیح: \`%/% \` (مانند \`17 %/% 5\` که برابر 3 است)
+- باقیمانده (پیمانه): \`%% \` (مانند \`17 %% 5\` که برابر 2 است)
+- توان: \`^ \` (مانند \`2^4\` که برابر 16 است)
+- عملگر تخصیص مقدار به متغیر: \`<-\`
 `,
   },
   {
     id: 'vectors',
     seriesId: 'foundations',
-    title: 'Atomic Vectors',
-    brief: 'c() combines values into a vector. Construct nums with 2, 4, 6, 8 and store its length in n.',
-    goal: 'nums <- c(2, 4, 6, 8)\nn <- length(nums)',
+    title: '04. Vectors & Matrices',
+    brief: 'Vectors are created with c() and matrices with matrix(). Build a 2x3 matrix mat filled by row with numbers 1 to 6.',
+    goal: 'mat <- matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE)',
     setup: '',
     par: 1,
     difficulty: 2,
     checks: [
       {
         type: 'eval',
-        expr: 'is.numeric(nums) && length(nums) == 4',
-        label: 'nums is a numeric vector of length 4',
+        expr: 'is.matrix(mat)',
+        label: 'mat is a matrix',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(nums), c(2, 4, 6, 8)))',
-        label: 'nums holds 2, 4, 6, 8',
+        expr: 'identical(dim(mat), c(2L, 3L))',
+        label: 'mat has 2 rows and 3 columns',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(n), 4))',
-        label: 'n holds the length 4',
+        expr: 'mat[1, 2] == 2 && mat[2, 1] == 4',
+        label: 'Elements are filled byrow correctly',
       },
     ],
-    hint: 'Combine both lines in your editor and Run once to hit par 1.',
-    lesson: `### Vectors
+    hint: 'Use matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE)',
+    lesson: `### فصل 4 — بردارها و ماتریس‌ها
 
-The vector is the basic data structure in R. Even a single number is a vector of length 1.
-
-Use \`c()\` (combine) to create vectors:
+بردارها پایه داده‌ها در R هستند و با \`c()\` ساخته می‌شوند.
+ماتریس‌ها آرایه‌های دوبعدی هستند که با تابع \`matrix()\` ساخته می‌شوند:
 
 \`\`\`r
-nums <- c(2, 4, 6, 8)
-n <- length(nums)
+mat <- matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE)
 \`\`\`
+
+اندیس‌گذاری در ماتریس با فرمت \`mat[row, col]\` انجام می‌گیرد (شروع از ۱).
 `,
   },
   {
-    id: 'indexing',
+    id: 'data-structures',
     seriesId: 'foundations',
-    title: '1-Based Indexing',
-    brief: 'R indices start at 1 (not 0). Extract the 2nd element of letters_abc into pick.',
-    goal: 'pick <- letters_abc[2]',
-    setup: 'letters_abc <- c("a", "b", "c")',
-    par: 1,
-    difficulty: 2,
-    checks: [
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(pick, "b"))',
-        label: 'pick holds "b"',
-      },
-      {
-        type: 'eval',
-        expr: 'length(pick) == 1',
-        label: 'pick has length 1',
-      },
-    ],
-    hint: 'Use square brackets: letters_abc[2].',
-    lesson: `### 1-Based Indexing
-
-Unlike languages with zero-based indexing (C, Python), R positions start at 1:
-
-\`\`\`r
-letters_abc[1] # "a"
-letters_abc[2] # "b"
-\`\`\`
-`,
-  },
-  {
-    id: 'logic',
-    seriesId: 'foundations',
-    title: 'Logical Subsetting',
-    brief: 'Filter vectors using boolean conditions. From scores, keep values strictly greater than 80 in high.',
-    goal: 'high <- scores[scores > 80]',
-    setup: 'scores <- c(55, 91, 77, 88, 64)',
-    par: 1,
-    difficulty: 2,
-    checks: [
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(high), c(91, 88)))',
-        label: 'high contains 91 and 88',
-      },
-      {
-        type: 'eval',
-        expr: 'length(high) == 2',
-        label: 'high has length 2',
-      },
-    ],
-    hint: 'scores > 80 produces TRUE/FALSE values. Use it inside [ ].',
-    lesson: `### Vectorized Conditions
-
-Comparison operators in R evaluate across the entire vector at once, returning a logical vector:
-
-\`\`\`r
-scores > 80
-# FALSE  TRUE FALSE  TRUE FALSE
-\`\`\`
-
-Indexing with this boolean mask selects only the elements where the condition is TRUE:
-
-\`\`\`r
-high <- scores[scores > 80]
-\`\`\`
-`,
-  },
-  {
-    id: 'lists',
-    seriesId: 'foundations',
-    title: 'Heterogeneous Lists',
-    brief: 'Lists store mixed data types. Create profile with name = "ada" and year = 1815, then extract the name into who.',
-    goal: 'profile <- list(name = "ada", year = 1815)\nwho <- profile$name',
+    title: '05. Factors, Data Frames & Lists',
+    brief: 'Factors handle categorical labels and lists store mixed types. Create factor f and pack it into a list profile with its length.',
+    goal: 'f <- factor(c("low", "medium", "high", "low"))\nprofile <- list(status = f, count = length(f))',
     setup: '',
     par: 1,
     difficulty: 2,
     checks: [
       {
         type: 'eval',
-        expr: 'is.list(profile) && isTRUE(all.equal(profile$name, "ada"))',
-        label: 'profile is a list with name "ada"',
+        expr: 'is.factor(f)',
+        label: 'f is a factor',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(profile$year), 1815))',
-        label: 'profile$year is 1815',
+        expr: 'is.list(profile)',
+        label: 'profile is a list',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(who, "ada"))',
-        label: 'who holds "ada"',
+        expr: 'profile$count == 4',
+        label: 'profile$count holds 4',
       },
     ],
-    hint: 'Construct using list(...) and access components with $.',
-    lesson: `### Lists
+    hint: 'Create f with factor(...) and profile with list(status = f, count = length(f)).',
+    lesson: `### فصل 5 — فاکتور، data.frame و list
 
-Unlike atomic vectors, lists can hold components of different classes and types:
-
-\`\`\`r
-profile <- list(name = "ada", year = 1815)
-who <- profile$name
-\`\`\`
+- **فاکتور (Factor)**: برای ذخیره متغیرهای کیفی و دسته‌بندی‌شده (\`factor(c("A", "B", "A"))\`).
+- **لیست (List)**: ظرف ناهمگن چندگانه که عناصر آن با \`$\` یا \`[[ ]]\` قابل دسترسی است.
+- **دیتا فریم (data.frame)**: جدول داده دوبعدی که هر ستون می‌تواند نوع متفاوتی داشته باشد.
 `,
   },
+
+  // Section 3: برنامه‌نویسی
   {
-    id: 'data-frame',
+    id: 'control-flow',
     seriesId: 'foundations',
-    title: 'Data Frames',
-    brief: 'A data frame is a 2D table composed of equal-length columns. Create df with city and pop, then assign df$pop to pop_col.',
-    goal: 'df <- data.frame(city = c("A", "B"), pop = c(10, 20))\npop_col <- df$pop',
-    setup: '',
+    title: '06. Control Flow & Conditions',
+    brief: 'ifelse() evaluates conditions element-wise across vectors. Classify scores into status as "pass" (>= 50) or "fail".',
+    goal: 'status <- ifelse(scores >= 50, "pass", "fail")',
+    setup: 'scores <- c(45, 82, 60, 30, 95)',
     par: 1,
-    difficulty: 3,
+    difficulty: 2,
     checks: [
       {
         type: 'eval',
-        expr: 'is.data.frame(df) && nrow(df) == 2 && ncol(df) == 2',
-        label: 'df is a 2 × 2 data frame',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(df$pop), c(10, 20)))',
-        label: 'df$pop holds 10 and 20',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(pop_col), c(10, 20)))',
-        label: 'pop_col holds 10 and 20',
+        expr: 'isTRUE(all.equal(status, c("fail", "pass", "pass", "fail", "pass")))',
+        label: 'status accurately classifies each score',
       },
     ],
-    hint: 'data.frame(city = c("A", "B"), pop = c(10, 20))',
-    lesson: `### Data Frames
+    hint: 'Use status <- ifelse(scores >= 50, "pass", "fail").',
+    lesson: `### فصل 6 — ساختارهای کنترلی
 
-Data frames represent tabular datasets where each column can have a distinct type, but all columns must share equal row count:
+در R علاوه بر دستور شرطی \`if (...) { ... } else { ... }\`، تابع برداری بسیار سریع \`ifelse(condition, yes, no)\` برای ارزیابی تک‌تک عناصر بردار کاربرد دارد:
 
 \`\`\`r
-df <- data.frame(city = c("A", "B"), pop = c(10, 20))
-pop_col <- df$pop
+status <- ifelse(scores >= 50, "pass", "fail")
 \`\`\`
 `,
   },
   {
     id: 'functions',
     seriesId: 'foundations',
-    title: 'Custom Functions',
-    brief: 'Define a function double(x) that returns 2 * x. Then call twice <- double(21).',
-    goal: 'double <- function(x) {\n  2 * x\n}\ntwice <- double(21)',
-    setup: '',
-    par: 1,
-    difficulty: 3,
-    checks: [
-      {
-        type: 'eval',
-        expr: 'is.function(double)',
-        label: 'double is a function',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(double(21), 42)) && isTRUE(all.equal(double(0), 0)) && isTRUE(all.equal(double(-4), -8))',
-        label: 'double(x) correctly doubles any input number',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(twice, 42))',
-        label: 'twice equals 42',
-      },
-    ],
-    hint: 'In R, the last evaluated expression inside a function is returned implicitly.',
-    lesson: `### Functions
-
-Functions are first-class citizens in R created with the \`function\` keyword:
-
-\`\`\`r
-double <- function(x) {
-  2 * x
-}
-twice <- double(21)
-\`\`\`
-`,
-  },
-  {
-    id: 'apply',
-    seriesId: 'foundations',
-    title: 'Functional Mapping (sapply)',
-    brief: 'Use sapply to transform each element of 1:5 by squaring it into sq.',
-    goal: 'sq <- sapply(1:5, function(x) x^2)',
-    setup: '',
-    par: 1,
-    difficulty: 3,
-    checks: [
-      {
-        type: 'pattern',
-        pattern: /\\bsapply\\b/,
-        label: 'sapply is explicitly used in your code',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(sq), c(1, 4, 9, 16, 25)))',
-        label: 'sq holds 1, 4, 9, 16, 25',
-      },
-    ],
-    hint: 'sapply(1:5, function(x) x^2)',
-    lesson: `### The Apply Family
-
-While vectorized arithmetic is standard in R, functional iterators like \`sapply\` and \`lapply\` apply a custom function across elements of a vector or list:
-
-\`\`\`r
-sq <- sapply(1:5, function(x) x^2)
-\`\`\`
-`,
-  },
-  {
-    id: 'pipe',
-    seriesId: 'foundations',
-    title: 'Native Pipe |>',
-    brief: 'Thread 1:10 directly into mean() using the native pipe operator |> and assign to total.',
-    goal: 'total <- 1:10 |> mean()',
+    title: '07. Custom Functions & Apply',
+    brief: 'Define a function cube that computes x^3, and apply it over 1:4 using sapply() into res.',
+    goal: 'cube <- function(x) x^3\nres <- sapply(1:4, cube)',
     setup: '',
     par: 1,
     difficulty: 2,
     checks: [
       {
-        type: 'pattern',
-        pattern: /\\|>/,
-        label: 'Native pipe |> is used in your code',
+        type: 'eval',
+        expr: 'is.function(cube)',
+        label: 'cube is a function',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(total), 5.5))',
-        label: 'total equals 5.5',
+        expr: 'isTRUE(all.equal(as.numeric(res), c(1, 8, 27, 64)))',
+        label: 'res contains c(1, 8, 27, 64)',
       },
     ],
-    hint: 'Use the two-character operator: 1:10 |> mean()',
-    lesson: `### The Native Pipe Operator
+    hint: 'Write cube <- function(x) x^3 and res <- sapply(1:4, cube).',
+    lesson: `### فصل 7 — توابع و پکیج‌ها
 
-Introduced in R 4.1.0, the native pipe \`|>\` feeds the value from the left-hand side as the first argument to the right-hand function:
-
+تعریف تابع با کلیدواژه \`function\` انجام می‌شود:
 \`\`\`r
-1:10 |> mean()
+cube <- function(x) x^3
 \`\`\`
+
+خانواده \`apply\` (مانند \`sapply\` و \`lapply\`) به شما امکان می‌دهد یک تابع را بدون نوشتن حلقه روی تمام عناصر یک بردار یا لیست اجرا کنید.
+`,
+  },
+
+  // Section 4: داده‌ها و ورود داده
+  {
+    id: 'import-flat',
+    seriesId: 'foundations',
+    title: '08. Flat Files & CSV Import',
+    brief: 'read.csv() parses tabular comma-separated text into a data.frame. Import csv_text into df.',
+    goal: 'csv_text <- "id,name,score\\n1,Alice,95\\n2,Bob,88\\n3,Charlie,72"\ndf <- read.csv(text = csv_text)',
+    setup: '',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.data.frame(df) && nrow(df) == 3 && ncol(df) == 3',
+        label: 'df is a 3x3 data frame',
+      },
+      {
+        type: 'eval',
+        expr: 'df$score[1] == 95',
+        label: 'Score of first row is 95',
+      },
+    ],
+    hint: 'Pass text = csv_text to read.csv().',
+    lesson: `### فصل 8 — Importing: فایل‌های flat
+
+فایل‌های متنی (مانند CSV و TSV) از رایج‌ترین فرمت‌های تبادل داده هستند.
+تابع \`read.csv()\` داده‌های متنی با جداکننده کاما را خوانده و به صورت \`data.frame\` بارگذاری می‌کند.
 `,
   },
   {
-    id: 'plot',
+    id: 'import-excel',
     seriesId: 'foundations',
-    title: 'Base Graphics',
-    brief: 'Draw a plot of x (1:10) against y (x^2) using base R plot().',
-    goal: 'x <- 1:10\ny <- x^2\nplot(x, y)',
-    setup: '',
+    title: '09. Tabular Data & Inspection',
+    brief: 'Inspect imported tables. Compute avg_math as mean(student_table$math) and n_records as nrow(student_table).',
+    goal: 'avg_math <- mean(student_table$math)\nn_records <- nrow(student_table)',
+    setup: 'student_table <- data.frame(name = c("Sara", "Ali", "Reza"), math = c(18, 20, 16), active = c(TRUE, TRUE, FALSE))',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(as.numeric(avg_math), 18))',
+        label: 'avg_math equals 18',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(as.numeric(n_records), 3))',
+        label: 'n_records equals 3',
+      },
+    ],
+    hint: 'Use mean(student_table$math) and nrow(student_table).',
+    lesson: `### فصل 9 — Excel و فایل‌های جدولی
+
+پس از ورود داده‌های جدولی (از Excel یا فایل‌های صفحه گسترده)، بررسی اولیه ساختار با توابع زیر انجام می‌شود:
+- \`str(data)\`: ساختار نوع ستون‌ها
+- \`summary(data)\`: خلاصه آماری ستون‌ها
+- \`nrow(data)\`: تعداد ردیف‌ها
+`,
+  },
+  {
+    id: 'import-db',
+    seriesId: 'foundations',
+    title: '10. Relational Queries & DB',
+    brief: 'Relational data query logic: filter sales_data where amount >= 150 and region == "North" into top_sales.',
+    goal: 'top_sales <- subset(sales_data, amount >= 150 & region == "North")',
+    setup: 'sales_data <- data.frame(item = c("A", "B", "A", "C", "B"), amount = c(100, 250, 150, 80, 300), region = c("North", "South", "North", "West", "North"))',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.data.frame(top_sales) && nrow(top_sales) == 2',
+        label: 'top_sales contains 2 rows',
+      },
+      {
+        type: 'eval',
+        expr: 'all(top_sales$amount >= 150) && all(top_sales$region == "North")',
+        label: 'Filters amount >= 150 and region == North',
+      },
+    ],
+    hint: 'Use subset(sales_data, amount >= 150 & region == "North").',
+    lesson: `### فصل 10 — ورود داده از پایگاه‌داده و کوئری
+
+در پایگاه‌های داده، استخراج رکوردهایی که در شروط خاص صدق می‌کنند با بند WHERE در SQL صورت می‌گیرد.
+در R، تابع \`subset()\` دقیقاً همان منطق فیلتر رابطه‌ای را بر اساس شروط منطقی ستون‌ها پیاده‌سازی می‌کند.
+`,
+  },
+  {
+    id: 'import-web',
+    seriesId: 'foundations',
+    title: '11. Web Data & Structured Records',
+    brief: 'APIs return structured records (JSON/nested lists). Extract user names from api_data$items into names.',
+    goal: 'names <- sapply(api_data$items, function(u) u$name)',
+    setup: 'api_data <- list(status = 200, items = list(list(id = 1, name = "Ali"), list(id = 2, name = "Sara"), list(id = 3, name = "Reza")))',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(names, c("Ali", "Sara", "Reza")))',
+        label: 'names contains "Ali", "Sara", "Reza"',
+      },
+    ],
+    hint: 'Extract the name field from each item in api_data$items.',
+    lesson: `### فصل 11 — خواندن داده از وب و API
+
+داده‌های استخراج شده از وب‌سرویس‌ها و APIها در R معمولاً به صورت ساختار درختی از لیست‌ها (مانند خروجی \`jsonlite::fromJSON\`) درمی‌آیند. پیمایش این لیست‌ها با توابع برداری انجام می‌شود.
+`,
+  },
+
+  // Section 5: پاکسازی و داده‌کاوی
+  {
+    id: 'tidy-data',
+    seriesId: 'foundations',
+    title: '12. Tidy Data & Missing Values',
+    brief: 'Clean data by managing missing values (NA). Find NA positions with is.na() and create clean_survey with na.omit().',
+    goal: 'has_na <- is.na(raw_survey$score)\nclean_survey <- na.omit(raw_survey)',
+    setup: 'raw_survey <- data.frame(id = 1:5, score = c(18, NA, 15, NA, 20))',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(has_na, c(FALSE, TRUE, FALSE, TRUE, FALSE)))',
+        label: 'has_na identifies missing values correctly',
+      },
+      {
+        type: 'eval',
+        expr: 'is.data.frame(clean_survey) && nrow(clean_survey) == 3',
+        label: 'clean_survey contains only the 3 complete rows',
+      },
+    ],
+    hint: 'Use has_na <- is.na(raw_survey$score) and clean_survey <- na.omit(raw_survey).',
+    lesson: `### فصل 12 — دادهٔ تمیز و tidyverse
+
+در اصول داده‌های تمیز (Tidy Data):
+- داده‌های مفقوده با مقدار خاص \`NA\` مشخص می‌شوند.
+- تابع \`is.na(x)\` موقعیت مقادیر گمشده را برمی‌گرداند.
+- تابع \`na.omit(df)\` سطرهایی که دارای حداقل یک مقدار مفقوده هستند را حذف می‌کند.
+`,
+  },
+  {
+    id: 'strings-regex',
+    seriesId: 'foundations',
+    title: '13. Strings & Regular Expressions',
+    brief: 'Text manipulation using regex: replace hyphens with underscores in tags using gsub() into clean_tags.',
+    goal: 'clean_tags <- gsub("-", "_", tags)',
+    setup: 'tags <- c("item-101", "user-admin", "order-2026")',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(clean_tags, c("item_101", "user_admin", "order_2026")))',
+        label: 'clean_tags contains underscore formatted tags',
+      },
+    ],
+    hint: 'Call clean_tags <- gsub("-", "_", tags).',
+    lesson: `### فصل 13 — رشته‌ها و Regular Expression
+
+برای کار با متن و الگوها در R:
+- \`paste()\` و \`paste0()\`: چسباندن متن‌ها
+- \`grep()\` و \`grepl()\`: جستجوی الگو
+- \`gsub(pattern, replacement, x)\`: تعویض تمامی رخدادهای الگو در رشته
+`,
+  },
+  {
+    id: 'dplyr',
+    seriesId: 'foundations',
+    title: '14. Data Wrangling & Pipelines',
+    brief: 'Pipe |> chains transformations. Filter inventory for price >= 15 and compute total = price * qty into valuable.',
+    goal: 'valuable <- subset(inventory, price >= 15) |> transform(total = price * qty)',
+    setup: 'inventory <- data.frame(sku = c("A", "B", "C", "D"), price = c(10, 25, 15, 40), qty = c(5, 2, 8, 1))',
     par: 1,
     difficulty: 3,
     checks: [
       {
-        type: 'plot',
-        label: 'A graphic plot was rendered to the canvas',
+        type: 'eval',
+        expr: 'is.data.frame(valuable) && nrow(valuable) == 3',
+        label: 'valuable has 3 filtered items',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(x), 1:10)) && isTRUE(all.equal(as.numeric(y), (1:10)^2))',
-        label: 'Variables x and y match 1:10 and x^2',
+        expr: 'isTRUE(all.equal(valuable$total, c(50, 120, 40)))',
+        label: 'valuable$total holds 50, 120, 40',
       },
     ],
-    hint: 'Call plot(x, y) after defining vectors x and y.',
-    lesson: `### Base R Graphics
+    hint: 'Use subset(inventory, price >= 15) |> transform(total = price * qty).',
+    lesson: `### فصل 14 — دستکاری داده با dplyr و عملگر Pipe
 
-R features a fast, built-in graphics engine:
-
-\`\`\`r
-x <- 1:10
-y <- x^2
-plot(x, y)
-\`\`\`
-
-Watch the **Plot** tab on the visualizer board update automatically!
+افعال اصلی دستکاری داده (فیلتر کردن، انتخاب ستون، ایجاد متغیر جدید با mutate یا transform) را می‌توان با عملگر خط لوله \`|>\` پشت سر هم زنجیره‌وار اجرا کرد تا کد بسیار خوانا و تمیز باشد.
 `,
   },
   {
-    id: 'capstone',
+    id: 'joins',
     seriesId: 'foundations',
-    title: 'Capstone Challenge',
-    brief: 'Combine everything: create a data frame df with columns n (1:5) and sq (n^2), compute avg_sq as the mean of sq, and draw a plot of df$n vs df$sq.',
-    goal: 'n <- 1:5\nsq <- n^2\ndf <- data.frame(n = n, sq = sq)\navg_sq <- mean(df$sq)\nplot(df$n, df$sq)',
+    title: '15. Merging & Relational Joins',
+    brief: 'Join tables based on a shared key. Perform a left join with merge(all.x = TRUE) into report.',
+    goal: 'report <- merge(users, orders, by = "user_id", all.x = TRUE)',
+    setup: 'users <- data.frame(user_id = 1:3, name = c("Ali", "Sara", "Reza"))\norders <- data.frame(user_id = c(1, 2, 4), total = c(150, 320, 90))',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.data.frame(report) && nrow(report) == 3',
+        label: 'report contains 3 rows',
+      },
+      {
+        type: 'eval',
+        expr: 'report$name[report$user_id == 1] == "Ali"',
+        label: 'report correctly matches user_id 1 to Ali',
+      },
+      {
+        type: 'eval',
+        expr: 'is.na(report$total[report$user_id == 3])',
+        label: 'User without order receives NA total',
+      },
+    ],
+    hint: 'Use report <- merge(users, orders, by = "user_id", all.x = TRUE).',
+    lesson: `### فصل 15 — ترکیب داده (Join)
+
+اتصال داده‌ها بر اساس کلید مشترک:
+- اتصال درونی (Inner Join): رکوردهایی که در هر دو جدول کلید یکسان دارند.
+- اتصال چپ (Left Join): همه رکوردهای جدول سمت چپ حفظ می‌شوند و در صورت نبود مقدار معادل، \`NA\` قرار می‌گیرد (\`all.x = TRUE\`).
+`,
+  },
+
+  // Section 6: زمان و داده‌های پیشرفته
+  {
+    id: 'datetime',
+    seriesId: 'foundations',
+    title: '16. Dates & Times',
+    brief: 'Convert character strings to Date objects using as.Date() and compute days_between as a numeric duration.',
+    goal: 'start_date <- as.Date("2026-01-01")\nend_date <- as.Date("2026-01-15")\ndays_between <- as.numeric(end_date - start_date)',
     setup: '',
+    par: 1,
+    difficulty: 2,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'inherits(start_date, "Date") && inherits(end_date, "Date")',
+        label: 'start_date and end_date are Date objects',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(as.numeric(days_between), 14))',
+        label: 'days_between equals 14',
+      },
+    ],
+    hint: 'Convert with as.Date("YYYY-MM-DD") and subtract: as.numeric(end_date - start_date).',
+    lesson: `### فصل 16 — تاریخ و زمان
+
+در R، نوع داده \`Date\` برای تقویم و \`POSIXct\` برای زمان همراه با ساعت و ثانیه به کار می‌روند:
+
+\`\`\`r
+d <- as.Date("2026-09-17")
+diff <- as.numeric(as.Date("2026-09-20") - d) # 3
+\`\`\`
+`,
+  },
+  {
+    id: 'data-table',
+    seriesId: 'foundations',
+    title: '17. Fast Group Aggregation',
+    brief: 'Aggregate data across categories. Use aggregate() to sum amount by dept in transactions into dept_totals.',
+    goal: 'dept_totals <- aggregate(amount ~ dept, data = transactions, FUN = sum)',
+    setup: 'transactions <- data.frame(dept = c("IT", "HR", "IT", "Sales", "HR"), amount = c(500, 200, 350, 800, 150))',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'is.data.frame(dept_totals)',
+        label: 'dept_totals is a data frame',
+      },
+      {
+        type: 'eval',
+        expr: 'dept_totals$amount[dept_totals$dept == "IT"] == 850',
+        label: 'IT department total is 850',
+      },
+      {
+        type: 'eval',
+        expr: 'dept_totals$amount[dept_totals$dept == "HR"] == 350',
+        label: 'HR department total is 350',
+      },
+    ],
+    hint: 'Use dept_totals <- aggregate(amount ~ dept, data = transactions, FUN = sum).',
+    lesson: `### فصل 17 — data.table و داده‌های حجیم
+
+برای خلاصه‌سازی سریع مجموعه‌های داده بر اساس دسته‌ها و گروه‌ها، از دستورات تجمیع فرمولی مانند \`aggregate(y ~ group, data, FUN)\` یا پکیج \`data.table\` استفاده می‌شود.
+`,
+  },
+  {
+    id: 'outliers-plots',
+    seriesId: 'foundations',
+    title: '18. Outliers & Base Plots',
+    brief: 'Detect outliers and visualize distributions: compute iqr_val as IQR(vals) and render boxplot(vals).',
+    goal: 'iqr_val <- IQR(vals)\nboxplot(vals, col = "#2569bb", main = "Distribution")',
+    setup: 'vals <- c(10, 12, 11, 14, 12, 13, 11, 42)',
+    par: 1,
+    difficulty: 3,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(as.numeric(iqr_val), IQR(vals)))',
+        label: 'iqr_val matches IQR(vals)',
+      },
+      {
+        type: 'plot',
+        label: 'Boxplot is rendered on the plot canvas',
+      },
+    ],
+    hint: 'Compute iqr_val <- IQR(vals) and call boxplot(vals, col = "#2569bb", main = "Distribution").',
+    lesson: `### فصل 18 — داده پرت و نمودارهای پایه
+
+- **داده‌های پرت (Outliers)**: مقادیری که فاصله نامتعارفی از سایر داده‌ها دارند. دامنه میان‌چارکی (\`IQR\`) یکی از معیارهای اصلی تشخیص داده‌های پرت است.
+- **نمودار جعبه‌ای (\`boxplot\`)**: نمایش چارک‌ها، میانه و نقاط پرت.
+`,
+  },
+  {
+    id: 'appendix',
+    seriesId: 'foundations',
+    title: '19. Capstone: End-to-End Analysis',
+    brief: 'Complete pipeline from the appendix: find avg_views, extract top_days (views >= avg_views), and plot the trend with plot(day, views, type = "b").',
+    goal: 'avg_views <- mean(raw_log$views)\ntop_days <- subset(raw_log, views >= avg_views)\nplot(raw_log$day, raw_log$views, type = "b", pch = 19, col = "#2569bb", main = "Daily Views Trend")',
+    setup: 'raw_log <- data.frame(day = 1:6, views = c(120, 95, 210, 85, 340, 190))',
     par: 1,
     difficulty: 4,
     checks: [
       {
         type: 'eval',
-        expr: 'is.data.frame(df) && nrow(df) == 5',
-        label: 'df is a data frame with 5 rows',
+        expr: 'isTRUE(all.equal(as.numeric(avg_views), mean(raw_log$views)))',
+        label: 'avg_views holds the correct average',
       },
       {
         type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(df$sq), c(1, 4, 9, 16, 25)))',
-        label: 'df$sq holds the squared numbers',
-      },
-      {
-        type: 'eval',
-        expr: 'isTRUE(all.equal(as.numeric(avg_sq), 11))',
-        label: 'avg_sq equals 11',
+        expr: 'is.data.frame(top_days) && nrow(top_days) == 3',
+        label: 'top_days contains days exceeding average views',
       },
       {
         type: 'plot',
-        label: 'The final scatter plot was rendered',
+        label: 'Trend plot is drawn on the plot canvas',
       },
     ],
-    hint: 'Structure your script sequentially and execute with Run.',
-    lesson: `### Foundations Capstone
+    hint: 'Calculate avg_views <- mean(raw_log$views), filter with subset(), and draw the plot.',
+    lesson: `### فصل 19 — پیوست: کدهای تکمیلی و پروژه جامع
 
-Congratulations on reaching the capstone! Combine vectors, data frames, statistical aggregation, and plotting into a cohesive data workflow.
+تبریک می‌گوییم! شما تمام سرفصل‌های کتاب R مقدماتی را با موفقیت سپری کردید.
+در این پروژه جامع، تمام آموخته‌های خود را از پاکسازی، فیلتر داده، محاسبات آماری تا رسم نمودار نهایی در یک زنجیره کامل به کار می‌بندید.
 `,
   },
 ];
@@ -456,28 +626,40 @@ export interface SeriesGroup {
 export function seriesOf(): SeriesGroup[] {
   const groups = [
     {
+      id: 'intro',
+      title: 'INTRODUCTION & RSTUDIO',
+      prefix: 'intro',
+      ids: ['hello', 'rstudio'],
+    },
+    {
       id: 'basics',
-      title: 'BASICS',
-      prefix: 'basics',
-      ids: ['hello', 'numbers', 'vectors', 'indexing'],
+      title: 'R BASICS & DATA STRUCTURES',
+      prefix: 'basic',
+      ids: ['numbers', 'vectors', 'data-structures'],
     },
     {
-      id: 'data',
-      title: 'DATA STRUCTURES',
+      id: 'programming',
+      title: 'PROGRAMMING & FUNCTIONS',
+      prefix: 'prog',
+      ids: ['control-flow', 'functions'],
+    },
+    {
+      id: 'import',
+      title: 'DATA IMPORT & APIS',
       prefix: 'data',
-      ids: ['logic', 'lists', 'data-frame'],
+      ids: ['import-flat', 'import-excel', 'import-db', 'import-web'],
     },
     {
-      id: 'functions',
-      title: 'FUNCTIONS & PIPES',
-      prefix: 'func',
-      ids: ['functions', 'apply', 'pipe'],
+      id: 'wrangling',
+      title: 'DATA WRANGLING & CLEANING',
+      prefix: 'tidy',
+      ids: ['tidy-data', 'strings-regex', 'dplyr', 'joins'],
     },
     {
-      id: 'graphics',
-      title: 'GRAPHICS & CAPSTONE',
-      prefix: 'viz',
-      ids: ['plot', 'capstone'],
+      id: 'advanced',
+      title: 'DATETIME, OUTLIERS & GRAPHICS',
+      prefix: 'adv',
+      ids: ['datetime', 'data-table', 'outliers-plots', 'appendix'],
     },
   ];
 

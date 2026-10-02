@@ -55,8 +55,17 @@ export interface UiStrings {
   welcomeTitle: string;
   welcomeIntro: string;
   welcomeBoard: string;
-  welcomeWhat: string;
+  welcomeTracks: string;
+  welcomeMeta: string;
   welcomeLevelsCount: (count: number) => string;
+  welcomeWhat: string;
+  welcomeWhatBody: string;
+  welcomePublisher: string;
+  welcomePublisherBody: string;
+  welcomeGithub: string;
+  welcomeCoffee: string;
+  welcomeToolbar: string;
+  openLevels: string;
   levelClearTitle: string;
   foundationsComplete: string;
   closeBtn: string;

@@ -48,11 +48,27 @@ export const fa: UiStrings = {
   nextLevel: 'مرحله بعد',
   replayLevel: 'اجرای مجدد',
 
-  welcomeTitle: 'به LearnR خوش آمدید',
-  welcomeIntro: 'یادگیری تعاملی R با دستکاری زنده اشیاء و اجرای واقعی R در مرورگر از طریق وب‌اسمبلی.',
-  welcomeBoard: 'پس از هر اجرا، تغییرات بردارها، دیتافریم‌ها و نمودارها را زنده در پنل بصری ببینید.',
-  welcomeWhat: 'درباره LearnR',
-  welcomeLevelsCount: (count: number) => `شامل ${count} مرحله تعاملی برای تسلط بر مفاهیم بنیادین زبان R.`,
+  welcomeTitle: 'LearnR',
+  welcomeIntro: 'آموزش تعاملی **زبان برنامه‌نویسی R** — سندباکس + مراحل هدایت‌شده.',
+  welcomeBoard:
+    'بورد وضعیت **اشیای محیط (Environment)** و **بوم رسم نمودار (Plot)** را نشان می‌دهد. این جریان داده و تصویر است که R مدیریت می‌کند.',
+  welcomeTracks:
+    '- مبانی: بردارها، انواع داده و اندیس‌گذاری (`c()`, `[]`)\n- ساختار داده: دیتافریم‌ها و ماتریس‌ها (`data.frame()`, `matrix()`)\n- توابع و کنترل جریان: `function()`, `apply()`, شروط و حلقه‌ها\n- گرافیک و تصویرسازی: `plot()`, `hist()`, `barplot()`, تنظیمات `par()`',
+  welcomeMeta:
+    'فرمان‌های کمکی: `levels`, `lesson`, `hint`, `solution`, `undo`, `reset`, `sandbox`.',
+  welcomeLevelsCount: (n: number) =>
+    `**${n}** مرحله گنجانده شده است. برای شروع مراحل را باز کنید، یا در سندباکس بمانید.`,
+  welcomeWhat: '**LearnR چیست؟**',
+  welcomeWhatBody:
+    'یک آزمایشگاه تعاملی مرورگری برای زبان R بر بستر WebR (وب‌اسمبلی): کدهای واقعی R تایپ می‌کنید و بلافاصله ساخته شدن متغیرها، ماتریس‌ها و نمودارهای گرافیکی را می‌بینید، بدون نیاز به نصب هرگونه نرم‌افزار.',
+  welcomePublisher: '**ناشر**',
+  welcomePublisherBody:
+    'انتشار و نگهداری توسط **Ali Sadeghi Aghili** — برنامه‌نویس، مهندس/دانشمند داده، مهندس ML. [linktr.ee/aliaghili](https://linktr.ee/aliaghili)',
+  welcomeGithub: '- [GitHub — سورس و ایشو](https://github.com/alisadeghiaghili/learn-r)',
+  welcomeCoffee: 'Buy Me a Coffee (از ناشر حمایت می‌کند):',
+  welcomeToolbar:
+    'نوار ابزار: **درس** (تکرار مقدمه مرحله) · **GitHub** · **Buy me a coffee**.',
+  openLevels: 'باز کردن مرحله‌ها',
   levelClearTitle: 'مرحله با موفقیت حل شد!',
   foundationsComplete: 'دوره بنیادین کامل شد! زمین بازی آزاد برای آزمایش‌های شما در دسترس است.',
   closeBtn: 'بستن',

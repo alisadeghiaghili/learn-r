@@ -182,13 +182,16 @@ export function showModal(spec: ModalSpec): void {
 
   const card = document.createElement('div');
   card.className = 'modal';
+  card.setAttribute('role', 'dialog');
+  card.setAttribute('aria-modal', 'true');
+  card.setAttribute('aria-label', spec.title);
 
   const h2 = document.createElement('h2');
   h2.textContent = spec.title;
   card.appendChild(h2);
 
   const body = document.createElement('div');
-  body.className = 'modal-body';
+  body.className = 'markdown modal-body';
   body.innerHTML = spec.bodyHtml;
   card.appendChild(body);
 
@@ -199,7 +202,7 @@ export function showModal(spec: ModalSpec): void {
   actions.forEach((act) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = `btn ${act.className ?? ''}`.trim();
+    btn.className = (act.className ?? '').trim();
     btn.textContent = act.label;
     btn.addEventListener('click', () => {
       act.onClick();

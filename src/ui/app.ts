@@ -616,7 +616,10 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
   }
 
   openLesson(): void {
-    if (!this.level || !this.level.lesson) return;
+    if (!this.level || !this.level.lesson) {
+      this.openWelcome();
+      return;
+    }
     showModal({
       title: `${this.level.title} — Lesson`,
       bodyHtml: renderMarkdown(this.level.lesson),
@@ -636,7 +639,7 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
 | \`levels\` | Open the level catalog |
 | \`lesson\` | View detailed explanation for current level |
 | \`hint\` | Reveal the level hint |
-| \`show solution\` | Display target solution |
+| \`solution\` | Display target solution |
 | \`undo\` | Remove the last stroke |
 | \`reset\` | Clear the environment and start over |
 | \`sandbox\` | Enter open sandbox mode |
@@ -656,15 +659,33 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
     const u = ui();
     showModal({
       title: u.welcomeTitle,
-      bodyHtml: renderMarkdown(`
-${u.welcomeIntro}
-
-${u.welcomeBoard}
-
-${u.welcomeLevelsCount(allLevels.length)}
-
-${COFFEE_BUTTON_HTML}
-      `),
+      bodyHtml: renderMarkdown(
+        [
+          u.welcomeIntro,
+          '',
+          u.welcomeBoard,
+          '',
+          u.welcomeTracks,
+          '',
+          u.welcomeMeta,
+          '',
+          u.welcomeLevelsCount(allLevels.length),
+          '',
+          u.welcomeWhat,
+          u.welcomeWhatBody,
+          '',
+          u.welcomePublisher,
+          u.welcomePublisherBody,
+          '',
+          u.welcomeGithub,
+          '',
+          u.welcomeCoffee,
+          '',
+          COFFEE_BUTTON_HTML,
+          '',
+          u.welcomeToolbar,
+        ].join('\n'),
+      ),
       actions: [
         {
           label: u.sandbox,
@@ -672,7 +693,7 @@ ${COFFEE_BUTTON_HTML}
           onClick: () => undefined,
         },
         {
-          label: u.levels,
+          label: u.openLevels,
           className: 'primary',
           onClick: () => this.openLevels(),
         },

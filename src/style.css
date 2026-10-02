@@ -351,12 +351,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
-button.primary {
+button.primary,
+.btn.primary {
   background: color-mix(in srgb, var(--dvc) 35%, var(--panel-2));
   border-color: color-mix(in srgb, var(--dvc) 55%, var(--line));
 }
 
-button.ghost {
+button.ghost,
+.btn.ghost {
   background: transparent;
 }
 
@@ -809,8 +811,7 @@ button.ghost {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(14, 19, 24, 0.75);
-  backdrop-filter: blur(4px);
+  background: rgba(6, 10, 14, 0.72);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -819,70 +820,140 @@ button.ghost {
 }
 
 .modal {
+  width: min(720px, 100%);
+  max-height: min(80vh, 720px);
+  overflow: auto;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  width: 100%;
-  max-width: 620px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modal:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--dvc) 55%, transparent);
+  outline-offset: 2px;
 }
 
 .modal h2 {
-  margin: 0;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
-  font-size: 17px;
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
+.modal .markdown,
 .modal-body {
-  padding: 16px 20px;
-  overflow-y: auto;
+  color: var(--text);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
+.modal .markdown code,
+.modal-body code {
+  font-family: var(--mono);
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12.5px;
+}
+
+.modal .markdown pre,
+.modal-body pre,
 .modal-body pre.md-code {
   background: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 10px;
+  overflow: auto;
   font-family: var(--mono);
-  font-size: 13px;
-  overflow-x: auto;
+  font-size: 12.5px;
 }
 
+.modal .markdown p,
+.modal-body p {
+  margin: 0 0 10px;
+}
+
+.modal .markdown ul,
+.modal-body ul {
+  margin: 0 0 12px;
+  padding-inline-start: 18px;
+}
+
+.modal .markdown li,
+.modal-body li {
+  margin-bottom: 4px;
+}
+
+.modal .markdown strong,
+.modal-body strong {
+  font-weight: 600;
+}
+
+.modal .markdown a,
+.modal-body a {
+  color: var(--code);
+  text-underline-offset: 3px;
+}
+
+.modal .markdown a:hover,
+.modal-body a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.modal .markdown img,
+.modal-body img {
+  display: block;
+  max-width: 100%;
+}
+
+.modal .md-table-wrap,
 .modal-body .md-table-wrap {
   overflow-x: auto;
-  margin: 12px 0;
+  margin: 8px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 
+.modal .md-table,
 .modal-body table.md-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12.5px;
+  font-family: var(--ui);
 }
 
+.modal .md-table th,
 .modal-body table.md-table th,
+.modal .md-table td,
 .modal-body table.md-table td {
-  border: 1px solid var(--line);
-  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: start;
+  vertical-align: top;
 }
 
+.modal .md-table th,
 .modal-body table.md-table th {
   background: var(--panel-2);
+  color: var(--cache);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--line);
-  background: var(--panel);
+  justify-content: flex-end;
+  margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .level-dialog-grid {

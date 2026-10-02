@@ -48,11 +48,23 @@ export const en: UiStrings = {
   nextLevel: 'Next Level',
   replayLevel: 'Replay Level',
 
-  welcomeTitle: 'Welcome to LearnR',
-  welcomeIntro: 'Learn R by directly manipulating a live environment powered by real R in WebAssembly.',
-  welcomeBoard: 'Watch the **Environment** and **Plot Canvas** update in real time after every stroke.',
-  welcomeWhat: 'What is LearnR?',
-  welcomeLevelsCount: (count: number) => `Includes ${count} interactive levels covering core base R foundations.`,
+  welcomeTitle: 'LearnR',
+  welcomeIntro: 'Interactive **R** tutorial — sandbox + guided levels.',
+  welcomeBoard: 'The board shows **Environment Objects** and **Plot Canvas**. That is the data and visual flow R manages.',
+  welcomeTracks:
+    '- Basics: `c()`, vectors, types, indexing\n- Data: `data.frame()`, `matrix()`, subsetting\n- Flow & Functions: `if`, `for`, `function()`, `apply()`\n- Graphics: `plot()`, `hist()`, `barplot()`, `par()`',
+  welcomeMeta: 'Meta: `levels`, `lesson`, `hint`, `solution`, `undo`, `reset`, `sandbox`.',
+  welcomeLevelsCount: (n: number) => `**${n}** levels included. Open Levels to begin, or stay in sandbox.`,
+  welcomeWhat: '**What is LearnR?**',
+  welcomeWhatBody:
+    'A browser lab bench for R powered by WebR (WebAssembly): you type real R expressions and watch objects, data frames, matrices, and plots render instantly. No install required.',
+  welcomePublisher: '**Publisher**',
+  welcomePublisherBody:
+    'Published and maintained by **Ali Sadeghi Aghili** — programmer, data engineer / scientist, ML engineer. [linktr.ee/aliaghili](https://linktr.ee/aliaghili)',
+  welcomeGithub: '- [GitHub — source & issues](https://github.com/alisadeghiaghili/learn-r)',
+  welcomeCoffee: 'Buy Me a Coffee (supports the publisher):',
+  welcomeToolbar: 'Toolbar: **Lesson** (replay level intro) · **GitHub** · **Buy me a coffee**.',
+  openLevels: 'Open levels',
   levelClearTitle: 'Level Cleared!',
   foundationsComplete: 'Foundations complete! The sandbox is completely open for your experimentation.',
   closeBtn: 'Close',

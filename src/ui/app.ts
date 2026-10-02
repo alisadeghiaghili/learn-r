@@ -60,14 +60,21 @@ export class App {
     }
 
     const params = new URLSearchParams(window.location.search);
-    const requestedLevel = params.get('level');
+    const savedLevel = localStorage.getItem('learnr_last_level');
+    const isSandboxParam = params.get('mode') === 'sandbox' || params.has('sandbox');
+    const requestedLevel =
+      params.get('level') || (!isSandboxParam && savedLevel && getLevel(savedLevel) ? savedLevel : null);
+
     if (requestedLevel && getLevel(requestedLevel)) {
       await this.enterLevel(requestedLevel);
+    } else if (!isSandboxParam && getLevel('hello')) {
+      await this.enterLevel('hello');
     } else {
       await this.enterSandbox();
-      if (!params.has('NODEMO')) {
-        this.openWelcome();
-      }
+    }
+
+    if (!params.has('NODEMO') && !params.has('level') && !savedLevel) {
+      this.openWelcome();
     }
   }
 
@@ -149,6 +156,7 @@ export class App {
     this.wireToolbar();
     this.updateTitle();
     this.renderVisitorBadge();
+    this.renderDock();
   }
 
   private wireToolbar(): void {
@@ -289,6 +297,18 @@ export class App {
     this.terminal.clear();
     this.terminal.push('meta', `Level: ${level.title}`);
 
+    // Update URL and localStorage so refreshing preserves the active level
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('level', id);
+      url.searchParams.delete('mode');
+      url.searchParams.delete('sandbox');
+      window.history.replaceState({}, '', url.toString());
+      localStorage.setItem('learnr_last_level', id);
+    } catch {
+      // ignore
+    }
+
     // Set level-specific autocomplete commands and next-step hint
     this.terminal.setExtraCompletions([
       level.goal,
@@ -317,6 +337,16 @@ export class App {
     this.terminal.push('meta', 'Interactive R Sandbox ready. Enter R code or meta commands (levels, help).');
     this.terminal.setExtraCompletions([]);
     this.terminal.setHint(null);
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('level');
+      url.searchParams.set('mode', 'sandbox');
+      window.history.replaceState({}, '', url.toString());
+      localStorage.removeItem('learnr_last_level');
+    } catch {
+      // ignore
+    }
 
     await this.runtime.resetTo('', []);
     await this.updateBoard();
@@ -371,7 +401,18 @@ export class App {
 
     this.renderDock(verdict.results);
 
+    if (this.level && !verdict.ok) {
+      const solutionCmds =
+        this.level.solution ?? this.level.goal.split('\n').map((s) => s.trim()).filter(Boolean);
+      const nextIdx = verdict.results.findIndex((r) => !r.passed);
+      if (nextIdx !== -1) {
+        const nextCmd = solutionCmds[nextIdx] ?? solutionCmds[0] ?? this.level.goal;
+        this.terminal.setHint(nextCmd);
+      }
+    }
+
     if (verdict.ok) {
+      this.terminal.setHint(null);
       await this.onLevelClear();
     }
   }

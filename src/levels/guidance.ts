@@ -220,6 +220,8 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
   },
 };
 
+LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];
+
 export function getLevelLearning(id: string): string[] {
   return (
     LEVEL_GUIDANCE[id]?.learning ?? [

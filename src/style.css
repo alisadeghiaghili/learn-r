@@ -695,14 +695,21 @@ button.ghost,
 
 /* Right Dock (Guide / Goals / Checks) */
 .dock {
-  background: var(--panel);
+  grid-column: 2;
+  grid-row: 1 / -1;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   border-inline-start: 1px solid var(--line);
-  padding: 12px;
+  background: var(--panel);
+  padding: 14px;
+  overflow-x: hidden;
   overflow-y: auto;
-  font-size: 13px;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 13px;
 }
 
 .dock-pulse {
@@ -1568,8 +1575,15 @@ html[dir='rtl'] .level-row .id {
 /* Responsive matching learn-dvc */
 @media (max-width: 1100px) {
   #app {
+    display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) minmax(160px, 34vh) !important;
+    grid-template-rows: minmax(0, 1fr) minmax(180px, 34vh) !important;
+  }
+
+  .app-main {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-height: 0 !important;
   }
 
   .dock {
@@ -1577,8 +1591,14 @@ html[dir='rtl'] .level-row .id {
     grid-row: 2 !important;
     height: auto !important;
     max-height: 34vh !important;
-    border-inline-end: none !important;
+    border-inline-start: none !important;
     border-top: 1px solid var(--line) !important;
+  }
+
+  .toolbar,
+  .board-wrap,
+  .terminal {
+    border-inline-end: none !important;
   }
 }
 
@@ -1667,8 +1687,25 @@ html[dir='rtl'] .level-row .id {
 /* RTL Adjustments */
 html[dir='rtl'] .celebrate-stats,
 html[dir='rtl'] .share-block,
-html[dir='rtl'] .learned-preview {
+html[dir='rtl'] .learned-preview,
+html[dir='rtl'] .modal .markdown,
+html[dir='rtl'] .goal-list,
+html[dir='rtl'] .learning-box,
+html[dir='rtl'] .field-box,
+html[dir='rtl'] .next-box,
+html[dir='rtl'] .dock {
   text-align: start;
+}
+
+html[dir='rtl'] .level-row .id,
+html[dir='rtl'] .goal-list .g-label,
+html[dir='rtl'] .goal-list .g-detail,
+html[dir='rtl'] .goal-list code,
+html[dir='rtl'] .next-row,
+html[dir='rtl'] .next-row .g-cmd {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
 }
 
 html[dir='rtl'] .term-ghost {

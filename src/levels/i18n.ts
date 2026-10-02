@@ -1073,6 +1073,10 @@ In this final project, you integrate the entire curriculum:
   },
 };
 
+FA_LEVELS['appendix'] = FA_LEVELS['capstone'];
+DE_LEVELS['appendix'] = DE_LEVELS['capstone'];
+EN_LEVELS['appendix'] = EN_LEVELS['capstone'];
+
 export function localizeLevel(level: LevelDef, locale: Locale): LevelDef {
   if (locale === 'en') {
     const enLesson = EN_LEVELS[level.id]?.lesson;

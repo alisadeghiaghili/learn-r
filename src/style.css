@@ -248,6 +248,32 @@ body {
   background: var(--panel-2);
 }
 
+.tb-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--dvc) 35%, var(--line));
+  background: color-mix(in srgb, var(--panel-2) 65%, transparent);
+  color: color-mix(in srgb, var(--text) 90%, var(--dvc));
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+.tb-stat .visitor-icon {
+  color: var(--dvc);
+  flex-shrink: 0;
+}
+
+.tb-stat[hidden] {
+  display: none !important;
+}
+
 .tb-link {
   display: inline-flex;
   align-items: center;

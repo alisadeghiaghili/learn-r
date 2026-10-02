@@ -16,8 +16,10 @@ export interface UiStrings {
   reset: string;
   sandbox: string;
   sandboxBtn: string;
+  sandboxTitle: string;
   help: string;
   uiGuideTitle: string;
+  visitorsTitle: string;
   githubTitle: string;
   support: string;
   supportTitle: string;

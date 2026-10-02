@@ -1,5 +1,5 @@
 import type { LevelDef } from '../engine/types';
-import { allLevels, getLevel, getLevelIndex, getNextLevel } from '../levels';
+import { allLevels, getLevel, getLevelIndex, getNextLevel, seriesOf } from '../levels';
 import { RRuntime } from '../engine/runtime';
 import { evaluateChecks, evalExpressions, formatScore, scoreClass } from '../engine/checks';
 import { BoardView } from './board';
@@ -411,10 +411,8 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
         </div>
         <div class="dock-section">
           <h4>Progress: ${summary.solvedCount} / ${summary.total} (${summary.percent}%)</h4>
-          <button type="button" class="btn btn-block primary" id="dock-btn-levels">${escapeHtml(u.levels)}</button>
         </div>
       `;
-      this.dockEl.querySelector('#dock-btn-levels')?.addEventListener('click', () => this.openLevels());
       return;
     }
 
@@ -432,11 +430,16 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
       )
       .join('');
 
+    const strokeChipText =
+      getLocale() === 'fa'
+        ? `ایده‌آل ${this.level.par} · ${strokes} دستور`
+        : `ideal ${this.level.par} cmd${this.level.par === 1 ? '' : 's'} · ${strokes} ${strokes === 1 ? 'cmd' : 'cmds'}`;
+
     this.dockEl.innerHTML = `
       <div class="dock-header">
         <div class="dock-meta-row">
           <div class="diff-dots">${renderDiffDots(this.level.difficulty)}</div>
-          <span class="chip ${scoreClass(strokes, this.level.par)}">${escapeHtml(u.parLabel)} ${this.level.par} · ${strokes} ${escapeHtml(u.strokesLabel)}</span>
+          <span class="chip ${scoreClass(strokes, this.level.par)}">${strokeChipText}</span>
         </div>
         <h2>${escapeHtml(this.level.title)}</h2>
         <p class="dock-brief">${escapeHtml(this.level.brief)}</p>
@@ -580,34 +583,55 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
 
   openLevels(): void {
     const u = ui();
-    const items = allLevels
-      .map((lvl, i) => {
-        const solved = Boolean(this.progress[lvl.id]?.solved);
-        const active = this.level?.id === lvl.id;
-        return `
-          <button type="button" class="level-card${active ? ' is-active' : ''}${solved ? ' is-solved' : ''}" data-level="${lvl.id}">
-            <div class="level-card-num">${String(i + 1).padStart(2, '0')}</div>
-            <div class="level-card-info">
-              <div class="level-card-title">${escapeHtml(lvl.title)}</div>
-              <div class="level-card-brief">${escapeHtml(lvl.brief)}</div>
-            </div>
-            <div class="level-card-meta">
-              <span class="chip ${solved ? 'ok' : ''}">${solved ? '✓ Done' : `par ${lvl.par}`}</span>
-            </div>
-          </button>
-        `;
+    const series = seriesOf();
+    const body = series
+      .map((s) => {
+        const rows = s.levels
+          .map((item) => {
+            const l = item.def;
+            const p = this.progress[l.id];
+            const solved = Boolean(p?.solved);
+            const active = this.level?.id === l.id;
+            return `<button type="button" class="level-row ${solved ? 'solved' : ''}${active ? ' active' : ''}" data-level="${l.id}">
+              <span class="id">${item.displayId}</span>
+              <span class="name">${escapeHtml(l.title)}</span>
+              <span class="par-note">ideal ${l.par} cmd${l.par === 1 ? '' : 's'}</span>
+              <span class="chip ${solved ? 'ok' : ''}" title="${escapeHtml(u.difficultyOf(l.difficulty))}">
+                ${
+                  solved
+                    ? `${escapeHtml(u.solvedLabel)} ${p?.bestStrokes ?? l.par}`
+                    : `<span class="diff-dots" aria-label="${escapeHtml(u.difficultyOf(l.difficulty))}">${renderDiffDots(l.difficulty)}</span>`
+                }
+              </span>
+            </button>`;
+          })
+          .join('');
+        return `<div class="series-block"><h3>${escapeHtml(s.title)}</h3><div class="level-list">${rows}</div></div>`;
       })
       .join('');
 
-    showModal({
-      title: u.levels,
-      bodyHtml: `<div class="level-dialog-grid">${items}</div>`,
-      actions: [{ label: u.closeBtn, onClick: () => undefined }],
+    const modal = showModal({
+      title: u.levelsTitle,
+      bodyHtml: `<p>${escapeHtml(u.pickChallenge)}</p>
+        <div class="legend-box">
+          <div class="next-title">${escapeHtml(u.howToRead)}</div>
+          <ul class="legend-list">
+            <li>
+              <span class="diff-dots" aria-hidden="true">${renderDiffDots(3)}</span>
+              ${renderMarkdown(u.difficultyLegend)}
+            </li>
+            <li><span class="par-note">ideal 3 cmds</span> ${renderMarkdown(u.idealLegend)}</li>
+            <li><span class="chip ok">${escapeHtml(u.solvedLabel)} 3</span> ${renderMarkdown(u.solvedLegend)}</li>
+          </ul>
+        </div>
+        ${body}`,
+      actions: [{ label: u.closeBtn, className: 'ghost', onClick: () => modal.close() }],
     });
 
-    document.querySelectorAll<HTMLButtonElement>('.level-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        const id = card.dataset.level;
+    modal.el.querySelectorAll<HTMLButtonElement>('[data-level]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.level;
+        modal.close();
         if (id) {
           void this.enterLevel(id);
         }

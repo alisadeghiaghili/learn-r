@@ -42,8 +42,8 @@ export const fa: UiStrings = {
   targetHeading: 'هدف مرحله',
   checksHeading: 'معیارهای صحت‌سنجی',
   difficultyLabel: 'درجه سختی',
-  parLabel: 'هدف گلف (Par)',
-  strokesLabel: 'تعداد ضربات',
+  parLabel: 'ایده‌آل',
+  strokesLabel: 'دستور',
   hintLabel: 'نکته راهنما',
   nextLevel: 'مرحله بعد',
   replayLevel: 'اجرای مجدد',
@@ -69,6 +69,16 @@ export const fa: UiStrings = {
   welcomeToolbar:
     'نوار ابزار: **درس** (تکرار مقدمه مرحله) · **GitHub** · **Buy me a coffee**.',
   openLevels: 'باز کردن مرحله‌ها',
+  levelsTitle: 'مراحل',
+  pickChallenge: 'یک چالش انتخاب کنید. مراحل حل‌شده در همین مرورگر می‌مانند.',
+  howToRead: 'چطور یک ردیف مرحله را بخوانید',
+  difficultyLegend:
+    '**سختی** — ۱–۵ نقطه‌ی هم‌اندازه؛ پرتر = سخت‌تر (چند مفهوم R هم‌زمان). همیشه ۵ جایگاه.',
+  idealLegend:
+    '**تعداد فرمان ایده‌آل** — طول راه‌حل تمیز (هدف گلف، نه سقف سخت).',
+  solvedLegend: '**حل شد** — رد کردید؛ عدد بهترین تعداد فرمان شماست.',
+  difficultyOf: (n: number) => `سختی ${n} از ۵`,
+  solvedLabel: 'حل شد',
   levelClearTitle: 'مرحله با موفقیت حل شد!',
   foundationsComplete: 'دوره بنیادین کامل شد! زمین بازی آزاد برای آزمایش‌های شما در دسترس است.',
   closeBtn: 'بستن',

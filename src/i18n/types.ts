@@ -66,6 +66,14 @@ export interface UiStrings {
   welcomeCoffee: string;
   welcomeToolbar: string;
   openLevels: string;
+  levelsTitle: string;
+  pickChallenge: string;
+  howToRead: string;
+  difficultyLegend: string;
+  idealLegend: string;
+  solvedLegend: string;
+  difficultyOf: (n: number) => string;
+  solvedLabel: string;
   levelClearTitle: string;
   foundationsComplete: string;
   closeBtn: string;

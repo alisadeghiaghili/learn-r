@@ -172,7 +172,7 @@ export interface ModalSpec {
 let activeOverlay: HTMLElement | null = null;
 let activeDismiss: (() => void) | undefined;
 
-export function showModal(spec: ModalSpec): void {
+export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement } {
   closeModal();
 
   const overlay = document.createElement('div');
@@ -226,6 +226,11 @@ export function showModal(spec: ModalSpec): void {
 
   const firstBtn = footer.querySelector('button');
   firstBtn?.focus();
+
+  return {
+    close: () => closeModal(),
+    el: overlay,
+  };
 }
 
 export function closeModal(): void {

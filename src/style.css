@@ -685,33 +685,48 @@ button.ghost,
 }
 
 .diff-dots {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   gap: 3px;
+  vertical-align: middle;
+  line-height: 1;
 }
 
 .diff-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--line);
   display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--haze);
+  box-sizing: border-box;
+  flex: 0 0 7px;
 }
 
 .diff-dot.on {
-  background: var(--warn);
+  background: var(--remote);
+  border-color: var(--remote);
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 1px 8px;
   font-family: var(--mono);
   font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--panel-2);
+  border: 1px solid var(--line);
+  background: var(--ink);
   color: var(--haze);
+  line-height: 1.4;
 }
 
 .chip.code { color: var(--code); }
-.chip.ok { color: var(--ok); }
+.chip.ok {
+  color: #b8ffd9;
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--line));
+}
 .chip.under { color: var(--ok); }
 .chip.par { color: var(--warn); }
 .chip.over { color: var(--haze); }
@@ -956,53 +971,96 @@ button.ghost,
   flex-wrap: wrap;
 }
 
-.level-dialog-grid {
-  display: flex;
-  flex-direction: column;
+.legend-box {
+  border: 1px solid var(--line);
+  background: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+}
+
+.legend-box .next-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--haze);
+  margin-bottom: 6px;
+}
+
+.legend-list {
+  margin: 6px 0 0;
+  padding-inline-start: 16px;
+}
+
+.legend-list li {
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.legend-list li code {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.series-block {
+  margin-bottom: 16px;
+}
+
+.series-block h3 {
+  margin: 0 0 8px;
+  color: var(--haze);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.level-list {
+  display: grid;
   gap: 8px;
 }
 
-.level-card {
-  display: flex;
+.level-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--ink);
   text-align: start;
-  color: inherit;
+  width: 100%;
 }
 
-.level-card:hover {
+.level-row:hover {
+  border-color: var(--haze);
+  background: #2a3a4a;
+}
+
+.level-row.active {
   border-color: var(--dvc);
+  background: color-mix(in srgb, var(--dvc) 12%, var(--panel-2));
 }
 
-.level-card.is-active {
-  border-color: var(--dvc);
-  background: #1b2736;
+.level-row.solved {
+  border-color: color-mix(in srgb, var(--ok) 40%, var(--line));
 }
 
-.level-card-num {
+.level-row .id {
   font-family: var(--mono);
-  font-size: 16px;
-  font-weight: 700;
   color: var(--haze);
+  font-size: 11px;
 }
 
-.level-card-info {
-  flex: 1;
-}
-
-.level-card-title {
+.level-row .name {
   font-weight: 600;
-  font-size: 14px;
 }
 
-.level-card-brief {
-  font-size: 12px;
+.par-note {
   color: var(--haze);
+  font-family: var(--mono);
+  font-size: 12px;
 }
 
 .boot[hidden] {
@@ -1098,6 +1156,13 @@ body.is-rtl pre.md-code {
   direction: ltr;
 }
 
+body.is-rtl .level-row .id,
+html[dir='rtl'] .level-row .id {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
+}
+
 /* Responsive matching learn-dvc */
 @media (max-width: 1100px) {
   #app {
@@ -1168,5 +1233,31 @@ body.is-rtl pre.md-code {
     width: 100%;
     justify-content: flex-start;
     min-height: 44px;
+  }
+
+  .level-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'id dots'
+      'name name'
+      'par par';
+    gap: 6px 10px;
+  }
+
+  .level-row .id {
+    grid-area: id;
+  }
+
+  .level-row .name {
+    grid-area: name;
+  }
+
+  .level-row .par-note {
+    grid-area: par;
+  }
+
+  .level-row .chip {
+    grid-area: dots;
+    justify-self: end;
   }
 }

@@ -443,3 +443,56 @@ export function getNextLevel(id: string): LevelDef | null {
   }
   return null;
 }
+
+export interface SeriesGroup {
+  id: string;
+  title: string;
+  levels: {
+    def: LevelDef;
+    displayId: string;
+  }[];
+}
+
+export function seriesOf(): SeriesGroup[] {
+  const groups = [
+    {
+      id: 'basics',
+      title: 'BASICS',
+      prefix: 'basics',
+      ids: ['hello', 'numbers', 'vectors', 'indexing'],
+    },
+    {
+      id: 'data',
+      title: 'DATA STRUCTURES',
+      prefix: 'data',
+      ids: ['logic', 'lists', 'data-frame'],
+    },
+    {
+      id: 'functions',
+      title: 'FUNCTIONS & PIPES',
+      prefix: 'func',
+      ids: ['functions', 'apply', 'pipe'],
+    },
+    {
+      id: 'graphics',
+      title: 'GRAPHICS & CAPSTONE',
+      prefix: 'viz',
+      ids: ['plot', 'capstone'],
+    },
+  ];
+
+  return groups.map((g) => ({
+    id: g.id,
+    title: g.title,
+    levels: g.ids
+      .map((id, idx) => {
+        const def = getLevel(id);
+        if (!def) return null;
+        return {
+          def,
+          displayId: `${g.prefix}-${idx + 1}`,
+        };
+      })
+      .filter((item): item is { def: LevelDef; displayId: string } => item !== null),
+  }));
+}

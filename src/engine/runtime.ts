@@ -25,52 +25,6 @@ local({
       res = 96
     )
   })
-  env_name <- "tools:learnr"
-  if (env_name %in% search()) {
-    try(detach(env_name, character.only = TRUE), silent = TRUE)
-  }
-  learnr_env <- attach(NULL, name = env_name)
-  
-  .learnr_eval <- function(code_str) {
-    out_lines <- character()
-    err_lines <- character()
-    ok <- TRUE
-
-    tc_out <- textConnection("out_lines", "w", local = TRUE)
-    tc_err <- textConnection("err_lines", "w", local = TRUE)
-
-    sink(tc_out)
-    sink(tc_err, type = "message")
-
-    tryCatch({
-      exprs <- parse(text = code_str, keep.source = FALSE)
-      if (length(exprs) > 0) {
-        for (i in seq_along(exprs)) {
-          val <- withVisible(eval(exprs[[i]], envir = .GlobalEnv))
-          if (isTRUE(val$visible)) {
-            print(val$value)
-          }
-        }
-      }
-    }, error = function(e) {
-      ok <<- FALSE
-      cat(conditionMessage(e), "\\n")
-    }, finally = {
-      while (sink.number("message") > 0) sink(type = "message")
-      while (sink.number() > 0) sink()
-      close(tc_out)
-      close(tc_err)
-    })
-
-    while (!is.null(grDevices::dev.list())) grDevices::dev.off()
-
-    c(
-      if (isTRUE(ok)) "1" else "0",
-      paste(out_lines, collapse = "\\n"),
-      paste(err_lines, collapse = "\\n")
-    )
-  }
-  assign(".learnr_eval", .learnr_eval, envir = learnr_env)
   TRUE
 })
 `;
@@ -101,6 +55,8 @@ export class RRuntime {
   private hasPlot = false;
   private lastStdout = '';
   private lastStderr = '';
+  private lastPlotBitmap: ImageBitmap | null = null;
+  private lastPlotUrl: string | null = null;
 
   /**
    * Initialize WebR with a pinned stable release base URL.
@@ -127,6 +83,11 @@ export class RRuntime {
     this.hasPlot = false;
     this.lastStdout = '';
     this.lastStderr = '';
+    this.lastPlotBitmap = null;
+    if (this.lastPlotUrl) {
+      URL.revokeObjectURL(this.lastPlotUrl);
+      this.lastPlotUrl = null;
+    }
 
     await this.webR.evalRVoid(
       `rm(list = ls(envir = .GlobalEnv, all.names = TRUE), envir = .GlobalEnv)`
@@ -158,13 +119,16 @@ export class RRuntime {
 
     const prevPlotBytes = await this.readBytes(PLOT_PATH);
     const prevPlotLen = prevPlotBytes ? prevPlotBytes.length : 0;
+    const prevBitmap = this.lastPlotBitmap;
 
     const result = await this.evalRaw(trimmed);
     await this.refreshPlotFlag();
 
     const currPlotBytes = await this.readBytes(PLOT_PATH);
     const currPlotLen = currPlotBytes ? currPlotBytes.length : 0;
-    const strokeProducedPlot = currPlotLen > 100 && currPlotLen !== prevPlotLen;
+    const strokeProducedPlot =
+      (currPlotLen > 100 && currPlotLen !== prevPlotLen) ||
+      (Boolean(this.lastPlotBitmap) && this.lastPlotBitmap !== prevBitmap);
 
     if (result.ok) {
       this.strokes.push(trimmed);
@@ -225,9 +189,50 @@ export class RRuntime {
   }
 
   /**
-   * Create an object URL from the current PNG plot buffer.
+   * Create an object URL from the current PNG plot buffer or captured bitmap.
    */
   async plotObjectUrl(): Promise<string | null> {
+    if (this.lastPlotBitmap && typeof OffscreenCanvas !== 'undefined') {
+      try {
+        const canvas = new OffscreenCanvas(this.lastPlotBitmap.width, this.lastPlotBitmap.height);
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(this.lastPlotBitmap, 0, 0);
+          const blob = await canvas.convertToBlob({ type: 'image/png' });
+          if (this.lastPlotUrl) URL.revokeObjectURL(this.lastPlotUrl);
+          this.lastPlotUrl = URL.createObjectURL(blob);
+          return this.lastPlotUrl;
+        }
+      } catch (err) {
+        console.warn('OffscreenCanvas plot conversion failed', err);
+      }
+    }
+
+    if (this.lastPlotBitmap && typeof document !== 'undefined') {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = this.lastPlotBitmap.width;
+        canvas.height = this.lastPlotBitmap.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(this.lastPlotBitmap, 0, 0);
+          return new Promise<string | null>((resolve) => {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                if (this.lastPlotUrl) URL.revokeObjectURL(this.lastPlotUrl);
+                this.lastPlotUrl = URL.createObjectURL(blob);
+                resolve(this.lastPlotUrl);
+              } else {
+                resolve(null);
+              }
+            }, 'image/png');
+          });
+        }
+      } catch (err) {
+        console.warn('HTMLCanvasElement plot conversion failed', err);
+      }
+    }
+
     const bytes = await this.readBytes(PLOT_PATH);
     if (!bytes || bytes.length < 100) return null;
     return URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'image/png' }));
@@ -258,20 +263,76 @@ export class RRuntime {
   private async evalRaw(code: string): Promise<{ ok: boolean; stdout: string; stderr: string }> {
     if (!this.webR) throw new Error('WebR runtime is not ready');
     try {
-      const codeEscaped = JSON.stringify(code);
-      const res = await this.webR.evalR(`.learnr_eval(${codeEscaped})`);
-      const js = await res.toJs();
-      const values: string[] = Array.isArray(js)
-        ? (js as string[])
-        : (js as { values?: string[] })?.values ?? [];
-      const ok = values[0] === '1';
-      const stdout = (values[1] ?? '').trimEnd();
-      const stderr = (values[2] ?? '').trimEnd();
-      return { ok, stdout, stderr };
+      const shelter = (this.webR as unknown as { globalShelter?: { captureR: Function; destroy: Function } }).globalShelter;
+      if (!shelter || typeof shelter.captureR !== 'function') {
+        const res = await this.webR.evalR(code);
+        const js = await res.toJs();
+        const str = typeof js === 'string' ? js : JSON.stringify(js);
+        return { ok: true, stdout: str ?? '', stderr: '' };
+      }
+
+      const capture = await shelter.captureR(code, {
+        withAutoprint: true,
+        captureStreams: true,
+        captureConditions: true,
+        captureGraphics: true,
+        throwJsException: false,
+      });
+
+      let stdout = '';
+      let stderr = '';
+      let hasError = false;
+
+      const outputEntries = capture.output ?? [];
+      for (const entry of outputEntries) {
+        const text = this.extractOutputText(entry.data);
+        if (!text) continue;
+
+        if (entry.type === 'stdout') {
+          stdout += text + (text.endsWith('\n') ? '' : '\n');
+        } else if (entry.type === 'stderr') {
+          stderr += text + (text.endsWith('\n') ? '' : '\n');
+          if (text.toLowerCase().includes('error')) {
+            hasError = true;
+          }
+        } else if (entry.type === 'message' || entry.type === 'warning') {
+          stderr += text + (text.endsWith('\n') ? '' : '\n');
+        }
+      }
+
+      if (capture.images && capture.images.length > 0) {
+        this.lastPlotBitmap = capture.images[capture.images.length - 1];
+        this.hasPlot = true;
+      }
+
+      if (capture.result && typeof shelter.destroy === 'function') {
+        try {
+          await shelter.destroy(capture.result);
+        } catch {
+          /* ignore destruction errors */
+        }
+      }
+
+      return {
+        ok: !hasError,
+        stdout: stdout.trimEnd(),
+        stderr: stderr.trimEnd(),
+      };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       return { ok: false, stdout: '', stderr: msg };
     }
+  }
+
+  private extractOutputText(data: unknown): string {
+    if (typeof data === 'string') return data;
+    if (data == null) return '';
+    if (typeof data === 'object') {
+      const rec = data as Record<string, unknown>;
+      if (typeof rec.message === 'string') return rec.message;
+      if (Array.isArray(rec.values)) return rec.values.join('\n');
+    }
+    return String(data);
   }
 
   private async ensureDir(dir: string): Promise<void> {
@@ -300,7 +361,7 @@ export class RRuntime {
 
   private async refreshPlotFlag(): Promise<void> {
     const bytes = await this.readBytes(PLOT_PATH);
-    this.hasPlot = Boolean(bytes && bytes.length > 100);
+    this.hasPlot = Boolean((bytes && bytes.length > 100) || this.lastPlotBitmap);
   }
 
   private async deletePlotFile(): Promise<void> {

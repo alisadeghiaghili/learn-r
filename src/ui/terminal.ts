@@ -99,7 +99,6 @@ export class TerminalView {
   private wordCycle: string[] = [];
   private wordIdx = 0;
   private wordKey = '';
-  private measureCtx: CanvasRenderingContext2D | null = null;
   private onSubmit: (cmd: string) => void;
   private onOpenEditor: () => void;
 
@@ -265,70 +264,75 @@ export class TerminalView {
     return words.filter((w) => !current || w.toLowerCase().startsWith(current.toLowerCase()));
   }
 
-  private measureText(text: string): number {
-    if (!this.measureCtx) {
-      this.measureCtx = document.createElement('canvas').getContext('2d');
-    }
-    const ctx = this.measureCtx;
-    if (!ctx) return text.length * 7.8;
-    const font = getComputedStyle(this.inputEl).font;
-    ctx.font = font || '13px Consolas, monospace';
-    return ctx.measureText(text).width;
-  }
-
   /**
-   * Ghost shows ONLY the suffix of current word or next word after space.
-   * Never stacks under typed characters.
+   * Ghost shows suffix using hidden typed span for 100% pixel-perfect alignment.
+   * Never stacks or drifts under typed characters.
    */
   private syncGhost(): void {
     const value = this.inputEl.value;
     this.ghostEl.dataset.visible = '0';
-    this.ghostEl.textContent = '';
+    this.ghostEl.innerHTML = '';
     this.wrapEl.classList.remove('has-ghost');
 
     if (!value) return;
 
+    // 1. If user input matches the current level hint, show the remainder of the hint
+    if (this.hint && this.hint.toLowerCase().startsWith(value.toLowerCase()) && this.hint.length > value.length) {
+      const typed = value;
+      const suffix = this.hint.slice(value.length);
+      this.ghostEl.innerHTML = `<span style="visibility:hidden">${escapeHtml(typed)}</span><span class="ghost-suffix">${escapeHtml(suffix)}</span>`;
+      this.ghostEl.dataset.visible = '1';
+      this.wrapEl.classList.add('has-ghost');
+      return;
+    }
+
+    // 2. Otherwise match against words from commands
     const { head, current, afterSpace } = parseLine(value);
     const words = this.nextWords(head, afterSpace ? '' : current);
     const first = words[0];
     if (!first) return;
 
     if (afterSpace) {
-      this.ghostEl.textContent = first;
-      this.ghostEl.style.left = `${this.measureText(value)}px`;
+      this.ghostEl.innerHTML = `<span style="visibility:hidden">${escapeHtml(value)}</span><span class="ghost-suffix">${escapeHtml(first)}</span>`;
       this.ghostEl.dataset.visible = '1';
       this.wrapEl.classList.add('has-ghost');
       return;
     }
 
-    if (!first.toLowerCase().startsWith(current.toLowerCase()) || first.length <= current.length) {
-      return;
+    if (first.toLowerCase().startsWith(current.toLowerCase()) && first.length > current.length) {
+      const suffix = first.slice(current.length);
+      this.ghostEl.innerHTML = `<span style="visibility:hidden">${escapeHtml(value)}</span><span class="ghost-suffix">${escapeHtml(suffix)}</span>`;
+      this.ghostEl.dataset.visible = '1';
+      this.wrapEl.classList.add('has-ghost');
     }
-
-    // Suffix of current word only — never the characters already typed
-    this.ghostEl.textContent = first.slice(current.length);
-    this.ghostEl.style.left = `${this.measureText(value)}px`;
-    this.ghostEl.dataset.visible = '1';
-    this.wrapEl.classList.add('has-ghost');
   }
 
   /** Real-terminal Tab: word-by-word completion, cycling candidates on repeated Tab. */
   private applyTab(e: KeyboardEvent): void {
     e.preventDefault();
     const value = this.inputEl.value;
-    const { head, current, afterSpace } = parseLine(value);
-    const cycleKey = `${head.join(' ')}|${afterSpace ? '' : current}`;
 
+    // If input is empty and there is a hint, fill the full hint
     if (!value && this.hint) {
-      const firstWord = this.hint.split(/\s+/)[0]!;
-      this.inputEl.value = firstWord;
-      this.wordCycle = [firstWord];
+      this.inputEl.value = this.hint;
+      this.wordCycle = [this.hint];
       this.wordIdx = 0;
-      this.wordKey = firstWord;
+      this.wordKey = this.hint;
       this.focus();
       this.syncGhost();
       return;
     }
+
+    // If input matches prefix of hint, fill hint
+    if (this.hint && this.hint.toLowerCase().startsWith(value.toLowerCase()) && this.hint !== value) {
+      this.inputEl.value = this.hint;
+      this.focus();
+      this.syncGhost();
+      return;
+    }
+
+    const { head, current, afterSpace } = parseLine(value);
+    const cycleKey = `${head.join(' ')}|${afterSpace ? '' : current}`;
 
     const options = this.nextWords(head, afterSpace ? '' : current);
     if (!options.length) {
@@ -366,6 +370,16 @@ export class TerminalView {
     if (e.key === 'Tab') {
       this.applyTab(e);
       return;
+    }
+    if (e.key === 'ArrowRight' && this.inputEl.selectionStart === this.inputEl.value.length) {
+      const suffixEl = this.ghostEl.querySelector('.ghost-suffix');
+      if (this.ghostEl.dataset.visible === '1' && suffixEl?.textContent) {
+        e.preventDefault();
+        this.inputEl.value += suffixEl.textContent;
+        this.focus();
+        this.syncGhost();
+        return;
+      }
     }
     if (e.key === 'Escape') {
       e.preventDefault();

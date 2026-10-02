@@ -1012,6 +1012,163 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
       'متغیرهای ستونی پایپلاین‌ها را با utils::globalVariables معرفی کنید تا از ایجاد Note جلوگیری شود.',
     ],
   },
+  "tidy-tibble": {
+    title: "۳۵. ساختار مدرن داده‌ها با tibble",
+    brief: "تیبل‌ها (Tibble) نسخه مدرن، دقیق و سخت‌گیرتر دیتافریم در اکوسیستم Tidyverse هستند. جدول raw_df را با as_tibble تبدیل کرده و یک تیبل جدید بنام grades با ستون‌های student و mark بسازید.",
+    hint: "دستورات tbl <- as_tibble(raw_df) و grades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85)) را اجرا کنید.",
+    lesson: "### فصل ۳۵ — ساختار مدرن داده‌ها با tibble\n\nپکیج `tibble` ستون فقرات ساختار داده‌های اکوسیستم `tidyverse` است و نسخه بازطراحی‌شده `data.frame` سنتی R به شمار می‌رود.\nتفاوت‌های بنیادین تیبل‌ها با دیتافریم سنتی:\n1. **عدم تطابق ناقص ستون‌ها (No Partial Matching):** اگر ستونی بنام `xyz` داشته باشید، دستور `df$x` در دیتافریم سنتی به اشتباه آن را پیدا می‌کند اما در `tibble` اخطار صادر می‌شود.\n2. **عدم کاهش ناخواسته ابعاد (No Silent Dimension Drop):** در دیتافریم سنتی اگر یک ستون را با `df[, 1]` انتخاب کنید، جدول ناگهان به یک بردار تقلیل می‌یابد. در تیبل همیشه یک شیء دو بعدی باقی می‌ماند.\n3. **نمایش بهینه و چاپ هوشمند:** هنگام چاپ تیبل در کنسول، فقط ۱۰ سطر اول نمایش داده شده و نوع دقیق داده هر ستون مانند `<dbl>` یا `<chr>` در بالای آن درج می‌گردد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل ماتریس به تیبل:** برای تبدیل ماتریس‌ها یا جداول سنتی به تیبل همیشه از `as_tibble()` استفاده کنید نه `tibble()`. تابع `tibble()` برای ساخت دستی ستون‌ها به کار می‌رود.",
+    checksLabels: [
+          "متغیر tbl یک شیء معتبر از کلاس tbl_df با ۳ سطر باشد",
+          "تیبل grades دارای ستون‌های student و mark باشد"
+    ],
+    learning: [
+          "تیبل‌ها برخلاف دیتافریم‌های سنتی هرگز ابعاد را هنگام انتخاب ستون به بردار تقلیل نمی‌دهند",
+          "تیبل‌ها اجازه تطابق ناقص نام ستون‌ها با عملگر $ را نمی‌دهند",
+          "چاپ تیبل در کنسول نوع داده ستون‌ها را مشخص کرده و خروجی را به ۱۰ سطر محدود می‌کند"
+    ],
+    fieldNotes: [
+          "تیبل‌ها از خطاهای رایج پایپلاین‌های R سنتی که در آن df[, 1] ناگهان بردار می‌شد جلوگیری می‌کنند.",
+          "از تابع as_tibble برای ارتقاء دیتافریم‌های قدیمی بدون دستکاری مقادیر استفاده کنید."
+    ],
+  },
+  "tidy-dplyr": {
+    title: "۳۶. دستکاری و پالایش سریع داده‌ها با dplyr",
+    brief: "پکیج dplyr پایپلاین‌های تغییر داده را با ۵ فعل اصلی استاندارد می‌کند. با filter پروازهای با تاخیر مثبت را جدا کنید، با mutate متغیر speed را بسازید و با arrange به ترتیب نزولی مرتب نمایید.",
+    hint: "از پایپ |> همراه با توابع filter(dep_delay > 0)، mutate(speed = air_time / 60) و arrange(desc(dep_delay)) استفاده کنید.",
+    lesson: "### فصل ۳۶ — دستکاری داده‌ها با افعال پنج‌گانه dplyr\n\nپکیج `dplyr` دستور زبان پالایش و تبدیل داده‌ها در علم داده مدرن است.\nعملیات اصلی حول ۵ فعل بنیادی انجام می‌شود:\n- **`filter()`**: انتخاب سطرهایی که شرط‌های منطقی معینی را برآورده می‌کنند.\n- **`select()`**: انتخاب یا حذف ستون‌های خاص با نام یا موقعیت.\n- **`mutate()`**: ایجاد ستون‌های محاسباتی جدید بر پایه ستون‌های موجود.\n- **`arrange()`**: مرتب‌سازی سطرها به صورت صعودی یا نزولی با `desc()`.\n- **`summarise()`**: تجمیع و خلاصه‌سازی ستون‌ها (مانند میانگین، مجموع و واریانس).\n\nترکیب این توابع با عملگر پایپ (`|>`) باعث خوانایی شبیه به زبان طبیعی می‌شود.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه در استفاده از عملگر مساوی:** در تابع `filter()` همیشه از عملگر مقایسه‌ای `==` استفاده کنید نه عملگر انتساب `=`.\n- **ماسک کردن توابع توسط سایر پکیج‌ها:** تابع `filter` در R پایه یا در پکیج `stats` برای سری‌های زمانی وجود دارد. در صورت تداخل، صراحتاً بنویسید `dplyr::filter()`.",
+    checksLabels: [
+          "متغیر delayed_flights شامل ۳ پرواز تاخیردار باشد",
+          "ستون‌های dep_delay فیلترشده و speed محاسبه شده باشند",
+          "سطرها به صورت نزولی بر اساس dep_delay مرتب شده باشند"
+    ],
+    learning: [
+          "پکیج dplyr پنج فعل بنیادی فیلتر، انتخاب، ساخت ستون، مرتب‌سازی و خلاصه‌سازی را ارائه می‌دهد",
+          "پایپلاین‌های دستکاری داده از عملگر پایپ برای خوانایی بالا استفاده می‌کنند",
+          "عبارات داخل افعال dplyr در بستر ستون‌های دیتافریم (Data Masking) ارزیابی می‌شوند"
+    ],
+    fieldNotes: [
+          "هنگام اتصال به دیتابیس‌های SQL از طریق dbplyr، توابع dplyr مستقیماً به کوئری‌های بهینه SQL ترجمه می‌شوند.",
+          "در نسخه‌های مدرن dplyr به جای group_by از آرگومان تمیز .by استفاده کنید."
+    ],
+  },
+  "tidy-ggplot2": {
+    title: "۳۷. گرامر گرافیک و تصویرسازی داده با ggplot2",
+    brief: "پکیج ggplot2 بر اساس نظریه دستور زبان گرافیک عمل می‌کند. با ترکیب لایه‌های داده، نگاشت‌های زیبایی‌شناختی (aes)، لایه هندسی geom_point و برچسب‌های labs شیء scatter_p را بسازید.",
+    hint: "دستور scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\") را اجرا کنید.",
+    lesson: "### فصل ۳۷ — تصویرسازی علمی با گرامر گرافیک (ggplot2)\n\nپکیج `ggplot2` پیاده‌سازی نظریه دستور زبان گرافیک (Leland Wilkinson) است.\nیک نمودار در ggplot2 حاصل ترکیب چند لایه مجزا با عملگر `+` است:\n1. **داده‌ها (Data):** یک `data.frame` یا `tibble` که مشاهدات را در بر دارد.\n2. **نگاشت‌های زیبایی‌شناختی (`aes`):** اتصال متغیرهای داده به ابعاد بصری نمودار مانند محور افقی (`x`)، محور عمودی (`y`)، رنگ (`color`) و اندازه (`size`).\n3. **لایه‌های هندسی (`geom_*`):** نحوه ترسیم نقاط، خطوط یا ستون‌ها (`geom_point`, `geom_line`, `geom_col`).\n4. **برچسب‌ها و تم‌ها (`labs`, `theme`):** تنظیم عنوان، راهنماها و استایل گرافیکی.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **استفاده از پایپ `|>` به جای `+`:** در دستورات `ggplot2` لایه‌ها همیشه با عملگر `+` ترکیب می‌شوند نه عملگر پایپ `|>`!\n- **قرار دادن رنگ ثابت درون `aes()`:** اگر می‌خواهید همه نقاط آبی باشند بنویسید `geom_point(color = \"blue\")`. قرار دادن آن درون `aes(color = \"blue\")` آن را به عنوان یک دسته داده‌ای تعبیر می‌کند.",
+    checksLabels: [
+          "متغیر scatter_p یک شیء معتبر از کلاس ggplot باشد",
+          "لایه هندسی نقطه‌ای (geom_point) افزوده شده باشد",
+          "عنوان نمودار به \"Fuel Economy\" تنظیم شده باشد"
+    ],
+    learning: [
+          "گرامر گرافیک داده‌ها را از نگاشت‌های بصری و لایه‌های هندسی کاملاً مجزا می‌کند",
+          "نمودارها به صورت گام‌به‌گام با عملگر + بر روی یکدیگر لایه‌بندی می‌شوند",
+          "تابع aes متغیرهای جدول را به ابعاد بصری نظیر موقعیت، رنگ، اندازه و شکل متصل می‌سازد"
+    ],
+    fieldNotes: [
+          "تم‌های دلخواه و یکپارچه مقالات علمی را با دستور theme_set(theme_minimal()) ذخیره کنید.",
+          "برای ذخیره نمودارهای باکیفیت و استاندارد چاپ از تابع ggsave استفاده کنید."
+    ],
+  },
+  "tidy-tidyr": {
+    title: "۳۸. تغییر شکل داده‌ها و مرتب‌سازی با tidyr",
+    brief: "پکیج tidyr شکل داده‌ها را بین فرمت عریض (Wide) و طویل (Long) تغییر می‌دهد. ستون‌های q1 و q2 جدول survey_wide را با تابع pivot_longer به ساختار استاندارد طویل تبدیل کنید.",
+    hint: "دستور survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\") را اجرا کنید.",
+    lesson: "### فصل ۳۸ — بازآرایی و استانداردسازی داده‌ها با tidyr\n\nداده‌های تمیز (Tidy Data) سه قانون طلایی دارند:\n1. هر متغیر باید ستون اختصاصی خود را داشته باشد.\n2. هر مشاهده باید در یک سطر مجزا قرار گیرد.\n3. هر مقدار باید در یک سلول منفرد بنشیند.\n\nپکیج `tidyr` توابع قدرتمندی برای تغییر شکل داده‌ها ارائه می‌کند:\n- **`pivot_longer()`**: تبدیل جداول عریض (که نام ستون‌ها در واقع مقادیر یک متغیر هستند) به فرم طویل و استاندارد.\n- **`pivot_wider()`**: عمل معکوس برای تبدیل داده‌های طویل به ماتریس‌های گزارش‌گیری عریض.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **توابع منسوخ `gather` و `spread`:** توابع `gather()` و `spread()` قدیمی هستند و دیگر نباید در کدهای جدید استفاده شوند. همیشه از توابع نسل دوم `pivot_longer()` و `pivot_wider()` استفاده کنید.",
+    checksLabels: [
+          "جدول survey_tidy به ۶ سطر طویل بازآرایی شده باشد",
+          "ستون‌های id، dept، question و score در خروجی موجود باشند",
+          "ستون question حاوی نام ستون‌های قبلی باشد"
+    ],
+    learning: [
+          "تابع pivot_longer جداول عریض را به فرمت طویل استاندارد با جفت‌های کلید-مقدار تبدیل می‌کند",
+          "تابع pivot_wider رکوردهای طویل را برای گزارش‌گیری به فرمت عریض بازآرایی می‌نماید",
+          "ساختار استاندارد Tidy Data پیش‌نیاز تصویرسازی و تحلیل بدون خطا در Tidyverse است"
+    ],
+    fieldNotes: [
+          "توابع pivot_longer و pivot_wider جایگزین کامل توابع قدیمی gather و spread هستند.",
+          "با فعال کردن آرگومان values_drop_na = TRUE می‌توانید سطور دارای NA را حین تغییر شکل حذف کنید."
+    ],
+  },
+  "tidy-stringr": {
+    title: "۳۹. کار یکدست و مدرن با رشته‌های متنی با stringr",
+    brief: "پکیج stringr توابع متنی را با پیشوند منظم str_* ارائه می‌دهد. سطرهای خطای لاگ را با str_detect پیدا کرده و با str_replace_all کدهای خطا را با واژه ALERT جایگزین نمایید.",
+    hint: "از دستورات err_mask <- str_detect(log_records, \"^ERR\") و clean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\") استفاده کنید.",
+    lesson: "### فصل ۳۹ — پردازش یکدست رشته‌های متنی با stringr\n\nدر توابع متنی R پایه مانند `grep` و `sub`، ترتیب آرگومان‌ها ناهمگون است (گاهی الگوی regex اول می‌آید و گاهی رشته).\nپکیج `stringr` این مشکل را با طراحی بی‌نقص حل کرده است:\n1. همه توابع با پیشوند `str_` شروع می‌شوند که استفاده از تکمیل خودکار (Autocomplete) در ادیتور را بسیار لذت‌بخش می‌کند.\n2. بردار متنی (`string`) **همیشه اولین آرگومان** است، بنابراین به‌طور طبیعی با پایپ (`|>`) هماهنگ است.\n3. خروجی‌ها همیشه طول و رفتار قابل پیش‌بینی با مقادیر `NA` دارند.\n\nتوابع کلیدی:\n- **`str_detect(string, pattern)`**: بازگرداندن بردار بولی برای تطابق الگو.\n- **`str_replace_all(string, pattern, replacement)`**: جایگزینی تمام موارد منطبق با عبارت باقاعده.\n- **`str_extract(string, pattern)`**: استخراج زیررشته منطبق با الگو.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فرار دادن کاراکترهای Regex:** در زبان R به دلیل اسکیپ شدن بک‌اسلش در رشته‌ها، برای کاراکترهای خاص رجکس باید دو بک‌اسلش استفاده شود (مانند `\\\\d+` برای اعداد).",
+    checksLabels: [
+          "ماسک بولین err_mask به درستی ۲ سطر خطا را مشخص کرده باشد",
+          "کدهای خطا در clean_logs با مقدار ALERT جایگزین شده باشند",
+          "سطرهای غیرخطا بدون تغییر باقی مانده باشند"
+    ],
+    learning: [
+          "تمام توابع stringr دارای پیشوند str_ بوده و بردار متنی را به عنوان آرگومان اول دریافت می‌کنند",
+          "تابع str_detect ماسک بولی تطابق را بدون پیچیدگی‌های grep سنتی برمی‌گرداند",
+          "تابع str_replace_all جایگزینی عبارات منظم را در تمام بردار به صورت یکدست انجام می‌دهد"
+    ],
+    fieldNotes: [
+          "توابع stringr مقادیر NA را بدون خطا حفظ کرده و در خروجی به شکل NA بازمی‌گردانند.",
+          "برای جستجوی دقیق بدون تفسیر Regex از تابع کمکی fixed() استفاده کنید."
+    ],
+  },
+  "tidy-forcats": {
+    title: "۴۰. تحلیل و مرتب‌سازی داده‌های کتگوریکال با forcats",
+    brief: "پکیج forcats ابزارهای ویژه‌ای برای متغیرهای کیفی (Factor) ارائه می‌دهد. سطوح بخش‌های شرکت را بر اساس میانه حقوق با fct_reorder مرتب کرده و سپس با fct_rev ترتیب را معکوس کنید.",
+    hint: "دستورات staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median) و staff$dept_rev <- fct_rev(staff$dept_ord) را اجرا نمایید.",
+    lesson: "### فصل ۴۰ — کار هوشمند با متغیرهای دسته‌ای (forcats)\n\nفاکتورها (`factors`) در R برای متغیرهای دسته‌ای با سطوح مشخص استفاده می‌شوند.\nبه صورت پیش‌فرض، سطوح فاکتورها به ترتیب الفبایی مرتب می‌شوند که در نمودارها و مدل‌های آماری ترتیب معناداری نیست.\nپکیج تخصصی `forcats` ابزارهایی برای مدیریت حرفه‌ای فاکتورها فراهم می‌کند:\n- **`fct_reorder(.f, .x, .fun)`**: مرتب‌سازی سطوح فاکتور بر اساس مقدار خلاصه یک متغیر عددی دیگر.\n- **`fct_rev(f)`**: معکوس کردن ترتیب سطوح فاکتور (مناسب برای محورهای نمودار افقی).\n- **`fct_lump_n(f, n)`**: تجمیع دسته‌های کم‌تکرار در دسته جامع `Other`.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل فاکتور عددی به عدد:** اگر یک فاکتور حاوی مقادیر `c(\"10\", \"20\")` را با `as.numeric()` تبدیل کنید، کدهای ایندکس داخلی آن را برمی‌گرداند! همیشه بنویسید `as.numeric(as.character(f))`.",
+    checksLabels: [
+          "سطوح dept_ord به ترتیب صعودی میانه حقوق مرتب شده باشند",
+          "سطوح dept_rev با fct_rev معکوس شده باشند"
+    ],
+    learning: [
+          "تابع fct_reorder سطوح فاکتور را بر اساس خلاصه آماری یک متغیر عددی بازآرایی می‌کند",
+          "تابع fct_rev ترتیب سطوح فاکتور را برای هماهنگی با نمودارهای میله‌ای معکوس می‌سازد",
+          "تابع fct_lump دسته‌های پراکنده و کم‌تکرار را در دسته یکتای Other ادغام می‌کند"
+    ],
+    fieldNotes: [
+          "پیش از ارسال فاکتورها به ggplot2 آن‌ها را مرتب کنید تا از ترتیب الفبایی پیش‌فرض جلوگیری شود.",
+          "توابع forcats بر خلاف R پایه هرگز سطوح بدون مشاهده را بدون درخواست صریح حذف نمی‌کنند."
+    ],
+  },
+  "tidy-lubridate": {
+    title: "۴۱. تجزیه، گرد کردن و محاسبات زمانی با lubridate",
+    brief: "پکیج lubridate مدیریت تاریخ و زمان را شهودی می‌سازد. با تابع ymd تاریخ‌ها را به شیء Date تبدیل کنید، با floor_date آن‌ها را به ابتدای ماه رِند کرده و شماره روز هفته را با wday استخراج کنید.",
+    hint: "دستورات event_dates <- ymd(date_strings) و event_months <- floor_date(event_dates, unit = \"month\") و event_days <- wday(event_dates) را اجرا کنید.",
+    lesson: "### فصل ۴۱ — تحلیل و پردازش شهودی زمان با lubridate\n\nمدیریت تاریخ و زمان در R پایه نیازمند به‌خاطرسپردن کدهای فرمت پیچیده مانند `\"%Y-%m-%d %H:%M:%S\"` بود.\nپکیج مدرن `lubridate` با طراحی شهودی محاسبات زمانی را دگرگون کرده است:\n- **توابع خواندن فوری بر اساس ترتیب حروف:**\n  - `ymd(\"2026-03-15\")`: سال، ماه، روز\n  - `dmy(\"15-03-2026\")`: روز، ماه، سال\n  - `ymd_hms(\"2026-03-15 14:30:00\")`: سال، ماه، روز به همراه ساعت، دقیقه، ثانیه\n- **گرد کردن زمان (Rounding):**\n  - `floor_date(x, unit = \"month\")`: رِند کردن به آغاز ماه\n  - `ceiling_date(x, unit = \"week\")`: رِند کردن به ابتدای هفته بعد\n- **استخراج اجزا:** `year()`, `month()`, `wday()`\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت Period و Duration:** پکیج lubridate میان دوره تقویمی (`Period` مانند ۱ ماه که بسته به ماه ۲۸ تا ۳۱ روز است) و طول فیزیکی زمان (`Duration` مانند دقیقاً ۸۶۴۰۰ ثانیه برای ۱ روز) تمایز قائل می‌شود.",
+    checksLabels: [
+          "بردار event_dates به درستی به نوع داده Date تبدیل شده باشد",
+          "تاریخ‌های event_months به ابتدای ماه رند شده باشند (روز ۰۱)",
+          "روزهای هفته به صورت عدد صحیح در event_days استخراج شده باشند"
+    ],
+    learning: [
+          "توابع کمکی نظیر ymd و dmy رشته‌های زمانی را بدون کدهای پیچیده فرمت به Date تبدیل می‌کنند",
+          "توابع floor_date و ceiling_date زمان‌ها را به مرزهای مشخص تقویمی رِند می‌کنند",
+          "تابع wday شماره و نام روزهای هفته را با در نظر گرفتن تقویم استخراج می‌کند"
+    ],
+    fieldNotes: [
+          "پکیج lubridate میان Duration (ثانیه‌های فیزیکی دقیق) و Period (زمان تقویمی انسانی) تمایز قائل می‌شود.",
+          "در سرورهای پروداکشن همیشه پارامتر tz = \"UTC\" را برای جلوگیری از پرش ساعت تابستانی تنظیم کنید."
+    ],
+  },
+  "tidy-purrr": {
+    title: "۴۲. برنامه‌نویسی تابعی و تکرار امن با purrr",
+    brief: "پکیج purrr جایگزین مطمئن و تایپ‌سیف برای توابع خانواده apply در R پایه است. میانگین سنسورها را با تابع مقید به نوع map_dbl محاسبه کرده و وضعیت هشدار را با map_chr برچسب‌گذاری کنید.",
+    hint: "دستورات avg_readings <- map_dbl(sensor_readings, mean) و sensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\") را اجرا کنید.",
+    lesson: "### فصل ۴۲ — برنامه‌نویسی تابعی و تکرار امن با purrr\n\nدر برنامه‌نویسی حرفه‌ای R، حلقه‌های `for` به ندرت استفاده می‌شوند و جای خود را به برنامه‌نویسی تابعی (Functional Programming) می‌دهند.\nتابع سنتی `sapply()` خطرناک است زیرا نوع خروجی آن به داده‌ها بستگی دارد و ممکن است گاهی بردار، ماتریس یا لیست برگرداند.\nپکیج `purrr` با تضمین نوع بازگشتی (Type Stability)، پایداری کد را به حداکثر می‌رساند:\n- **`map(.x, .f)`**: اجرای تابع و تضمین بازگرداندن یک لیست (`list`).\n- **`map_dbl(.x, .f)`**: اجرای تابع با تضمین بازگرداندن بردار عددی اعشاری (`double`). در صورت مغایرت نوع، بلافاصله خطا صادر می‌شود.\n- **`map_chr(.x, .f)`**: تضمین بازگرداندن بردار متنی (`character`).\n- **`map_lgl(.x, .f)`**: تضمین بازگرداندن بردار بولی (`logical`).\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **خطاهای سایلنت در `sapply`:** هرگز در کد پکیج‌ها یا پایپلاین‌های تولیدی از `sapply()` استفاده نکنید! پکیج `purrr` یا `vapply()` پایه جایگزین‌های کاملاً امن هستند.",
+    checksLabels: [
+          "بردار avg_readings یک بردار عددی اعشاری نوع‌امن (double) به طول ۳ باشد",
+          "وضعیت سنسورها با تابع map_chr به درستی در sensor_status تعیین شده باشد"
+    ],
+    learning: [
+          "توابع map_dbl و map_chr و map_lgl تبدیل‌های تابعی با نوع خروجی قطعی و تضمین‌شده ارائه می‌دهند",
+          "برخلاف sapply توابع purrr طول و نوع خروجی را تضمین کرده یا فوراً خطا صادر می‌کنند",
+          "توابع بی‌نام را می‌توان به سادگی با فرمت مدرن \\(x) به توابع نگاشت ارسال نمود"
+    ],
+    fieldNotes: [
+          "هرگز از sapply در کدهای پروداکشن استفاده نکنید زیرا بی‌ثباتی نوع آن خطاهای پنهان ایجاد می‌کند.",
+          "ترکیب purrr::map با ستون‌های لیستی (List-columns) در تیبل‌ها الگوی اصلی مدل‌سازی تو در تو است."
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -2012,6 +2169,163 @@ Das Ziel jedes R-Entwicklers lautet: **0 errors | 0 warnings | 0 notes**.
       'Deklariere Tidyverse-Spalten mit utils::globalVariables, um Notizen zu eliminieren.',
     ],
   },
+  "tidy-tibble": {
+    title: "35. Moderne Tabellen mit tibble",
+    brief: "Tibbles sind moderne, typsichere Data Frames im Tidyverse. Konvertiere raw_df mit as_tibble() zu tbl und erstelle ein neues Tibble grades mit Spalten student und mark.",
+    hint: "Verwende tbl <- as_tibble(raw_df) und grades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85)).",
+    lesson: "### Kapitel 35 — Moderne Data Frames mit tibble\n\nDas Paket `tibble` bildet das Datenrückgrat des Tidyverse und ist die moderne Neuinterpretation des klassischen `data.frame`.\nWesentliche Vorteile von Tibbles:\n1. **Kein partielles Namens-Matching:** Bei `df$x` wird nicht versehentlich auf eine Spalte `xyz` zugegriffen.\n2. **Kein stiller Dimensionsverlust:** `df[, 1]` bleibt immer ein zweidimensionales Tibble und wird nicht zum Vektor vereinfacht.\n3. **Optimierte Konsolenausgabe:** Beim Drucken werden nur die ersten 10 Zeilen und die exakten Spaltentypen (`<dbl>`, `<chr>`) angezeigt.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Matrix-Konvertierung:** Verwende `as_tibble()` zur Konvertierung bestehender Matrizen oder Data Frames, nicht die Konstruktorfunktion `tibble()`.",
+    checksLabels: [
+          "tbl ist ein valides Tibble (tbl_df) mit 3 Zeilen",
+          "grades ist ein Tibble mit Spalten student und mark"
+    ],
+    learning: [
+          "Tibbles erzwingen striktes Subsetting und reduzieren Dimensionen nie stillschweigend zu Vektoren",
+          "Tibbles verhindern fehleranfälliges partielles Matching bei Spaltennamen über den $-Operator",
+          "Die Konsolenausgabe von Tibbles zeigt Spaltentypen explizit an und limitiert die Zeilenausgabe"
+    ],
+    fieldNotes: [
+          "Tibbles eliminieren schwer auffindbare Bugs, bei denen df[, 1] unbemerkt zu einem atomaren Vektor kollabiert.",
+          "Nutze as_tibble(), um bestehende Data Frames nahtlos ins Tidyverse zu überführen."
+    ],
+  },
+  "tidy-dplyr": {
+    title: "36. Schnelle Datenmanipulation mit dplyr",
+    brief: "dplyr standardisiert Datentransformationen mit 5 Kernverben. Filtere Flüge mit dep_delay > 0, berechne speed mit mutate und sortiere absteigend mit arrange(desc(dep_delay)).",
+    hint: "Verknüpfe flights über die Pipe |> mit filter(dep_delay > 0), mutate(speed = air_time / 60) und arrange(desc(dep_delay)).",
+    lesson: "### Kapitel 36 — Datenmanipulation mit den 5 Kernverben von dplyr\n\nDas Paket `dplyr` stellt die Grammatik der Datenverarbeitung in R bereit.\nZentrale Operationen basieren auf 5 Verben:\n- **`filter()`**: Wählt Zeilen anhand logischer Kriterien aus.\n- **`select()`**: Selektiert oder benennt Spalten um.\n- **`mutate()`**: Berechnet neue Spalten auf Basis vorhandener Merkmale.\n- **`arrange()`**: Sortiert Zeilen aufsteigend oder absteigend via `desc()`.\n- **`summarise()`**: Aggregiert Werte zu Kennzahlen.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Verwechslung von `=` und `==`:** In `filter()` muss für Gleichheit immer `==` genutzt werden.\n- **Namenskollisionen bei `filter`:** Falls das Basis-R `stats::filter` aktiv ist, qualifiziere den Aufruf explizit mit `dplyr::filter()`.",
+    checksLabels: [
+          "delayed_flights enthält 3 verspätete Flüge",
+          "dep_delay gefiltert und speed berechnet",
+          "Zeilen absteigend nach dep_delay sortiert"
+    ],
+    learning: [
+          "dplyr bietet 5 konsistente Kernverben für alle standardmäßigen Datenmanipulationen",
+          "Datenverarbeitungs-Pipelines nutzen Pipes für flüssig lesbare Transformationen",
+          "Ausdrücke innerhalb von Verben werden direkt im Kontext der Tabelle ausgewertet (Data Masking)"
+    ],
+    fieldNotes: [
+          "dplyr übersetzt Verben bei Datenbank-Verbindungen via dbplyr direkt in performantes SQL.",
+          "Bevorzuge in modernem dplyr das lokale .by-Argument gegenüber globalem group_by()."
+    ],
+  },
+  "tidy-ggplot2": {
+    title: "37. Grammatik der Grafik mit ggplot2",
+    brief: "ggplot2 baut Grafiken schichtweise auf. Kombiniere Daten, ästhetische Mappings (aes), geom_point() und Beschriftungen labs() im Objekt scatter_p.",
+    hint: "Nutze scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\").",
+    lesson: "### Kapitel 37 — Wissenschaftliche Visualisierung mit ggplot2\n\n`ggplot2` implementiert die Grammatik der Grafik (Grammar of Graphics).\nDiagramme entstehen durch das Schichten unabhängiger Komponenten mit dem `+`-Operator:\n1. **Daten (Data):** Ein Data Frame oder Tibble.\n2. **Ästhetische Mappings (`aes`):** Zuordnung von Variablen zu visuellen Eigenschaften (`x`, `y`, `color`, `size`).\n3. **Geometrien (`geom_*`):** Darstellungsform wie Punkte (`geom_point`), Linien (`geom_line`) oder Balken.\n4. **Skalen & Beschriftungen (`labs`, `theme`):** Titel, Achsen und Layout-Designs.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Pipe `|>` statt `+`:** Schichten in `ggplot2` werden immer mit `+` verkettet, niemals mit der Pipe `|>`!\n- **Konstante Farben in `aes()`:** Feste Farben gehören direkt in `geom_point(color = \"blue\")`, nicht in `aes()`.",
+    checksLabels: [
+          "scatter_p ist ein ggplot-Objekt",
+          "Punkt-Geometrie (geom_point) ist hinzugefügt",
+          "Diagrammtitel lautet \"Fuel Economy\""
+    ],
+    learning: [
+          "Die Grammatik der Grafik entkoppelt Daten strikt von Geometrien und Ästhetiken",
+          "Grafiken werden modular über den +-Operator aus separaten Schichten zusammengesetzt",
+          "aes() bildet Variablen auf visuelle Dimensionen wie Achsen, Farben und Formen ab"
+    ],
+    fieldNotes: [
+          "Setze einheitliche Publikationsstandards via theme_set(theme_minimal()).",
+          "Speichere druckreife Grafiken mit festen Abmessungen und DPI über ggsave()."
+    ],
+  },
+  "tidy-tidyr": {
+    title: "38. Moderne Datenumformung mit tidyr",
+    brief: "tidyr formt Tabellen zwischen breitem (wide) und langem (long) Format um. Verwende pivot_longer(), um Spalten q1 und q2 in question und score umzuwandeln.",
+    hint: "Führe survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\") aus.",
+    lesson: "### Kapitel 38 — Datenumformung und Tidying mit tidyr\n\nAufgeräumte Daten (Tidy Data) folgen drei Prinzipien:\n1. Jede Variable bildet eine eigene Spalte.\n2. Jede Beobachtung bildet eine eigene Zeile.\n3. Jeder Messwert steht in einer einzelnen Zelle.\n\nKernfunktionen von `tidyr`:\n- **`pivot_longer()`**: Wandelt breite Tabellen in standardisierte lange Formate um.\n- **`pivot_wider()`**: Erzeugt breite Tabellen für Übersichten und Berichte.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Veraltete Funktionen:** Verwende stets `pivot_longer()` und `pivot_wider()` anstelle der veralteten Vorgänger `gather()` und `spread()`.",
+    checksLabels: [
+          "survey_tidy auf 6 Zeilen im langen Format umstrukturiert",
+          "Spalten id, dept, question und score vorhanden",
+          "Spalte question enthält ursprüngliche Spaltennamen"
+    ],
+    learning: [
+          "pivot_longer() formt breite Tabellen in standardisierte lange Formate um",
+          "pivot_wider() aggregiert lange Datensätze in breite Berichtsmatrizen",
+          "Tidy Data ist die Grundvoraussetzung für robuste Analysen im Tidyverse"
+    ],
+    fieldNotes: [
+          "pivot_longer() ersetzt die historischen Funktionen gather() und reshape().",
+          "Mit values_drop_na = TRUE werden implizit fehlende Zeilen direkt entfernt."
+    ],
+  },
+  "tidy-stringr": {
+    title: "39. Konsistente Zeichenketten-Verarbeitung mit stringr",
+    brief: "stringr vereinheitlicht String-Operationen mit str_*-Funktionen. Erkenne Fehlerzeilen mit str_detect() in err_mask und ersetze Fehlercodes mit str_replace_all() in clean_logs.",
+    hint: "Verwende err_mask <- str_detect(log_records, \"^ERR\") und clean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\").",
+    lesson: "### Kapitel 39 — Einheitliche String-Manipulation mit stringr\n\nDas Paket `stringr` vereinheitlicht die oft inkonsistente Syntax von Basis-R Textfunktionen:\n1. Alle Funktionsnamen beginnen mit dem Präfix `str_`.\n2. Der Eingabetext (`string`) ist **immer das erste Argument**, was Pipelines via `|>` ideal unterstützt.\n3. Einheitliche Behandlung von fehlenden Werten (`NA`).\n\nWichtige Funktionen:\n- **`str_detect(string, pattern)`**: Prüft auf Musterübereinstimmungen.\n- **`str_replace_all(string, pattern, replacement)`**: Ersetzt alle Vorkommen eines regulären Ausdrucks.\n- **`str_extract(string, pattern)`**: Extrahiert gefundene Muster.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Doppelte Backslashes:** In R-Strings müssen Regex-Sonderzeichen doppelt maskiert werden (z. B. `\\\\d+` für Ziffern).",
+    checksLabels: [
+          "err_mask identifiziert die 2 Fehlerprotokollzeilen",
+          "Fehlercodes in clean_logs durch ALERT ersetzt",
+          "Reguläre Logzeilen bleiben unverändert"
+    ],
+    learning: [
+          "Alle stringr-Funktionen besitzen das str_ Präfix und nehmen den Text als erstes Argument",
+          "str_detect() liefert logische Vektoren ohne kryptische Index-Konventionen",
+          "str_replace_all() ersetzt reguläre Ausdrücke vektorisiert über den gesamten Datensatz"
+    ],
+    fieldNotes: [
+          "stringr-Funktionen propagieren NA konsistent, anstatt Laufzeitfehler zu werfen.",
+          "Verwende fixed(), um reine Textsuche ohne Regex-Overhead zu beschleunigen."
+    ],
+  },
+  "tidy-forcats": {
+    title: "40. Kategoriale Faktoren managen mit forcats",
+    brief: "forcats erleichtert die Handhabung von Faktoren. Sortiere Abteilungsebenen nach Medianeinkommen mit fct_reorder() und kehre sie mit fct_rev() um.",
+    hint: "Führe staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median) und staff$dept_rev <- fct_rev(staff$dept_ord) aus.",
+    lesson: "### Kapitel 40 — Kategoriale Daten und Faktoren mit forcats\n\nFaktoren repräsentieren kategoriale Daten mit vordefinierten Stufen (Levels).\nStandardmäßig sortiert R Faktoren alphabetisch, was in Diagrammen selten optimal ist.\n`forcats` bietet Werkzeuge zur gezielten Steuerung:\n- **`fct_reorder(.f, .x, .fun)`**: Sortiert Stufen nach einer numerischen Kennzahl.\n- **`fct_rev(f)`**: Kehrt die Reihenfolge der Stufen um.\n- **`fct_lump_n(f, n)`**: Fasst seltene Ausprägungen zu `Other` zusammen.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Faktor-zu-Zahl-Konvertierung:** `as.numeric(factor)` liefert die internen Level-Indizes! Nutze stets `as.numeric(as.character(factor))`.",
+    checksLabels: [
+          "dept_ord Levels aufsteigend nach Mediansalär sortiert",
+          "dept_rev Levels mit fct_rev invertiert"
+    ],
+    learning: [
+          "fct_reorder() ordnet Faktorstufen nach einer statistischen Zusammenfassung eines Zweitwerts",
+          "fct_rev() invertiert Stufen für korrekte Ausrichtung in horizontalen Diagrammen",
+          "fct_lump() bündelt seltene Kategorien übersichtlich in einer Sammelkategorie"
+    ],
+    fieldNotes: [
+          "Sortiere Faktoren vor der Übergabe an ggplot2, um Standard-Alphabetisierungen zu vermeiden.",
+          "Im Gegensatz zu Basis-R verwirft forcats ungenutzte Stufen nicht ohne expliziten Befehl."
+    ],
+  },
+  "tidy-lubridate": {
+    title: "41. Datum und Uhrzeit präzise verarbeiten mit lubridate",
+    brief: "lubridate vereinfacht Datums- und Zeitberechnungen. Parse Daten mit ymd(), runde auf den Monatsanfang mit floor_date() und ermittle Wochentage mit wday().",
+    hint: "Setze event_dates <- ymd(date_strings), event_months <- floor_date(event_dates, unit = \"month\") und event_days <- wday(event_dates).",
+    lesson: "### Kapitel 41 — Intuitive Datums- und Zeitverarbeitung mit lubridate\n\nBasis-R verlangt für Datumsformate komplexe Formatmuster wie `\"%Y-%m-%d\"`.\n`lubridate` löst dies durch sprechende Hilfsfunktionen:\n- **Parsing nach Buchstaben-Reihenfolge:**\n  - `ymd(\"2026-03-15\")`: Jahr, Monat, Tag\n  - `dmy(\"15-03-2026\")`: Tag, Monat, Jahr\n- **Rundung von Zeitangaben:**\n  - `floor_date(x, unit = \"month\")`: Rundet auf den 1. des Monats ab\n  - `ceiling_date(x, unit = \"week\")`: Rundet auf den nächsten Wochenbeginn auf\n- **Komponenten extrahieren:** `year()`, `month()`, `wday()`\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Period vs. Duration:** `lubridate` unterscheidet exakt zwischen Kalenderperioden (`Period`) und physikalischen Sekunden (`Duration`).",
+    checksLabels: [
+          "event_dates als Date-Vektor geparst",
+          "event_months auf Monatsbeginn gerundet (Tag 01)",
+          "event_days als Integer-Wochentage extrahiert"
+    ],
+    learning: [
+          "Parser wie ymd() und dmy() erkennen Datumsangaben ohne kryptische Formatmasken",
+          "floor_date() und ceiling_date() runden Zeitstempel präzise auf Kalenderintervalle",
+          "wday() liefert Wochentage als Index oder Name unter Berücksichtigung von Zeitzonen"
+    ],
+    fieldNotes: [
+          "lubridate unterscheidet sauber zwischen physikalischen Dauern und Kalenderperioden.",
+          "Setze in Produktivumgebungen immer tz = \"UTC\", um Sommerzeit-Fehler zu vermeiden."
+    ],
+  },
+  "tidy-purrr": {
+    title: "42. Typsichere funktionale Programmierung mit purrr",
+    brief: "purrr ersetzt sapply durch typsichere Higher-Order-Funktionen. Berechne Mittelwerte mit map_dbl() und klassifiziere Sensorstatus mit map_chr().",
+    hint: "Nutze avg_readings <- map_dbl(sensor_readings, mean) und sensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\").",
+    lesson: "### Kapitel 42 — Typsichere funktionale Iteration mit purrr\n\nIn moderner R-Entwicklung weichen klassische For-Schleifen der funktionalen Programmierung.\nDas historische `sapply()` birgt Risiken, da sein Rückgabetyp unvorhersehbar je nach Daten variiert.\n`purrr` garantiert absolute Typstabilität:\n- **`map(.x, .f)`**: Gibt garantiert eine `list` zurück.\n- **`map_dbl(.x, .f)`**: Garantiert einen numerischen Vektor (`double`) oder bricht sofort mit Fehler ab.\n- **`map_chr(.x, .f)`**: Garantiert einen Zeichenketten-Vektor (`character`).\n- **`map_lgl(.x, .f)`**: Garantiert einen logischen Vektor (`logical`).\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Instabile Typen mit `sapply`:** Vermeide `sapply()` in Paketen und Produktivcode konsequent zugunsten von `purrr` oder `vapply()`.",
+    checksLabels: [
+          "avg_readings ist ein typsicherer double-Vektor der Länge 3",
+          "sensor_status korrekt klassifiziert via map_chr"
+    ],
+    learning: [
+          "map_dbl, map_chr und map_lgl erzwingen strikt typisierte funktionale Rückgaben",
+          "Anders als sapply bricht purrr bei Typabweichungen sofort ab, statt Werte still zu verfälschen",
+          "Anonyme Funktionen lassen sich elegant über moderne Lambda-Syntax \\(x) übergeben"
+    ],
+    fieldNotes: [
+          "Verwende niemals sapply() in Produktionsskripten; Typschwankungen erzeugen tückische Laufzeitfehler.",
+          "Die Kombination von purrr::map mit List-Columns in Tibbles ermöglicht verschachtelte Modellierungs-Workflows."
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -2456,6 +2770,30 @@ The hallmark of a production-ready package is achieving **0 errors | 0 warnings 
 
 #### ⚠️ Common Gotchas:
 - **Tidyverse Columns & R CMD check Notes:** Non-standard evaluation (NSE) in functions like \`subset()\` or \`dplyr::filter()\` flags column names as undefined global variables! Fix this by declaring them in \`R/globals.R\` via \`utils::globalVariables(c("col1", "col2"))\`.`,
+  },
+  "tidy-tibble": {
+    lesson: "### Chapter 35 — Modern Data Frames with tibble\n\nThe `tibble` package is the foundational tabular data structure of the `tidyverse`, offering a modernized, stricter reimplementation of base R's `data.frame`.\n\nKey design differences:\n1. **No Partial Matching:** Base data frames silently match `df$x` to column `xyz`. Tibbles disable partial matching entirely, throwing an informative warning.\n2. **No Silent Dimension Dropping:** Base data frames unexpectedly drop from a 2D table to a 1D vector when subsetting a single column via `df[, 1]`. Tibbles always return a tibble.\n3. **Optimized Console Printing:** Tibbles print only the first 10 rows and explicitly show data types (`<dbl>`, `<chr>`, `<int>`) in the column header.\n\n#### ⚠️ Common Gotchas:\n- **Converting Existing Data:** Use `as_tibble()` to convert existing matrices or data frames. The `tibble()` constructor is meant for building new columns from scratch.",
+  },
+  "tidy-dplyr": {
+    lesson: "### Chapter 36 — Fast Data Manipulation with dplyr\n\nThe `dplyr` package provides a consistent grammar of data manipulation in R, organized around five fundamental verbs:\n- **`filter()`**: Pick rows matching logical criteria.\n- **`select()`**: Pick or rename specific columns.\n- **`mutate()`**: Create new calculated columns from existing variables.\n- **`arrange()`**: Reorder rows ascending or descending via `desc()`.\n- **`summarise()`**: Collapse multiple values into a single summary metric.\n\nChaining these verbs with the native pipe operator (`|>`) creates highly expressive, self-documenting data pipelines.\n\n#### ⚠️ Common Gotchas:\n- **Assignment vs Equality in `filter`:** Always use `==` inside `filter()` for logical comparisons, never the single assignment operator `=`.\n- **Function Masking:** The base `stats` package also provides a `filter()` function. If conflicting, explicitly call `dplyr::filter()`.",
+  },
+  "tidy-ggplot2": {
+    lesson: "### Chapter 37 — Grammar of Graphics with ggplot2\n\n`ggplot2` implements Leland Wilkinson's Grammar of Graphics, decomposing statistical charts into independent, stackable layers:\n1. **Data:** A tidy `data.frame` or `tibble`.\n2. **Aesthetic Mappings (`aes`):** Connecting dataset variables to visual dimensions (x, y, color, size, shape).\n3. **Geometries (`geom_*`):** Visual representation of data points (`geom_point`, `geom_line`, `geom_col`).\n4. **Labels & Themes (`labs`, `theme`):** Polishing titles, axes, and visual styling.\n\nLayers are combined modularly using the `+` operator.\n\n#### ⚠️ Common Gotchas:\n- **Pipes vs Plus Operator:** Layers in ggplot2 are combined with `+`, never with the pipe operator `|>`!\n- **Fixed Constants Inside `aes()`:** To set a constant color like blue for all points, pass `color = \"blue\"` to `geom_point()`, outside of `aes()`.",
+  },
+  "tidy-tidyr": {
+    lesson: "### Chapter 38 — Modern Tidy Reshaping with tidyr\n\nTidy datasets follow three universal rules:\n1. Each variable must have its own column.\n2. Each observation must have its own row.\n3. Each value must have its own cell.\n\nThe `tidyr` package provides modern tools for table reshaping:\n- **`pivot_longer()`**: \"Lengthens\" wide tables by gathering column headers into key-value observation pairs.\n- **`pivot_wider()`**: \"Widens\" long records into tabular reporting matrices.\n\n#### ⚠️ Common Gotchas:\n- **Legacy Functions:** Avoid deprecated `gather()` and `spread()` functions in modern code. Always use `pivot_longer()` and `pivot_wider()`.",
+  },
+  "tidy-stringr": {
+    lesson: "### Chapter 39 — Consistent String Manipulation with stringr\n\nBase R text functions (`grep`, `sub`, `regexpr`) have notoriously inconsistent argument order.\nThe `stringr` package solves this with a cohesive, predictable API:\n1. All functions share the common `str_` prefix, facilitating IDE autocomplete.\n2. The input character vector (`string`) is **always the first argument**, ensuring natural pipe chaining with `|>`.\n3. Predictable propagation of missing values (`NA`).\n\nCore verbs:\n- **`str_detect(string, pattern)`**: Returns a logical vector of matches.\n- **`str_replace_all(string, pattern, replacement)`**: Replaces all regex matches across vectors.\n- **`str_extract(string, pattern)`**: Extracts first matching substring.\n\n#### ⚠️ Common Gotchas:\n- **Escaping Regex Metacharacters:** Because backslashes are string escape characters in R, regex metacharacters require double escaping (e.g. `\\\\d+` for digits).",
+  },
+  "tidy-forcats": {
+    lesson: "### Chapter 40 — Categorical Data Wrangling with forcats\n\nFactors represent categorical data with fixed, predefined levels.\nBy default, R sorts factor levels alphabetically, which is rarely optimal for plots or statistical models.\nThe `forcats` package provides specialized helpers for factor manipulation:\n- **`fct_reorder(.f, .x, .fun)`**: Reorders factor levels according to a summary of another numeric variable.\n- **`fct_rev(f)`**: Inverts the order of factor levels (ideal for horizontal bar charts).\n- **`fct_lump_n(f, n)`**: Collapses infrequent factor levels into a consolidated `Other` category.\n\n#### ⚠️ Common Gotchas:\n- **Factor to Numeric Pitfall:** Calling `as.numeric(factor)` returns internal integer codes, not character values! Always use `as.numeric(as.character(factor))`.",
+  },
+  "tidy-lubridate": {
+    lesson: "### Chapter 41 — Date-Time Parsing & Rounding with lubridate\n\nWorking with dates in base R required memorizing complex format codes like `\"%Y-%m-%d %H:%M:%S\"`.\nThe `lubridate` package makes temporal data intuitive:\n- **Format-Free Parsers:**\n  - `ymd(\"2026-03-15\")`: Year, Month, Day\n  - `dmy(\"15-03-2026\")`: Day, Month, Year\n- **Time Rounding:**\n  - `floor_date(x, unit = \"month\")`: Snaps timestamp to beginning of month.\n  - `ceiling_date(x, unit = \"week\")`: Snaps timestamp to start of following week.\n- **Component Extractors:** `year()`, `month()`, `wday()`\n\n#### ⚠️ Common Gotchas:\n- **Periods vs Durations:** lubridate strictly distinguishes between calendar-aware `Periods` (like 1 month, varying from 28 to 31 days) and physical `Durations` (exact seconds).",
+  },
+  "tidy-purrr": {
+    lesson: "### Chapter 42 — Functional Programming & Iteration with purrr\n\nIn professional R programming, imperative `for` loops are replaced by functional higher-order functions.\nBase R's `sapply()` is notoriously dangerous because its output type depends on runtime data contents, returning vectors, matrices, or lists unpredictably.\nThe `purrr` package enforces strict type stability:\n- **`map(.x, .f)`**: Always returns a `list`.\n- **`map_dbl(.x, .f)`**: Guarantees a `double` numeric vector or fails immediately.\n- **`map_chr(.x, .f)`**: Guarantees a `character` vector.\n- **`map_lgl(.x, .f)`**: Guarantees a `logical` vector.\n\n#### ⚠️ Common Gotchas:\n- **Silent sapply Failures:** Never use `sapply()` in production code. Use `purrr` typed maps or base `vapply()` to guarantee type safety.",
   },
 };
 

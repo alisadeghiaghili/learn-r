@@ -44,8 +44,8 @@ describe('i18n integrity', () => {
     expect(localizedDe.lesson).toContain('Kapitel 1');
   });
 
-  it('covers all 34 levels across en, fa, and de without missing translations', () => {
-    expect(allLevels.length).toBe(34);
+  it('covers all 42 levels across en, fa, and de without missing translations', () => {
+    expect(allLevels.length).toBe(42);
     for (const level of allLevels) {
       const localizedEn = localizeLevel(level, 'en');
       const localizedFa = localizeLevel(level, 'fa');

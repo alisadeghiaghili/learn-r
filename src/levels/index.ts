@@ -1355,6 +1355,223 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 - **متغیرهای ستونی در dplyr و R CMD check NOTE:** ارزیابی غیر استاندارد (NSE) در توابعی مثل \`subset()\` یا \`dplyr::filter()\` باعث می‌شود \`R CMD check\` فکر کند نام ستون‌ها متغیرهای سراسری تعریف‌نشده هستند! راه‌حل استاندارد: معرفی آنها در \`R/globals.R\` با دستور \`utils::globalVariables(c("col1", "col2"))\`.
 `,
   },
+  {
+    id: "tidy-tibble",
+    seriesId: 'foundations',
+    title: "35. Modern Data Frames with tibble",
+    brief: "Tibbles enforce stricter semantics than base data.frames. Upgrade raw_df to a tibble tbl with as_tibble() and create a new tibble grades with columns student and mark.",
+    goal: "tbl <- as_tibble(raw_df)\ngrades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85))",
+    setup: "as_tibble <- function(x) { class(x) <- unique(c(\"tbl_df\", \"tbl\", class(x))); x }\ntibble <- function(...) { dots <- list(...); df <- as.data.frame(dots, stringsAsFactors = FALSE); class(df) <- unique(c(\"tbl_df\", \"tbl\", class(df))); df }\nraw_df <- data.frame(id = 1:3, name = c(\"Alice\", \"Bob\", \"Charlie\"), score = c(95, 88, 92), stringsAsFactors = FALSE)",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "inherits(tbl, \"tbl_df\") && nrow(tbl) == 3",
+                "label": "tbl is a valid tibble with 3 rows"
+          },
+          {
+                "type": "eval",
+                "expr": "inherits(grades, \"tbl_df\") && all(c(\"student\", \"mark\") %in% names(grades)) && length(grades$mark) == 2",
+                "label": "grades is a tibble with student and mark columns"
+          }
+    ],
+    hint: "Call tbl <- as_tibble(raw_df) and grades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85)).",
+    lesson: "### فصل ۳۵ — ساختار مدرن داده‌ها با tibble\n\nپکیج `tibble` ستون فقرات ساختار داده‌های اکوسیستم `tidyverse` است و نسخه بازطراحی‌شده `data.frame` سنتی R به شمار می‌رود.\nتفاوت‌های بنیادین تیبل‌ها با دیتافریم سنتی:\n1. **عدم تطابق ناقص ستون‌ها (No Partial Matching):** اگر ستونی بنام `xyz` داشته باشید، دستور `df$x` در دیتافریم سنتی به اشتباه آن را پیدا می‌کند اما در `tibble` اخطار صادر می‌شود.\n2. **عدم کاهش ناخواسته ابعاد (No Silent Dimension Drop):** در دیتافریم سنتی اگر یک ستون را با `df[, 1]` انتخاب کنید، جدول ناگهان به یک بردار تقلیل می‌یابد. در تیبل همیشه یک شیء دو بعدی باقی می‌ماند.\n3. **نمایش بهینه و چاپ هوشمند:** هنگام چاپ تیبل در کنسول، فقط ۱۰ سطر اول نمایش داده شده و نوع دقیق داده هر ستون مانند `<dbl>` یا `<chr>` در بالای آن درج می‌گردد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل ماتریس به تیبل:** برای تبدیل ماتریس‌ها یا جداول سنتی به تیبل همیشه از `as_tibble()` استفاده کنید نه `tibble()`. تابع `tibble()` برای ساخت دستی ستون‌ها به کار می‌رود.",
+  },
+  {
+    id: "tidy-dplyr",
+    seriesId: 'foundations',
+    title: "36. Fast Data Manipulation with dplyr",
+    brief: "dplyr standardizes wrangling with 5 core verbs. Filter flights where dep_delay > 0, compute speed = air_time / 60 with mutate, and arrange by desc(dep_delay) into delayed_flights.",
+    goal: "delayed_flights <- flights |> filter(dep_delay > 0) |> mutate(speed = air_time / 60) |> arrange(desc(dep_delay))",
+    setup: "filter <- function(.data, ...) { expr <- substitute(...); cond <- eval(expr, envir = .data, enclos = parent.frame()); .data[cond & !is.na(cond), , drop = FALSE] }\nmutate <- function(.data, ...) { dots <- match.call(expand.dots = FALSE)$...; res <- .data; for (nm in names(dots)) { res[[nm]] <- eval(dots[[nm]], envir = res, enclos = parent.frame()) }; res }\ndesc <- function(x) -xtfrm(x)\narrange <- function(.data, ...) { expr <- substitute(order(...)); ord <- eval(expr, envir = .data, enclos = parent.frame()); .data[ord, , drop = FALSE] }\nflights <- data.frame(dest = c(\"IAH\", \"MIA\", \"IAH\", \"JFK\", \"MIA\"), dep_delay = c(15, -5, 30, 0, 45), air_time = c(180, 150, 190, 320, 140), stringsAsFactors = FALSE)",
+    par: 1,
+    difficulty: 3,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.data.frame(delayed_flights) && nrow(delayed_flights) == 3",
+                "label": "delayed_flights contains 3 delayed flights"
+          },
+          {
+                "type": "eval",
+                "expr": "all(delayed_flights$dep_delay > 0) && \"speed\" %in% names(delayed_flights)",
+                "label": "Filtered dep_delay > 0 and computed speed column"
+          },
+          {
+                "type": "eval",
+                "expr": "delayed_flights$dep_delay[1] == 45 && delayed_flights$dep_delay[3] == 15",
+                "label": "Rows are arranged descending by dep_delay"
+          }
+    ],
+    hint: "Pipe flights into filter(dep_delay > 0), mutate(speed = air_time / 60), and arrange(desc(dep_delay)).",
+    lesson: "### فصل ۳۶ — دستکاری داده‌ها با افعال پنج‌گانه dplyr\n\nپکیج `dplyr` دستور زبان پالایش و تبدیل داده‌ها در علم داده مدرن است.\nعملیات اصلی حول ۵ فعل بنیادی انجام می‌شود:\n- **`filter()`**: انتخاب سطرهایی که شرط‌های منطقی معینی را برآورده می‌کنند.\n- **`select()`**: انتخاب یا حذف ستون‌های خاص با نام یا موقعیت.\n- **`mutate()`**: ایجاد ستون‌های محاسباتی جدید بر پایه ستون‌های موجود.\n- **`arrange()`**: مرتب‌سازی سطرها به صورت صعودی یا نزولی با `desc()`.\n- **`summarise()`**: تجمیع و خلاصه‌سازی ستون‌ها (مانند میانگین، مجموع و واریانس).\n\nترکیب این توابع با عملگر پایپ (`|>`) باعث خوانایی شبیه به زبان طبیعی می‌شود.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه در استفاده از عملگر مساوی:** در تابع `filter()` همیشه از عملگر مقایسه‌ای `==` استفاده کنید نه عملگر انتساب `=`.\n- **ماسک کردن توابع توسط سایر پکیج‌ها:** تابع `filter` در R پایه یا در پکیج `stats` برای سری‌های زمانی وجود دارد. در صورت تداخل، صراحتاً بنویسید `dplyr::filter()`.",
+  },
+  {
+    id: "tidy-ggplot2",
+    seriesId: 'foundations',
+    title: "37. Grammar of Graphics with ggplot2",
+    brief: "ggplot2 implements the Grammar of Graphics by layering data, aesthetics, and geoms. Build scatter_p using ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\").",
+    goal: "scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\")",
+    setup: "ggplot <- function(data = NULL, mapping = list()) { structure(list(data = data, mapping = mapping, layers = list(), labels = list()), class = \"ggplot\") }\naes <- function(x, y, ...) { as.list(match.call())[-1] }\ngeom_point <- function(...) { list(geom = \"point\", params = list(...)) }\nlabs <- function(...) { list(labels = list(...)) }\n`+.ggplot` <- function(p, layer) { if (!is.null(layer$geom)) p$layers <- c(p$layers, list(layer)); if (!is.null(layer$labels)) p$labels <- c(p$labels, layer$labels); p }",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "inherits(scatter_p, \"ggplot\")",
+                "label": "scatter_p is a ggplot object"
+          },
+          {
+                "type": "eval",
+                "expr": "length(scatter_p$layers) >= 1 && scatter_p$layers[[1]]$geom == \"point\"",
+                "label": "Point geometry layer added"
+          },
+          {
+                "type": "eval",
+                "expr": "identical(scatter_p$labels$title, \"Fuel Economy\")",
+                "label": "Title label set to \"Fuel Economy\""
+          }
+    ],
+    hint: "Use scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\").",
+    lesson: "### فصل ۳۷ — تصویرسازی علمی با گرامر گرافیک (ggplot2)\n\nپکیج `ggplot2` پیاده‌سازی نظریه دستور زبان گرافیک (Leland Wilkinson) است.\nیک نمودار در ggplot2 حاصل ترکیب چند لایه مجزا با عملگر `+` است:\n1. **داده‌ها (Data):** یک `data.frame` یا `tibble` که مشاهدات را در بر دارد.\n2. **نگاشت‌های زیبایی‌شناختی (`aes`):** اتصال متغیرهای داده به ابعاد بصری نمودار مانند محور افقی (`x`)، محور عمودی (`y`)، رنگ (`color`) و اندازه (`size`).\n3. **لایه‌های هندسی (`geom_*`):** نحوه ترسیم نقاط، خطوط یا ستون‌ها (`geom_point`, `geom_line`, `geom_col`).\n4. **برچسب‌ها و تم‌ها (`labs`, `theme`):** تنظیم عنوان، راهنماها و استایل گرافیکی.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **استفاده از پایپ `|>` به جای `+`:** در دستورات `ggplot2` لایه‌ها همیشه با عملگر `+` ترکیب می‌شوند نه عملگر پایپ `|>`!\n- **قرار دادن رنگ ثابت درون `aes()`:** اگر می‌خواهید همه نقاط آبی باشند بنویسید `geom_point(color = \"blue\")`. قرار دادن آن درون `aes(color = \"blue\")` آن را به عنوان یک دسته داده‌ای تعبیر می‌کند.",
+  },
+  {
+    id: "tidy-tidyr",
+    seriesId: 'foundations',
+    title: "38. Modern Tidy Reshaping with tidyr",
+    brief: "tidyr standardizes data reshaping. Use pivot_longer() to pivot survey_wide cols c(\"q1\", \"q2\") into names_to = \"question\" and values_to = \"score\" stored in survey_tidy.",
+    goal: "survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\")",
+    setup: "pivot_longer <- function(data, cols, names_to = \"name\", values_to = \"value\") { cols <- as.character(substitute(cols)); if (cols[1] == \"c\") cols <- cols[-1]; id_cols <- setdiff(names(data), cols); res_list <- list(); for (col in cols) { sub_df <- data[, id_cols, drop = FALSE]; sub_df[[names_to]] <- col; sub_df[[values_to]] <- data[[col]]; res_list[[length(res_list) + 1]] <- sub_df }; out <- do.call(rbind, res_list); rownames(out) <- NULL; out }\nsurvey_wide <- data.frame(id = 1:3, dept = c(\"Dev\", \"QA\", \"Ops\"), q1 = c(4, 5, 3), q2 = c(5, 4, 4), stringsAsFactors = FALSE)",
+    par: 1,
+    difficulty: 3,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.data.frame(survey_tidy) && nrow(survey_tidy) == 6",
+                "label": "survey_tidy reshaped to 6 rows"
+          },
+          {
+                "type": "eval",
+                "expr": "all(c(\"id\", \"dept\", \"question\", \"score\") %in% names(survey_tidy))",
+                "label": "Columns contain id, dept, question, and score"
+          },
+          {
+                "type": "eval",
+                "expr": "all(survey_tidy$question %in% c(\"q1\", \"q2\"))",
+                "label": "question column contains original wide column names"
+          }
+    ],
+    hint: "Run survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\")",
+    lesson: "### فصل ۳۸ — بازآرایی و استانداردسازی داده‌ها با tidyr\n\nداده‌های تمیز (Tidy Data) سه قانون طلایی دارند:\n1. هر متغیر باید ستون اختصاصی خود را داشته باشد.\n2. هر مشاهده باید در یک سطر مجزا قرار گیرد.\n3. هر مقدار باید در یک سلول منفرد بنشیند.\n\nپکیج `tidyr` توابع قدرتمندی برای تغییر شکل داده‌ها ارائه می‌کند:\n- **`pivot_longer()`**: تبدیل جداول عریض (که نام ستون‌ها در واقع مقادیر یک متغیر هستند) به فرم طویل و استاندارد.\n- **`pivot_wider()`**: عمل معکوس برای تبدیل داده‌های طویل به ماتریس‌های گزارش‌گیری عریض.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **توابع منسوخ `gather` و `spread`:** توابع `gather()` و `spread()` قدیمی هستند و دیگر نباید در کدهای جدید استفاده شوند. همیشه از توابع نسل دوم `pivot_longer()` و `pivot_wider()` استفاده کنید.",
+  },
+  {
+    id: "tidy-stringr",
+    seriesId: 'foundations',
+    title: "39. Consistent String Manipulation with stringr",
+    brief: "stringr provides a unified str_* API with consistent string-first signatures. Detect errors with str_detect(log_records, \"^ERR\") in err_mask, and sanitize codes with str_replace_all in clean_logs.",
+    goal: "err_mask <- str_detect(log_records, \"^ERR\")\nclean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\")",
+    setup: "str_detect <- function(string, pattern) grepl(pattern, string)\nstr_replace_all <- function(string, pattern, replacement) gsub(pattern, replacement, string)\nstr_c <- function(..., sep = \"\", collapse = NULL) paste(..., sep = sep, collapse = collapse)\nlog_records <- c(\"ERR:404 Page not found\", \"INFO:200 User login\", \"ERR:500 Database timeout\", \"WARN:429 Rate limited\")",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.logical(err_mask) && sum(err_mask) == 2",
+                "label": "err_mask correctly flags 2 error lines"
+          },
+          {
+                "type": "eval",
+                "expr": "clean_logs[1] == \"ALERT Page not found\" && clean_logs[3] == \"ALERT Database timeout\"",
+                "label": "clean_logs replaces error codes with ALERT"
+          },
+          {
+                "type": "eval",
+                "expr": "clean_logs[2] == \"INFO:200 User login\"",
+                "label": "Non-error log lines remain intact"
+          }
+    ],
+    hint: "Use err_mask <- str_detect(log_records, \"^ERR\") and clean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\").",
+    lesson: "### فصل ۳۹ — پردازش یکدست رشته‌های متنی با stringr\n\nدر توابع متنی R پایه مانند `grep` و `sub`، ترتیب آرگومان‌ها ناهمگون است (گاهی الگوی regex اول می‌آید و گاهی رشته).\nپکیج `stringr` این مشکل را با طراحی بی‌نقص حل کرده است:\n1. همه توابع با پیشوند `str_` شروع می‌شوند که استفاده از تکمیل خودکار (Autocomplete) در ادیتور را بسیار لذت‌بخش می‌کند.\n2. بردار متنی (`string`) **همیشه اولین آرگومان** است، بنابراین به‌طور طبیعی با پایپ (`|>`) هماهنگ است.\n3. خروجی‌ها همیشه طول و رفتار قابل پیش‌بینی با مقادیر `NA` دارند.\n\nتوابع کلیدی:\n- **`str_detect(string, pattern)`**: بازگرداندن بردار بولی برای تطابق الگو.\n- **`str_replace_all(string, pattern, replacement)`**: جایگزینی تمام موارد منطبق با عبارت باقاعده.\n- **`str_extract(string, pattern)`**: استخراج زیررشته منطبق با الگو.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فرار دادن کاراکترهای Regex:** در زبان R به دلیل اسکیپ شدن بک‌اسلش در رشته‌ها، برای کاراکترهای خاص رجکس باید دو بک‌اسلش استفاده شود (مانند `\\\\d+` برای اعداد).",
+  },
+  {
+    id: "tidy-forcats",
+    seriesId: 'foundations',
+    title: "40. Categorical Data Wrangling with forcats",
+    brief: "forcats simplifies factor manipulation. Reorder dept levels by median salary using fct_reorder in staff$dept_ord, then invert the order with fct_rev in staff$dept_rev.",
+    goal: "staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median)\nstaff$dept_rev <- fct_rev(staff$dept_ord)",
+    setup: "fct_reorder <- function(.f, .x, .fun = median, ...) { f <- as.factor(.f); vals <- tapply(.x, f, .fun, ...); factor(f, levels = levels(f)[order(vals)]) }\nfct_rev <- function(f) { f <- as.factor(f); factor(f, levels = rev(levels(f))) }\nstaff <- data.frame(dept = c(\"Sales\", \"Support\", \"Engineering\", \"Sales\", \"Support\", \"Engineering\"), salary = c(60000, 45000, 95000, 65000, 50000, 105000), stringsAsFactors = FALSE)",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.factor(staff$dept_ord) && identical(levels(staff$dept_ord), c(\"Support\", \"Sales\", \"Engineering\"))",
+                "label": "dept_ord levels sorted ascending by median salary"
+          },
+          {
+                "type": "eval",
+                "expr": "is.factor(staff$dept_rev) && identical(levels(staff$dept_rev), c(\"Engineering\", \"Sales\", \"Support\"))",
+                "label": "dept_rev levels inverted with fct_rev"
+          }
+    ],
+    hint: "Run staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median) and staff$dept_rev <- fct_rev(staff$dept_ord).",
+    lesson: "### فصل ۴۰ — کار هوشمند با متغیرهای دسته‌ای (forcats)\n\nفاکتورها (`factors`) در R برای متغیرهای دسته‌ای با سطوح مشخص استفاده می‌شوند.\nبه صورت پیش‌فرض، سطوح فاکتورها به ترتیب الفبایی مرتب می‌شوند که در نمودارها و مدل‌های آماری ترتیب معناداری نیست.\nپکیج تخصصی `forcats` ابزارهایی برای مدیریت حرفه‌ای فاکتورها فراهم می‌کند:\n- **`fct_reorder(.f, .x, .fun)`**: مرتب‌سازی سطوح فاکتور بر اساس مقدار خلاصه یک متغیر عددی دیگر.\n- **`fct_rev(f)`**: معکوس کردن ترتیب سطوح فاکتور (مناسب برای محورهای نمودار افقی).\n- **`fct_lump_n(f, n)`**: تجمیع دسته‌های کم‌تکرار در دسته جامع `Other`.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل فاکتور عددی به عدد:** اگر یک فاکتور حاوی مقادیر `c(\"10\", \"20\")` را با `as.numeric()` تبدیل کنید، کدهای ایندکس داخلی آن را برمی‌گرداند! همیشه بنویسید `as.numeric(as.character(f))`.",
+  },
+  {
+    id: "tidy-lubridate",
+    seriesId: 'foundations',
+    title: "41. Date-Time Parsing & Rounding with lubridate",
+    brief: "lubridate makes working with dates intuitive. Parse date_strings with ymd() into event_dates, snap to start-of-month with floor_date(..., \"month\") in event_months, and extract wday() in event_days.",
+    goal: "event_dates <- ymd(date_strings)\nevent_months <- floor_date(event_dates, unit = \"month\")\nevent_days <- wday(event_dates)",
+    setup: "ymd <- function(x) as.Date(x, format = \"%Y-%m-%d\")\nfloor_date <- function(x, unit = \"month\") { d <- as.Date(x); if (unit == \"month\") as.Date(format(d, \"%Y-%m-01\")) else if (unit == \"year\") as.Date(format(d, \"%Y-01-01\")) else d }\nwday <- function(x) as.integer(format(as.Date(x), \"%w\")) + 1L\ndate_strings <- c(\"2026-03-15\", \"2026-03-22\", \"2026-04-05\", \"2026-04-18\")",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "inherits(event_dates, \"Date\") && length(event_dates) == 4",
+                "label": "event_dates parsed as Date vector"
+          },
+          {
+                "type": "eval",
+                "expr": "all(format(event_months, \"%d\") == \"01\") && event_months[1] == as.Date(\"2026-03-01\")",
+                "label": "event_months snapped to first day of month"
+          },
+          {
+                "type": "eval",
+                "expr": "is.integer(event_days) && length(event_days) == 4",
+                "label": "event_days extracted via wday"
+          }
+    ],
+    hint: "Assign event_dates <- ymd(date_strings), event_months <- floor_date(event_dates, unit = \"month\"), and event_days <- wday(event_dates).",
+    lesson: "### فصل ۴۱ — تحلیل و پردازش شهودی زمان با lubridate\n\nمدیریت تاریخ و زمان در R پایه نیازمند به‌خاطرسپردن کدهای فرمت پیچیده مانند `\"%Y-%m-%d %H:%M:%S\"` بود.\nپکیج مدرن `lubridate` با طراحی شهودی محاسبات زمانی را دگرگون کرده است:\n- **توابع خواندن فوری بر اساس ترتیب حروف:**\n  - `ymd(\"2026-03-15\")`: سال، ماه، روز\n  - `dmy(\"15-03-2026\")`: روز، ماه، سال\n  - `ymd_hms(\"2026-03-15 14:30:00\")`: سال، ماه، روز به همراه ساعت، دقیقه، ثانیه\n- **گرد کردن زمان (Rounding):**\n  - `floor_date(x, unit = \"month\")`: رِند کردن به آغاز ماه\n  - `ceiling_date(x, unit = \"week\")`: رِند کردن به ابتدای هفته بعد\n- **استخراج اجزا:** `year()`, `month()`, `wday()`\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت Period و Duration:** پکیج lubridate میان دوره تقویمی (`Period` مانند ۱ ماه که بسته به ماه ۲۸ تا ۳۱ روز است) و طول فیزیکی زمان (`Duration` مانند دقیقاً ۸۶۴۰۰ ثانیه برای ۱ روز) تمایز قائل می‌شود.",
+  },
+  {
+    id: "tidy-purrr",
+    seriesId: 'foundations',
+    title: "42. Functional Programming & Iteration with purrr",
+    brief: "purrr provides type-stable functional iteration. Use map_dbl() on sensor_readings to compute mean into avg_readings, and map_chr() to tag sensors as \"OK\" or \"ALERT\" into sensor_status.",
+    goal: "avg_readings <- map_dbl(sensor_readings, mean)\nsensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\")",
+    setup: "map <- function(.x, .f, ...) lapply(.x, .f, ...)\nmap_dbl <- function(.x, .f, ...) { vapply(.x, .f, numeric(1), ...) }\nmap_chr <- function(.x, .f, ...) { vapply(.x, .f, character(1), ...) }\nmap_lgl <- function(.x, .f, ...) { vapply(.x, .f, logical(1), ...) }\nsensor_readings <- list(zone_a = c(42.1, 44.5, 41.8), zone_b = c(55.2, 58.0, 54.1), zone_c = c(38.0, 39.5, 40.2))",
+    par: 1,
+    difficulty: 3,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.double(avg_readings) && length(avg_readings) == 3",
+                "label": "avg_readings is a type-safe numeric vector of length 3"
+          },
+          {
+                "type": "eval",
+                "expr": "is.character(sensor_status) && sensor_status[\"zone_b\"] == \"ALERT\" && sensor_status[\"zone_a\"] == \"OK\"",
+                "label": "sensor_status correctly classified with map_chr"
+          }
+    ],
+    hint: "Run avg_readings <- map_dbl(sensor_readings, mean) and sensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\").",
+    lesson: "### فصل ۴۲ — برنامه‌نویسی تابعی و تکرار امن با purrr\n\nدر برنامه‌نویسی حرفه‌ای R، حلقه‌های `for` به ندرت استفاده می‌شوند و جای خود را به برنامه‌نویسی تابعی (Functional Programming) می‌دهند.\nتابع سنتی `sapply()` خطرناک است زیرا نوع خروجی آن به داده‌ها بستگی دارد و ممکن است گاهی بردار، ماتریس یا لیست برگرداند.\nپکیج `purrr` با تضمین نوع بازگشتی (Type Stability)، پایداری کد را به حداکثر می‌رساند:\n- **`map(.x, .f)`**: اجرای تابع و تضمین بازگرداندن یک لیست (`list`).\n- **`map_dbl(.x, .f)`**: اجرای تابع با تضمین بازگرداندن بردار عددی اعشاری (`double`). در صورت مغایرت نوع، بلافاصله خطا صادر می‌شود.\n- **`map_chr(.x, .f)`**: تضمین بازگرداندن بردار متنی (`character`).\n- **`map_lgl(.x, .f)`**: تضمین بازگرداندن بردار بولی (`logical`).\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **خطاهای سایلنت در `sapply`:** هرگز در کد پکیج‌ها یا پایپلاین‌های تولیدی از `sapply()` استفاده نکنید! پکیج `purrr` یا `vapply()` پایه جایگزین‌های کاملاً امن هستند.",
+  },
 ];
 
 export function getLevel(id: string): LevelDef | null {
@@ -1439,6 +1656,21 @@ export function seriesOf(): SeriesGroup[] {
         'pkg-testing',
         'pkg-data',
         'pkg-check',
+      ],
+    },
+    {
+      id: 'tidyverse',
+      title: 'THE TIDYVERSE ECOSYSTEM',
+      prefix: 'verse',
+      ids: [
+        'tidy-tibble',
+        'tidy-dplyr',
+        'tidy-ggplot2',
+        'tidy-tidyr',
+        'tidy-stringr',
+        'tidy-forcats',
+        'tidy-lubridate',
+        'tidy-purrr',
       ],
     },
   ];

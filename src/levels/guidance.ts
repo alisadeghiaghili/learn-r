@@ -383,6 +383,94 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Declare global column variables using utils::globalVariables() to satisfy R CMD check in tidyverse pipelines.',
     ],
   },
+  'tidy-tibble': {
+    learning: [
+      'Tibbles enforce strict subsetting and never silently drop dimensions to vectors',
+      'Tibbles do not perform partial string matching on column names with $',
+      'Printing tibbles shows column types explicitly (<dbl>, <chr>, <int>) and limits row output',
+    ],
+    fieldNotes: [
+      'Tibbles prevent common base R indexing bugs where df[, 1] unexpectedly drops to an atomic vector.',
+      'Use as_tibble() to upgrade legacy data.frames without altering underlying column values.',
+    ],
+  },
+  'tidy-dplyr': {
+    learning: [
+      'dplyr provides five core verbs: filter, select, mutate, arrange, and summarise',
+      'Data manipulation pipelines use the pipe operator (|> or %>%) for readable data flows',
+      'Expressions inside verbs evaluate within the data frame context using data masking',
+    ],
+    fieldNotes: [
+      'dplyr translates your verbs to SQL behind the scenes when connected to databases via dbplyr.',
+      'Always prefer .by over group_by() in modern dplyr 1.1+ for localized, stateless grouping.',
+    ],
+  },
+  'tidy-ggplot2': {
+    learning: [
+      'The Grammar of Graphics decouples data from aesthetic mappings and geometric representations',
+      'Plots are built incrementally using the + operator to stack geom layers and theme scales',
+      'aes() maps dataset variables to visual properties like x, y, color, size, and shape',
+    ],
+    fieldNotes: [
+      'Save reusable plot themes with theme_set(theme_minimal()) for publication consistency.',
+      'Use ggsave() with explicit width, height, and dpi parameters for reproducible figures.',
+    ],
+  },
+  'tidy-tidyr': {
+    learning: [
+      'pivot_longer() converts wide messy tables into long tidy datasets with explicit key-value pairs',
+      'pivot_wider() reshapes normalized records into wide matrix formats for tabular reporting',
+      'Tidy data requires: every variable in a column, every observation in a row, every cell a single value',
+    ],
+    fieldNotes: [
+      'pivot_longer() supersedes legacy gather() and reshape() with clear names_to and values_to arguments.',
+      'Use values_drop_na = TRUE in pivot_longer() to strip implicit missing rows during reshaping.',
+    ],
+  },
+  'tidy-stringr': {
+    learning: [
+      'stringr functions share a consistent str_* prefix and always take the string vector as the first argument',
+      'str_detect() returns logical masks for pattern matching without cryptic grep index handling',
+      'str_replace_all() performs global regex substitutions predictably across character vectors',
+    ],
+    fieldNotes: [
+      'All stringr functions handle NA values predictably by propagating NA rather than failing.',
+      'Wrap patterns in fixed() to search for literal strings without regex interpretation overhead.',
+    ],
+  },
+  'tidy-forcats': {
+    learning: [
+      'fct_reorder() sorts factor levels according to a secondary numerical variable summary',
+      'fct_rev() reverses factor level order to align bar charts and legend hierarchies',
+      'fct_lump() groups infrequent categorical levels into an "Other" catch-all category',
+    ],
+    fieldNotes: [
+      'Always order factors before piping into ggplot2 to avoid default alphabetical axis ordering.',
+      'Unlike base R factor(), forcats functions never silently drop unobserved levels unless explicitly told.',
+    ],
+  },
+  'tidy-lubridate': {
+    learning: [
+      'Intuitive helper functions like ymd() and dmy() parse dates without cryptic format strings',
+      'floor_date() and ceiling_date() snap timestamps to calendar boundaries (month, week, year)',
+      'wday() extracts day-of-week labels and indices accounting for locale differences',
+    ],
+    fieldNotes: [
+      'lubridate distinguishes between Durations (exact physical seconds) and Periods (clock time like 1 month).',
+      'Always set tz = "UTC" in production parsing pipelines to avoid daylight saving shift anomalies.',
+    ],
+  },
+  'tidy-purrr': {
+    learning: [
+      'map_dbl(), map_chr(), and map_lgl() provide strictly typed functional transformations',
+      'Unlike sapply(), purrr functions guarantee output type and length or fail immediately',
+      'Anonymous functions can be passed using modern R lambda syntax \\(x) or purrr formulas ~',
+    ],
+    fieldNotes: [
+      'Never use sapply() in production packages or scripts; its type instability creates subtle runtime bugs.',
+      'Combine purrr::map() with list-columns in tibbles to build powerful nested data modeling workflows.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

@@ -1169,6 +1169,163 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
           "ترکیب purrr::map با ستون‌های لیستی (List-columns) در تیبل‌ها الگوی اصلی مدل‌سازی تو در تو است."
     ],
   },
+  "adv-memory": {
+    title: "۴۳. مدل حافظه، اشاره‌گرها و رفتار Copy-on-Modify",
+    brief: "اشیاء در R از مکانیزم بهینه Copy-on-modify پیروی می‌کنند. با تخصیص alias_vec <- orig داده‌ها کپی نمی‌شوند بلکه حافظه به اشتراک گذاشته می‌شود؛ اما با تغییر مقدار در alias_vec حافظه تفکیک می‌شود. در نقطه مقابل، Environmentها دارای رفتار ارجاعی (Reference Semantics) بوده و درجا تغییر می‌کنند.",
+    hint: "دستورات orig <- c(10, 20, 30) و alias_vec <- orig و alias_vec[1] <- 99 و shared_env <- new.env() و shared_env$val <- 100 و alias_env <- shared_env و alias_env$val <- 200 را اجرا کنید.",
+    lesson: "### فصل ۴۳ — مدیریت حافظه و رفتار Copy-on-Modify در R\n\nیکی از مهم‌ترین و پیشرفته‌ترین مفاهیم در معماری داخلی R نحوه اتصال نام‌ها (Names) به مقادیر (Values) است:\n\n1. **رفتار Copy-on-Modify:**\nهنگامی که می‌نویسید `y <- x`، زبان R مقادیر `x` را کپی نمی‌کند! در عوض، هر دو متغیر به یک بلوک حافظه یکسان اشاره می‌کنند. تنها زمانی که یکی از آن‌ها را ویرایش کنید (`y[1] <- 99`)، سیستم R یک نسخه مجزا در حافظه می‌سازد.\n\n2. **رفتار Modify-in-Place (محیط‌ها):**\nتنها استثنای ساختاری در R، اشیاء از نوع `environment` هستند. محیط‌ها همواره ارجاعی (Reference Semantics) هستند؛ یعنی ویرایش یک متغیر ارجاعی، اصل شیء را در جا تغییر می‌دهد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **کپی‌های پنهان درون حلقه‌ها:** اگر یک دیتافریم بزرگ را درون حلقه `for` سطر به سطر آپدیت کنید، R در هر تکرار کل جدول را در حافظه کپی می‌کند که منجر به افت تصاعدی سرعت می‌شود.",
+    checksLabels: [
+          "رفتار Copy-on-modify بردار تایید شود: orig دست‌نخورده باقی بماند",
+          "رفتار Reference Semantics محیط تایید شود: مقدار shared_env به صورت درجا تغییر کند"
+    ],
+    learning: [
+          "زبان R از مکانیزم Copy-on-modify استفاده می‌کند: اشیاء تنها در صورت تغییر و داشتن چند ارجاع کپی می‌شوند",
+          "محیط‌ها (Environments) و اشاره‌گرها بر خلاف بردارها دارای رفتار رفرنسی هستند و درجا ویرایش می‌شوند",
+          "درک ساختار حافظه مانع از کپی‌های غیرضروری و افت شدید پرفورمنس در داده‌های کلان می‌شود"
+    ],
+    fieldNotes: [
+          "در سشن‌های تعاملی از تابع tracemem() برای مشاهده دقیق لحظه کپی شدن اشیاء در حافظه استفاده کنید.",
+          "انتساب درون حلقه‌ها روی وکتورهای بزرگ به دلیل کپی‌های پی‌درپی حافظه را فریز می‌کند؛ از لیست یا محیط استفاده نمایید."
+    ],
+  },
+  "adv-environments": {
+    title: "۴۴. ساختار محیط‌ها، حوزه‌ها و بستارها (Closures)",
+    brief: "توابع در R محیط تعریف خود (Enclosing Environment) را به حافظه می‌سپارند که به آن بستار (Closure) می‌گویند. کارخانه تابع make_counter(start = 0) را بسازید که یک تابع داخلی برمی‌گرداند و با عملگر فرا-انتساب <<- شمارنده داخلی را در هر بار فراخوانی افزایش می‌دهد.",
+    hint: "تابع make_counter <- function(start = 0) { count <- start; function() { count <<- count + 1; count } } را تعریف کرده و با c1 فراخوانی کنید.",
+    lesson: "### فصل ۴۴ — محیط‌ها، دامنه‌ها و توابع حالت‌دار (Closures)\n\nدر زبان R، هر تابع حامل یک محیط محصورکننده (Enclosing Environment) است:\n- **کارخانه تابع (Function Factory):** تابعی است که تابعی دیگر تولید می‌کند.\n- **عملگر `<<-` (Super-assignment):** متغیر را در محیط محلی جاری نمی‌سازد، بلکه در محیط‌های والد به سمت ریشه جستجو کرده و اولین متغیر با آن نام را تغییر می‌دهد.\n\nاین قابلیت پایه ساخت کش‌ها (Caching)، مولدهای شناسه و ابزارهای مانیتورینگ بدون نیاز به متغیرهای سراسری ناامن است.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **خطرات `<<-` کنترل‌نشده:** اگر متغیر هدف در محیط‌های محصورکننده وجود نداشته باشد، `<<-` به اجبار آن را در `.GlobalEnv` ایجاد می‌کند که می‌تواند باعث رفتارهای جانبی ناخواسته شود.",
+    checksLabels: [
+          "کارخانه تابع make_counter و بستار c1 تعریف شده باشند",
+          "بستار c1 شمارنده داخلی را به صورت حالت‌دار از ۱۱ تا ۱۳ افزایش دهد",
+          "محیط داخلی بستار مقدار آپدیت‌شده count = 13 را نگه‌داری کند"
+    ],
+    learning: [
+          "محیط‌ها متغیرها را در ساختاری درختی و سلسله‌مراتبی سازماندهی می‌کنند",
+          "توابع محیط محصورکننده خود را به خاطر می‌سپارند و بستارهای حالت‌دار (Closures) می‌سازند",
+          "عملگر <<- در سطوح بالاتر درخت محیط‌ها جستجو کرده و متغیر را بدون بازنویسی در محیط جاری ویرایش می‌کند"
+    ],
+    fieldNotes: [
+          "کارخانه‌های تابع (Function Factories) روشی استاندارد برای ایجاد متغیرهای کپسوله‌شده بدون آلوده‌کردن فضای کاری سراسری هستند.",
+          "از تغییر دستی parent.env() در کدهای تولیدی اجتناب کنید؛ بر دامنه لغوی (Lexical Scoping) استاندارد تکیه نمایید."
+    ],
+  },
+  "adv-conditions": {
+    title: "۴۵. مدیریت پیشرفته شرایط، استثناها و سیگنال‌های خطا",
+    brief: "در R خطاها و اخطارها شیءهایی با سلسله‌مراتب کلاسی S3 هستند. تابع safe_divide(a, b) را پیاده‌سازی کنید که در صورت صفر بودن b، یک شیء خطای اختصاصی از کلاس division_by_zero پرتاب کند و آن را با tryCatch مدیریت نمایید.",
+    hint: "شیء خطا را با structure(list(message = '...', call = sys.call()), class = c('division_by_zero', 'error', 'condition')) بسازید و با stop پرتاب کنید.",
+    lesson: "### فصل ۴۵ — مدیریت پیشرفته شرایط و خطاهای سفارشی در R\n\nتوسعه‌دهندگان حرفه‌ای به جای پرتاب رشته‌های متنی ساده با `stop(\"error\")`، از **کلاس‌های خطای اختصاصی (Custom Conditions)** استفاده می‌کنند.\n\nمزایای خطاهای ساخت‌یافته S3:\n1. برنامه‌های فراخواننده می‌توانند بدون متوسل شدن به Regex متن خطا، مستقیماً بر اساس نوع کلاس (`division_by_zero`) تصمیم‌گیری کنند.\n2. متادیتاهایی مانند ورودی نامعتبر یا زمان وقوع در خود شیء خطا ضمیمه می‌شوند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **بررسی خطا با تطابق رشته‌ای:** اگر کدهای شما نوع خطا را بر اساس مقایسه متن `e$message == \"error\"` چک کنند، با کوچک‌ترین تغییر نگارشی یا تغییر زبان سیستم‌عامل کدها از کار می‌افتند!",
+    checksLabels: [
+          "تابع safe_divide محاسبات عادی را به درستی انجام دهد",
+          "خطای سفارشی division_by_zero با موفقیت توسط tryCatch مهار و بررسی شود"
+    ],
+    learning: [
+          "سیستم Condition در R شامل پیام‌ها، هشدارها و خطاهایی با ساختار شیءگرای S3 است",
+          "ساخت کلاس‌های خطای سفارشی امکان فیلتر و مهار دقیق انواع خاصی از استثناها را فراهم می‌سازد",
+          "تابع tryCatch پشته فراخوانی را تا نقطه مدیریت خطا باز می‌کند (Unwind)"
+    ],
+    fieldNotes: [
+          "همواره نام کلاس اختصاصی خطا را قبل از 'error' و 'condition' در وکتور class قرار دهید تا وراثت حفظ شود.",
+          "برای ثبت پیام یا لاگ بدون متوقف کردن اجرای کد، از withCallingHandlers() به جای tryCatch() استفاده کنید."
+    ],
+  },
+  "adv-s3": {
+    title: "۴۶. شیءگرایی تابعی در R با سیستم S3",
+    brief: "سیستم S3 پرکاربردترین شیوه شیءگرایی در R است که بر پایه توابع ژنریک و دیسپچ متدها با UseMethod() کار می‌کند. تابع ژنریک describe، سازنده شیء new_account و متد اختصاصی describe.account را پیاده‌سازی نمایید.",
+    hint: "تابع ژنریک را با describe <- function(x, ...) UseMethod('describe') ساخته و متد آن را به صورت describe.account بنویسید.",
+    lesson: "### فصل ۴۶ — برنامه‌نویسی شیءگرا با سیستم S3 در R\n\nسیستم S3 قلب محاسبات شیءگرای زبان R پایه و Tidyverse است:\n1. **توابع ژنریک (Generics):** توابعی مثل `print`, `summary`, `plot` که رفتار ثابتی ندارند، بلکه تصمیم‌گیری را با `UseMethod(\"name\")` به متد مربوط به کلاس شیء واگذار می‌کنند.\n2. **نام‌گذاری متدها:** متدها با الگوی `generic.class` تعریف می‌شوند (مانند `print.data.frame`).\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه در نام‌گذاری متدها با نقطه:** از گذاشتن نقطه در نام توابع عادی پرهیز کنید (مثل `my.function`)، زیرا R ممکن است اشتباهاً تصور کند این تابع متدی از یک تابع ژنریک به نام `my` برای شیء از کلاس `function` است!",
+    checksLabels: [
+          "تابع ژنریک describe و متد describe.account تعریف شده باشند",
+          "متغیر acc یک شیء معتبر S3 از کلاس account باشد",
+          "ارسال شیء به تابع ژنریک به درستی به متد describe.account دیسپچ شود"
+    ],
+    learning: [
+          "سیستم S3 از الگوی دیسپچ تک‌متغیره بر اساس کلاس اولین آرگومان استفاده می‌کند",
+          "توابع ژنریک با فراخوانی UseMethod() متد مناسب با ساختار generic.class را پیدا می‌کنند",
+          "طراحی مطمئن S3 شامل سازنده سطح‌پایین (new_*) و اعتبارسنجی ورودی‌ها است"
+    ],
+    fieldNotes: [
+          "هرگز متدهای S3 را مستقیماً فراخوانی نکنید (مانند describe.account(acc))؛ همیشه تابع ژنریک (describe(acc)) را صدا بزنید.",
+          "برای واگذاری کار به متد والد در زنجیره وراثت از تابع NextMethod() استفاده می‌شود."
+    ],
+  },
+  "adv-r6": {
+    title: "۴۷. شیءگرایی مدرن و کپسوله‌شده با کلاس‌های R6",
+    brief: "پکیج R6 شیءگرایی مدرن، کپسوله‌شده و ارجاعی شبیه به پایتون یا جاوا را به R می‌آورد. یک کلاس Accumulator با ویژگی عمومی value = 0 و متد add(n) بسازید که متغیر self$value را بدون کپی تغییر دهد و متدها را به صورت زنجیره‌ای فراخوانی کنید.",
+    hint: "کلاس Accumulator را با R6Class و اعضای value = 0 و add = function(n) { self$value <- self$value + n; invisible(self) } بسازید.",
+    lesson: "### فصل ۴۷ — شیءگرایی کپسوله‌شده و مدرن با R6\n\nبرخلاف S3 که شیءگرایی تابعی است، پکیج **R6** شیءگرایی کلاسیک (Encapsulated OOP) را فراهم می‌کند:\n1. متدها و خصوصیات متعلق به خود شیء هستند (`object$method()`).\n2. رفتار ارجاعی (Reference Semantics): وقتی یک شیء R6 را تغییر می‌دهید، داده‌ها در حافظه کپی نمی‌شوند بلکه همان شیء مستقیماً آپدیت می‌شود.\n3. کلمه کلیدی `self`: برای دسترسی به متدها و فیلدهای داخلی شیء.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **انتساب شیء R6 با `<-`:** دستور `b <- a` یک کپی جدید نمی‌سازد! هر دو متغیر به یک نمونه واحد اشاره دارند. تغییر `b` مستقیماً `a` را تغییر می‌دهد.",
+    checksLabels: [
+          "متغیر acc یک نمونه معتبر از کلاس Accumulator در سیستم R6 باشد",
+          "فراخوانی زنجیره‌ای متدها مقدار داخلی شیء را درجا به ۱۵ تغییر داده باشد"
+    ],
+    learning: [
+          "کلاس‌های R6 شیءگرایی کپسوله‌شده ارائه می‌دهند که متدها متعلق به خود شیء هستند نه ژنریک‌ها",
+          "اشیای R6 دارای رفتار ارجاعی (Reference Semantics) هستند و وضعیت داخلی را بدون کپی ویرایش می‌کنند",
+          "الگوی بازگرداندن invisible(self) امکان فراخوانی زنجیره‌ای متدها (Method Chaining) را فراهم می‌سازد"
+    ],
+    fieldNotes: [
+          "کلاس‌های R6 ستون فقرات توسعه نرم‌افزارهای پیچیده وب با Shiny و اتصال‌دهنده‌های دیتابیس هستند.",
+          "اگر به کپی مستقل از یک شیء R6 نیاز دارید، همیشه از متد clone(deep = TRUE) استفاده کنید."
+    ],
+  },
+  "adv-expressions": {
+    title: "۴۸. درخت نحو انتزاعی (AST)، عبارات و کد به عنوان داده",
+    brief: "در R، کد خود یک ساختار داده قابل پیمایش (درخت نحو انتزاعی یا AST) است. عبارت quote(log(x + 1)) را در expr ضبط کرده، نماد تابع را در fn_sym و عبارت داخلی را در inner_call استخراج کنید، سپس با تغییر عملگر به sqrt خروجی را ارزیابی نمایید.",
+    hint: "دستورات expr <- quote(log(x + 1)) و fn_sym <- expr[[1]] و inner_call <- expr[[2]] و modified_expr[[1]] <- quote(sqrt) را اجرا کنید.",
+    lesson: "### فصل ۴۸ — کدهای R به عنوان داده: عبارات و درخت نحو انتزاعی (AST)\n\nیکی از شگفت‌انگیزترین توانمندی‌های R قابلیت **Metaprogramming** (نوشتن کدی که کدهای دیگر را بررسی یا تولید می‌کند) است:\n\n- **تابع `quote()`:** کد را اجرا نمی‌کند، بلکه ساختار گرامری آن را به عنوان یک شیء بازمی‌گرداند.\n- **اجزای یک Call در R:** هر فراخوانی تابع در واقع یک ساختار شبیه به لیست است که:\n  - عنصر اول `expr[[1]]`: نماد تابع (Symbol)\n  - عناصر بعدی `expr[[2]]`, `expr[[3]]`: آرگومان‌ها هستند.\n\nشما می‌توانید کدهای R را مانند عناصر یک لیست تغییر دهید و سپس با `eval()` اجرا کنید!\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه میان Symbol و رشته:** نماد `quote(x)` یک نام متغیر در R است، در حالی که `\"x\"` یک رشته متنی است. این دو در ارزیابی کدهای متانویسی رفتار کاملاً متفاوتی دارند.",
+    checksLabels: [
+          "شیء expr یک فراخوانی معتبر بوده و نماد log از آن استخراج شده باشد",
+          "عبارت درونی x + 1 به عنوان یک Call داخلی در inner_call قرار گیرد",
+          "عبارت اصلاح‌شده به sqrt(x + 1) بازنویسی شده و مقدار ۳ را ارزیابی کند"
+    ],
+    learning: [
+          "در R کدها خود اشیائی داده‌ای از انواع Call، Symbol و Constant هستند که با quote() مهار می‌شوند",
+          "درخت نحو انتزاعی (AST) را می‌توان شبیه به یک لیست تودرتو با ایندکس‌های عددی [[1]] پیمایش کرد",
+          "تابع eval() درخت‌های عبارت بازنویسی‌شده را در بستر متغیرهای دلخواه اجرا می‌کند"
+    ],
+    fieldNotes: [
+          "توانایی بازرسی و بازنویسی کدها (Metaprogramming) زیربنای ساخت پکیج‌هایی مانند dplyr و ggplot2 است.",
+          "برای بازرسی ساختار درخت کدهای پیچیده در کنسول از تابع lobstr::ast() استفاده کنید."
+    ],
+  },
+  "adv-quasiquote": {
+    title: "۴۹. ارزیابی غیر استاندارد (NSE) و ماسک‌گذاری داده‌ها",
+    brief: "ارزیابی غیر استاندارد (NSE) قلب تپنده فیلترها و پایپلاین‌های مدرن R است. تابع mask_filter(df, condition) را پیاده‌سازی کنید که شرط ورودی را بدون گیومه با substitute ضبط کرده و آن را درون ستون‌های df ارزیابی کند.",
+    hint: "از ترکیب cond_expr <- substitute(condition) و eval(cond_expr, envir = df, enclos = parent.frame()) استفاده کنید.",
+    lesson: "### فصل ۴۹ — ارزیابی غیر استاندارد (NSE) و Data Masking\n\nتا به حال فکر کرده‌اید چرا در dplyr می‌نویسیم `filter(df, age > 18)` و نیازی به گذاشتن کوتیشن اطراف `age` نیست؟\nاین جادو حاصل **Non-Standard Evaluation (NSE)** است:\n\n1. **ضبط عبارت با `substitute()`:** تابع به جای محاسبه مقدار ورودی، خود فرمول ورودی کاربر را به شکل یک درخت عبارتی می‌گیرد.\n2. **ارزیابی در بستر جدول با `eval(..., envir = df)`:** به R دستور می‌دهیم نام ستون‌های جدول `df` را مانند متغیرهای یک فضای کاری ببیند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تداخل نام ستون و متغیر محلی (Name Collisions):** اگر متغیری بیرون از جدول هم‌نام با یکی از ستون‌ها باشد، Data Mask ستون جدول را ارجحیت می‌دهد. برای اشاره صریح به متغیر خارجی در پکیج‌های مدرن از `.env$var` استفاده می‌شود.",
+    checksLabels: [
+          "تابع فیلترکننده ماسک‌گذار mask_filter تعریف شده باشد",
+          "جدول خروجی passed_students شامل ۲ سطر منطبق باشد",
+          "ارزیابی غیر استاندارد به درستی نام ستون‌های score و passed را شناسایی کرده باشد"
+    ],
+    learning: [
+          "ارزیابی غیر استاندارد (NSE) امکان ارسال نام ستون‌ها بدون کوتیشن را در توابع R فراهم می‌کند",
+          "ماسک‌گذاری داده (Data Masking) نام ستون‌های جدول را در اولویت جستجوی متغیرها قرار می‌دهد",
+          "پارامتر enclos = parent.frame() دسترسی به متغیرهای محیط بیرونی تابع را تضمین می‌نماید"
+    ],
+    fieldNotes: [
+          "در پکیج rlang و Tidyverse مدرن، این مکانیزم با syntax تزریقی {{ col }} و توابع enquo و eval_tidy پیاده‌سازی می‌شود.",
+          "همیشه بین Data-variables (ستون‌های جدول) و Env-variables (متغیرهای سشن کاربر) تفکیک قائل شوید."
+    ],
+  },
+  "adv-profiling": {
+    title: "۵۰. پروفایلینگ، بنچمارک و بهینه‌سازی الگوریتم‌ها در R",
+    brief: "تله رایج کاهش سرعت در R گسترش دینامیک بردار با c(vec, val) درون حلقه‌هاست که پیچیدگی O(N^2) ایجاد می‌کند. تابع بهینه fast_squares(n) را با پیش‌تخصیص حافظه numeric(n) و انتساب مستقیم out[i] <- i^2 پیاده‌سازی نمایید.",
+    hint: "بردار خروجی را ابتدا با out <- numeric(n) ایجاد کرده و سپس در حلقه پر کنید.",
+    lesson: "### فصل ۵۰ — بهینه‌سازی عملکرد، پروفایلینگ و تله‌های حافظه\n\nزبان R برای محاسبات ماتریسی فوق‌العاده سریع است، اما کدهای ناشیانه می‌توانند آن را به شدت کند کنند:\n\n1. **تله گسترش داینامیک بردار (Quadratic Growing Trap):**\nنوشتن `v <- c(v, x)` داخل حلقه بدترین اشتباه ممکن است! چون طول بردار مشخص نیست، R در هر تکرار یک بردار جدید در رم می‌سازد و تمام داده‌های قبلی را کپی می‌کند که پیچیدگی زمانی آن $O(N^2)$ است.\n\n2. **راه‌حل طلایی: پیش‌تخصیص حافظه (Pre-allocation):**\nهمیشه قبل از حلقه، با `numeric(n)` یا `vector(\"list\", n)` ظرف نهایی را با اندازه معین بسازید تا پیچیدگی زمانی به $O(N)$ کاهش یابد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **برداری‌سازی بر حلقه‌های سنتی ارجح است:** قبل از نوشتن هر حلقه‌ای، بررسی کنید آیا تابع برداری آماده‌ای (مانند `(1:n)^2`) برای آن وجود دارد یا خیر.",
+    checksLabels: [
+          "تابع محاسباتی بهینه fast_squares تعریف شده باشد",
+          "طول بردار خروجی ۱۰۰ و مربع آخرین عنصر ۱۰۰۰۰ باشد",
+          "پنج عنصر اول بردار دقیقاً با توان دوم اعداد ۱ تا ۵ تطابق داشته باشند"
+    ],
+    learning: [
+          "گسترش دینامیک بردار با c() حافظه را در هر تکرار حلقه بازتخصیص داده و سرعت را تصاعدی کاهش می‌دهد",
+          "پیش‌تخصیص حافظه (Pre-allocation) با numeric(n) یا vector('list', n) پیچیدگی را خطی O(N) می‌کند",
+          "عملیات برداری در C کامپایل‌شده اجرا شده و بالاترین پرفورمنس ممکن را در R ارائه می‌دهند"
+    ],
+    fieldNotes: [
+          "برای اندازه‌گیری دقیق زمان اجرای کدهای میلی‌ثانیه‌ای و مصرف رم، پکیج bench و دستور bench::mark() استاندارد طلایی است.",
+          "اگر کدی با برداری‌سازی سریع نشد، بازنویسی بخش متراکم آن با Rcpp در C++ سرعت را تا ۱۰۰ برابر افزایش می‌دهد."
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -2326,6 +2483,163 @@ Das Ziel jedes R-Entwicklers lautet: **0 errors | 0 warnings | 0 notes**.
           "Die Kombination von purrr::map mit List-Columns in Tibbles ermöglicht verschachtelte Modellierungs-Workflows."
     ],
   },
+  "adv-memory": {
+    title: "43. Speichermodell & Copy-on-Modify Semantik",
+    brief: "R nutzt Copy-on-Modify. alias_vec <- orig teilt den Speicher; erst bei alias_vec[1] <- 99 wird dupliziert. Environments hingegen besitzen Referenzsemantik und werden in-place modifiziert.",
+    hint: "Setze orig <- c(10, 20, 30), alias_vec <- orig, alias_vec[1] <- 99, shared_env <- new.env(), shared_env$val <- 100, alias_env <- shared_env, alias_env$val <- 200.",
+    lesson: "### Kapitel 43 — Speichermodell und Copy-on-Modify in R\n\nDas Speichermanagement von R basiert auf Bindungen zwischen Namen und Werten:\n\n1. **Copy-on-Modify:**\nBei der Zuweisung `y <- x` teilt R die Speicheradresse. Erst bei Modifikation (`y[1] <- 99`) wird eine echte Kopie erzeugt.\n\n2. **Modify-in-Place (Environments):**\nEnvironments verhalten sich wie klassische Referenzen: Änderungen über Alias-Variablen modifizieren das Originalobjekt direkt.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Speicherüberlauf in Schleifen:** Modifikationen an Vektoren in Schleifen führen bei jedem Durchlauf zu einer vollständigen Neukopierung.",
+    checksLabels: [
+          "Copy-on-Modify für Vektoren verifiziert: orig bleibt unverändert",
+          "Referenzsemantik für Environments verifiziert: shared_env in-place verändert"
+    ],
+    learning: [
+          "R nutzt Copy-on-Modify: Objekte werden nur bei Mutation und geteilten Referenzen kopiert",
+          "Environments besitzen Referenzsemantik und mutieren direkt im Speicher (in-place)",
+          "Das Verständnis von Bindings verhindert speicherintensive Duplikationen in Schleifen"
+    ],
+    fieldNotes: [
+          "Nutze tracemem() in interaktiven Sitzungen, um Speicherallokationen gezielt zu verfolgen.",
+          "Vermeide das schrittweise Erweitern von Datenstrukturen in Schleifen wegen ständiger Reallokation."
+    ],
+  },
+  "adv-environments": {
+    title: "44. Environments, Scoping & Closures",
+    brief: "Funktionen speichern ihre umschließende Umgebung (Closure). Implementiere die Funktionsfabrik make_counter(start = 0), deren innere Funktion den Zähler via <<- inkrementiert.",
+    hint: "Definiere make_counter <- function(start = 0) { count <- start; function() { count <<- count + 1; count } } und rufe c1 auf.",
+    lesson: "### Kapitel 44 — Environments und Closures in R\n\nJede Funktion in R bindet an ihre Erzeugungsumgebung (Enclosing Environment):\n- **Funktionsfabriken:** Funktionen, die neue Funktionen erzeugen.\n- **Super-Assignment (`<<-`):** Modifiziert Variablen in Eltern-Environments, ideal für zustandsbehaftete Zähler oder Caches.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Globale Nebeneffekte:** Existiert die Zielvariable in keinem Eltern-Environment, erzeugt `<<-` diese im globalen Namespace.",
+    checksLabels: [
+          "make_counter Fabrik und c1 Closure sind definiert",
+          "c1 inkrementiert Zähler zustandsbehaftet von 11 auf 13",
+          "Enclosing Environment hält den Zustand count = 13"
+    ],
+    learning: [
+          "Environments verwalten Namen und Werte in einer hierarchischen Baumstruktur",
+          "Closures speichern den Zustand ihrer Erzeugungsumgebung persistent ab",
+          "Der <<- Operator modifiziert Variablen in übergeordneten Environments"
+    ],
+    fieldNotes: [
+          "Funktionsfabriken kapseln Zustand sauber ein, ohne den globalen Arbeitsbereich zu belasten.",
+          "Verlasse dich auf lexikalisches Scoping statt auf manuelle Manipulation von parent.env()."
+    ],
+  },
+  "adv-conditions": {
+    title: "45. Erweiterte Condition-Hierarchien & Fehlerbehandlung",
+    brief: "Conditions basieren auf S3-Klassen. Implementiere safe_divide(a, b), das bei b == 0 einen benutzerdefinierten S3-Fehler division_by_zero wirft und fange ihn mit tryCatch() ab.",
+    hint: "Erstelle eine Condition mit structure(list(...), class = c('division_by_zero', 'error', 'condition')) und fange sie ab.",
+    lesson: "### Kapitel 45 — Fehlerbehandlung und strukturierte Conditions\n\nProfessioneller R-Code signalisiert Fehler strukturiert als S3-Objekte:\n- **Klassenbasierte Fehlerbehandlung:** Ermöglicht das gezielte Abfangen spezifischer Fehlerklassen in `tryCatch()`, unabhängig von lokalisierten Fehlermeldungen.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **String-Matching auf Fehlermeldungen:** Das Prüfen von `e$message` bricht bei Übersetzung oder sprachlichen Anpassungen sofort zusammen.",
+    checksLabels: [
+          "safe_divide berechnet reguläre Quotienten korrekt",
+          "Benutzerdefinierte division_by_zero Condition wird von tryCatch gefangen"
+    ],
+    learning: [
+          "Conditions bilden eine objektorientierte Hierarchie aus Messages, Warnings und Errors",
+          "Benutzerdefinierte S3-Fehlerklassen ermöglichen präzises Exception-Handling",
+          "tryCatch() wickelt den Callstack bis zur Fehlerbehandlung ab"
+    ],
+    fieldNotes: [
+          "Lege eigene Fehlerklassen immer vor 'error' und 'condition' im Klassenvektor an.",
+          "Verwende withCallingHandlers() für Logging ohne Stack-Unwinding."
+    ],
+  },
+  "adv-s3": {
+    title: "46. Funktionale Objektorientierung mit S3",
+    brief: "S3 ist das primäre OOP-System in R und basiert auf generischen Funktionen via UseMethod(). Erstelle ein Generikum describe(x, ...), einen Konstruktor new_account und die Methode describe.account.",
+    hint: "Definiere describe <- function(x, ...) UseMethod('describe'), new_account und describe.account.",
+    lesson: "### Kapitel 46 — S3-Objektorientierung in R\n\nS3 ist das meistgenutzte OOP-System in R:\n- **Generische Funktionen:** Verwenden `UseMethod()`, um Funktionsaufrufe dynamisch an die typspezifische Implementierung weiterzuleiten.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Punkte in Funktionsnamen:** Benenne eigene Funktionen nicht mit Punkten (z.B. `read.data`), um Konflikte mit dem S3-Dispatch zu vermeiden.",
+    checksLabels: [
+          "Generikum describe und Methode describe.account sind definiert",
+          "acc ist ein valides S3-Objekt der Klasse account",
+          "Generischer Dispatch leitet acc korrekt an describe.account weiter"
+    ],
+    learning: [
+          "S3 nutzt Single Dispatch basierend auf der Klasse des ersten Funktionsarguments",
+          "UseMethod() sucht dynamisch nach passenden Methoden im Format generic.class",
+          "Robuste S3-Architekturen trennen strikt zwischen Konstruktor, Validator und Helper"
+    ],
+    fieldNotes: [
+          "Rufe Methoden niemals direkt auf (z.B. print.factor()); nutze immer das Generikum (print()).",
+          "NextMethod() erlaubt Methodenvererbung entlang des Klassenvektors."
+    ],
+  },
+  "adv-r6": {
+    title: "47. Kapselung und Referenz-OOP mit R6",
+    brief: "R6 implementiert klassische objektorientierte Programmierung mit Referenzsemantik. Erstelle eine Accumulator-Klasse mit value = 0 und add(n), instantiiere acc und verkette Methodenaufrufe.",
+    hint: "Definiere Accumulator <- R6Class('Accumulator', public = list(value = 0, add = function(n) { self$value <- self$value + n; invisible(self) })).",
+    lesson: "### Kapitel 47 — Gekapselte Objektorientierung mit R6\n\nIm Unterschied zu S3 kapselt **R6** Methoden und Zustand direkt im Objekt:\n- **Referenzsemantik:** Zuweisungen erzeugen Aliase, keine Speicherkopien.\n- **Method Chaining:** Durch Rückgabe von `invisible(self)` lassen sich Aufrufe wie `acc$add(5)$add(10)` verketten.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Aliasing bei Zuweisungen:** `obj2 <- obj1` kopiert kein R6-Objekt. Verwende `$clone()`, wenn unabhängige Instanzen benötigt werden.",
+    checksLabels: [
+          "acc ist eine valide R6-Instanz von Accumulator",
+          "Method Chaining aktualisiert acc$value in-place auf 15"
+    ],
+    learning: [
+          "R6 bietet gekapselte OOP, bei der Methoden direkt an Objekte gebunden sind",
+          "R6-Objekte besitzen Referenzsemantik und mutieren in-place ohne Duplikation",
+          "invisible(self) ermöglicht elegantes Method-Chaining"
+    ],
+    fieldNotes: [
+          "R6 ist der Industriestandard für Shiny-Module, REST-Clients und zustandsbehaftete Services.",
+          "Für echte Kopien muss explizit $clone(deep = TRUE) genutzt werden."
+    ],
+  },
+  "adv-expressions": {
+    title: "48. Abstrakte Syntaxbäume (AST) & Code als Daten",
+    brief: "In R ist Programmcode ein modifizierbarer Syntaxbaum (AST). Fange Code mit quote(log(x + 1)) in expr ab, extrahiere Funktionssymbol und Argumente und manipuliere den Aufruf zu sqrt.",
+    hint: "Verwende expr <- quote(log(x + 1)), extrahiere fn_sym <- expr[[1]], modifiziere modified_expr[[1]] <- quote(sqrt) und werte mit x <- 8 aus.",
+    lesson: "### Kapitel 48 — Metaprogrammierung und ASTs in R\n\nIn R gilt: **Code ist Daten** (Homoikonizität):\n- `quote()` erfasst Code als Syntaxbaum ohne Ausführung.\n- Aufrufe (`calls`) verhalten sich wie Listen: Index `[[1]]` ist die aufgerufene Funktion, Folgeindizes sind die Argumente.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Symbols vs. Strings:** Ein Symbol (`quote(var)`) ist ein Referenzbezeichner, kein String (`\"var\"`).",
+    checksLabels: [
+          "expr ist ein Call und fn_sym entspricht log",
+          "inner_call extrahiert x + 1 als Unteraufruf",
+          "modified_expr schreibt den Call zu sqrt(x + 1) um und evaluiert zu 3"
+    ],
+    learning: [
+          "In R ist Code ein vollwertiger Datentyp bestehend aus Calls, Symbols und Konstanten",
+          "Der AST lässt sich wie eine verschachtelte Liste über Indizes ([[1]], [[2]]) manipulieren",
+          "eval() führt manipulierte Ausdrucksbäume im gewünschten Kontext aus"
+    ],
+    fieldNotes: [
+          "Metaprogrammierung ermöglicht domänenspezifische Sprachen (DSLs) wie dbplyr und ggplot2.",
+          "lobstr::ast() visualisiert die hierarchische Struktur von Syntaxbäumen."
+    ],
+  },
+  "adv-quasiquote": {
+    title: "49. Non-Standard Evaluation (NSE) & Data Masking",
+    brief: "NSE treibt Tidyverse-Filterungen an. Schreibe mask_filter(df, condition), das Bedingungen per substitute() erfasst und im Kontext von df evaluiert.",
+    hint: "Kombiniere cond_expr <- substitute(condition) mit eval(cond_expr, envir = df, enclos = parent.frame()).",
+    lesson: "### Kapitel 49 — Non-Standard Evaluation & Data Masking\n\nNSE ermöglicht Pipelines wie `filter(df, age > 18)` ohne Anführungszeichen:\n- `substitute()` fängt den Ausdruck unberechnet ab.\n- `eval(..., envir = df)` wertet Ausdrücke bevorzugt in den Spalten der Tabelle aus.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Maskierungskonflikte:** Besitzt eine globale Variable denselben Namen wie eine Tabellenspalte, verdeckt die Tabellenspalte den globalen Wert.",
+    checksLabels: [
+          "mask_filter Funktion ist definiert",
+          "passed_students enthält genau 2 gefilterte Zeilen",
+          "NSE löst die Spalten score und passed korrekt auf"
+    ],
+    learning: [
+          "NSE erlaubt das Übergeben unquoted Spaltennamen an Funktionen",
+          "Data Masking priorisiert Spaltennamen bei der Variablenauflösung",
+          "enclos = parent.frame() stellt den Rückgriff auf aufrufende Scopes sicher"
+    ],
+    fieldNotes: [
+          "Modernes rlang nutzt die {{ col }} Curly-Curly-Syntax zur Injektion von Spalten.",
+          "Unterscheide stets strikt zwischen Daten-Variablen und Umgebungs-Variablen."
+    ],
+  },
+  "adv-profiling": {
+    title: "50. Performance-Tuning & Speicheroptimierung",
+    brief: "Vermeide die O(N^2) Speicherfalle des dynamischen Vektorwachstums c(vec, val). Implementiere fast_squares(n) mit vorallokiertem Speicher numeric(n) und Indexzuweisung.",
+    hint: "Erstelle out <- numeric(n), befülle per for-Schleife out[i] <- i^2 und gib out zurück.",
+    lesson: "### Kapitel 50 — Leistungsoptimierung und Profiling in R\n\nOptimierungstechniken in R:\n- **Die Allokationsfalle:** `v <- c(v, x)` in Schleifen ist quadratisch langsam ($O(N^2)$).\n- **Vorallokation:** Mit `out <- numeric(n)` wird der Speicher einmalig reserviert, was $O(N)$ garantiert.\n\n#### ⚠️ Häufige Fallstricke (Common Gotchas):\n- **Verzicht auf Vektorisierung:** Basis-R Vektorisierung (`(1:n)^2`) ist fast immer um ein Vielfaches schneller als manuelle For-Schleifen.",
+    checksLabels: [
+          "fast_squares Funktion ist definiert",
+          "Länge ist 100 und das letzte Quadrat beträgt 10000",
+          "Erste 5 Werte stimmen exakt mit Quadratzahlen überein"
+    ],
+    learning: [
+          "Dynamisches Wachsen per c() zwingt R bei jedem Schritt zur Neureallokation",
+          "Vorallokation mit numeric(n) reduziert die Zeitkomplexität auf lineares O(N)",
+          "Vektorisierte Operationen laufen in nativer C-Geschwindigkeit"
+    ],
+    fieldNotes: [
+          "bench::mark() liefert nanosekundengenaue Benchmarks inklusive Speicher-Allokationen.",
+          "Für rechenintensive Schleifen ist Rcpp (C++) der Goldstandard im R-Ökosystem."
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -2794,6 +3108,30 @@ The hallmark of a production-ready package is achieving **0 errors | 0 warnings 
   },
   "tidy-purrr": {
     lesson: "### Chapter 42 — Functional Programming & Iteration with purrr\n\nIn professional R programming, imperative `for` loops are replaced by functional higher-order functions.\nBase R's `sapply()` is notoriously dangerous because its output type depends on runtime data contents, returning vectors, matrices, or lists unpredictably.\nThe `purrr` package enforces strict type stability:\n- **`map(.x, .f)`**: Always returns a `list`.\n- **`map_dbl(.x, .f)`**: Guarantees a `double` numeric vector or fails immediately.\n- **`map_chr(.x, .f)`**: Guarantees a `character` vector.\n- **`map_lgl(.x, .f)`**: Guarantees a `logical` vector.\n\n#### ⚠️ Common Gotchas:\n- **Silent sapply Failures:** Never use `sapply()` in production code. Use `purrr` typed maps or base `vapply()` to guarantee type safety.",
+  },
+  "adv-memory": {
+    lesson: "### Chapter 43 — Names, Values & Memory Semantics\n\nUnderstanding how R binds names to values is the cornerstone of advanced R programming:\n\n1. **Copy-on-Modify:**\nWhen running `y <- x`, R does not duplicate memory. Both names point to the same physical memory buffer. Only upon mutation (`y[1] <- 99`) does R duplicate the data.\n\n2. **Modify-in-Place (Environments):**\nEnvironments follow reference semantics. Mutating a property on any alias modifies the original environment in-place without copying.\n\n#### ⚠️ Common Gotchas:\n- **Hidden Copies in Loops:** Reassigning a column of a large data frame inside a loop causes quadratic memory churn as the whole table is cloned on each iteration.",
+  },
+  "adv-environments": {
+    lesson: "### Chapter 44 — Environments, Scoping & Closures\n\nFunctions in R bind to their enclosing environment, forming a closure that encapsulates state:\n- **Function Factories:** Functions that manufacture and return configured functions.\n- **Super-assignment (`<<-`):** Modifies existing bindings in parent environments rather than creating a local variable.\n\nThis pattern allows stateful accumulators, rate-limiters, and memoization without polluting the global environment.\n\n#### ⚠️ Common Gotchas:\n- **Unintended Global Bindings:** If the target identifier is not found in any ancestor environment, `<<-` creates it in the `.GlobalEnv`, causing unexpected global side effects.",
+  },
+  "adv-conditions": {
+    lesson: "### Chapter 45 — Advanced Conditions & Error Handling\n\nR's condition system allows robust, typed exception handling using S3 condition objects:\n- **Custom S3 Conditions:** Subclassing `error` and `condition` allows callers to catch specific issue types programmatically without fragile regex string-matching on error messages.\n- **Call Context:** Attaching the active call and diagnostic metadata directly to the condition list facilitates post-mortem inspection.\n\n#### ⚠️ Common Gotchas:\n- **String-matching Error Messages:** Never parse `e$message` in `tryCatch()`. Always rely on distinct condition classes for reliable error categorization.",
+  },
+  "adv-s3": {
+    lesson: "### Chapter 46 — S3 Object-Oriented Programming\n\nS3 is R's foundational, functional object-oriented programming paradigm:\n- **Generics & Method Dispatch:** A generic function defines the interface via `UseMethod(\"generic_name\")`, and R dispatches execution to `generic_name.class_name()` based on the S3 class vector of the first argument.\n- **Constructors:** Clean S3 designs utilize a low-level `new_classname()` constructor that validates inputs and returns a structured list with an assigned class attribute.\n\n#### ⚠️ Common Gotchas:\n- **Dots in Function Names:** Avoid dots in normal function identifiers (e.g. `save.data`); S3 dispatch may misinterpret them as methods for generic `save` on class `data`.",
+  },
+  "adv-r6": {
+    lesson: "### Chapter 47 — Encapsulated OOP with R6\n\nUnlike S3's functional approach, **R6** delivers encapsulated object-oriented programming with mutable reference semantics:\n- **Methods belong to objects:** Accessed via `obj$method()` syntax.\n- **Reference Semantics:** Modifying an R6 instance updates the object in-place without triggering copy-on-modify.\n- **Method Chaining:** Returning `invisible(self)` enables fluid chaining patterns (`acc$add(10)$add(5)`).\n\n#### ⚠️ Common Gotchas:\n- **Assignment Does Not Clone:** Writing `b <- a` merely creates a second reference to the exact same instance in memory. Always use `a$clone(deep = TRUE)` for independent copies.",
+  },
+  "adv-expressions": {
+    lesson: "### Chapter 48 — Expressions, AST & Code as Data\n\nR is homoiconic: code is represented as first-class data structures known as Abstract Syntax Trees (ASTs):\n- **Capturing Code:** `quote()` returns unevaluated expressions (calls, symbols, and constants).\n- **Deconstructing Calls:** A call acts like a list where element `[[1]]` is the function symbol and subsequent elements are arguments.\n- **Dynamic Metaprogramming:** You can inspect, modify, and evaluate expressions at runtime using `eval()`.\n\n#### ⚠️ Common Gotchas:\n- **Symbols vs Characters:** A symbol (`quote(x)`) represents an unquoted variable name, whereas `\"x\"` is a character constant. Treating symbols as strings causes evaluation failures.",
+  },
+  "adv-quasiquote": {
+    lesson: "### Chapter 49 — Quasiquotation & Non-Standard Evaluation\n\nNon-Standard Evaluation (NSE) and Data Masking allow functions to evaluate arguments in custom scopes:\n- **`substitute(expr)`:** Captures the unevaluated R code passed to an argument.\n- **`eval(expr, envir = df, enclos = parent.frame())`:** Evaluates the expression using columns of `df` as first-class variables, falling back to the calling environment for foreign identifiers.\n\n#### ⚠️ Common Gotchas:\n- **Ambiguity between Data and Env Variables:** If an external variable shares a name with a table column, data masking resolves to the column. Use explicit qualifiers (`.env$x` vs `.data$x`) to prevent bugs.",
+  },
+  "adv-profiling": {
+    lesson: "### Chapter 50 — Benchmarking & Memory Optimization\n\nWriting high-performance R code requires understanding how memory allocation affects algorithmic complexity:\n- **The Growing Vector Trap:** Calling `vec <- c(vec, new_item)` inside a loop reallocates and copies the entire array every iteration, degrading performance to quadratic $O(N^2)$ time.\n- **Pre-allocation:** Allocating the destination vector upfront with `numeric(n)` or `vector(\"list\", n)` achieves optimal linear $O(N)$ execution.\n- **Native Vectorization:** Compiled C primitives in R outpace interpreted loops by orders of magnitude.\n\n#### ⚠️ Common Gotchas:\n- **Ignoring Existing Vectorized Primitives:** Before writing explicit loops, check if a vectorized primitive (such as `(1:n)^2` or `colSums()`) solves the task natively.",
   },
 };
 

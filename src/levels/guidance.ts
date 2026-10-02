@@ -471,6 +471,94 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Combine purrr::map() with list-columns in tibbles to build powerful nested data modeling workflows.',
     ],
   },
+  'adv-memory': {
+    learning: [
+      'R uses copy-on-modify semantics: objects are only copied when mutated if referenced multiple times',
+      'Environments and external pointers have reference semantics and are modified in place',
+      'Understanding object sizes and memory allocation prevents unnecessary performance penalties',
+    ],
+    fieldNotes: [
+      'Use tracemem() in interactive sessions to identify exactly when large objects are duplicated.',
+      'Pre-allocating vector sizes prevents continuous reallocation and copying during loops.',
+    ],
+  },
+  'adv-environments': {
+    learning: [
+      'Environments bind names to values and organize scope in a hierarchical tree',
+      'Functions remember their enclosing environment, creating stateful closures',
+      'The <<- super-assignment operator traverses parent environments to update state in-place',
+    ],
+    fieldNotes: [
+      'Function factories encapsulate state safely without polluting the global workspace (.GlobalEnv).',
+      'Avoid parent.env() manipulation in production code; rely on lexical scoping instead.',
+    ],
+  },
+  'adv-conditions': {
+    learning: [
+      'Conditions in R form an object-oriented hierarchy of messages, warnings, and errors',
+      'withCallingHandlers() handles conditions in-place without unwinding the call stack',
+      'tryCatch() unwinds the stack to the handling point, ideal for fallback recovery logic',
+    ],
+    fieldNotes: [
+      'Define custom S3 condition classes by subclassing error or warning for fine-grained error catching.',
+      'Always include the offending call or argument in error messages to aid debugging.',
+    ],
+  },
+  'adv-s3': {
+    learning: [
+      'S3 is R’s foundational functional object-oriented programming system',
+      'Generic functions use UseMethod() to dispatch to method implementations based on the first argument class',
+      'Robust S3 designs use a low-level constructor (new_*), a validator, and a user-friendly helper (*)',
+    ],
+    fieldNotes: [
+      'Never call S3 methods directly (like print.factor()); always call the generic (print()).',
+      'Use NextMethod() to delegate to inherited methods along the class hierarchy.',
+    ],
+  },
+  'adv-r6': {
+    learning: [
+      'R6 provides encapsulated OOP where methods belong directly to objects rather than generics',
+      'R6 objects have reference semantics: modifying an object modifies all references without copying',
+      'Classes support public and private members, active bindings, and inheritance',
+    ],
+    fieldNotes: [
+      'R6 is the industry-standard OOP system for stateful services, Shiny modules, and API clients.',
+      'Implement a $clone(deep = TRUE) method when you explicitly need independent copies of R6 objects.',
+    ],
+  },
+  'adv-expressions': {
+    learning: [
+      'In R, code is data: expressions can be captured, inspected, and transformed as Abstract Syntax Trees',
+      'Expressions consist of calls (prefix functions), symbols (names), constants, and pairlists',
+      'quote() captures code without executing it, allowing programmatic code analysis',
+    ],
+    fieldNotes: [
+      'Recursive tree traversal of ASTs powers linters, code formatting tools, and domain-specific languages.',
+      'Use is.call(), is.symbol(), and as.list() to safely deconstruct captured expressions.',
+    ],
+  },
+  'adv-quasiquote': {
+    learning: [
+      'Quasiquotation allows selective evaluation of parts of a captured expression (unquoting)',
+      'The big-bang operator (!!!) unquotes and splices a list of expressions into arguments',
+      'Data masking evaluates expressions within a data frame environment using eval() or eval_tidy()',
+    ],
+    fieldNotes: [
+      'The curly-curly syntax {{ arg }} in rlang encapsulates enquo() and !! for intuitive user functions.',
+      'Always distinguish between data-variables (columns in tables) and env-variables (variables in functions).',
+    ],
+  },
+  'adv-profiling': {
+    learning: [
+      'Vectorized operations execute in compiled C code, drastically outperforming interpreted loops',
+      'Repeated dynamic vector growth with c(x, val) causes quadratic O(N^2) memory reallocation',
+      'High-precision benchmarking measures execution time and memory allocation across implementations',
+    ],
+    fieldNotes: [
+      'Always pre-allocate output vectors with vector("list", n) or numeric(n) before running loops.',
+      'Use profvis for interactive visualization of CPU and memory bottlenecks in large R scripts.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

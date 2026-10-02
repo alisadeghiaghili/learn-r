@@ -276,17 +276,6 @@ export class TerminalView {
 
     if (!value) return;
 
-    // 1. If user input matches the current level hint, show the remainder of the hint
-    if (this.hint && this.hint.toLowerCase().startsWith(value.toLowerCase()) && this.hint.length > value.length) {
-      const typed = value;
-      const suffix = this.hint.slice(value.length);
-      this.ghostEl.innerHTML = `<span style="visibility:hidden">${escapeHtml(typed)}</span><span class="ghost-suffix">${escapeHtml(suffix)}</span>`;
-      this.ghostEl.dataset.visible = '1';
-      this.wrapEl.classList.add('has-ghost');
-      return;
-    }
-
-    // 2. Otherwise match against words from commands
     const { head, current, afterSpace } = parseLine(value);
     const words = this.nextWords(head, afterSpace ? '' : current);
     const first = words[0];
@@ -311,28 +300,38 @@ export class TerminalView {
   private applyTab(e: KeyboardEvent): void {
     e.preventDefault();
     const value = this.inputEl.value;
-
-    // If input is empty and there is a hint, fill the full hint
-    if (!value && this.hint) {
-      this.inputEl.value = this.hint;
-      this.wordCycle = [this.hint];
-      this.wordIdx = 0;
-      this.wordKey = this.hint;
-      this.focus();
-      this.syncGhost();
-      return;
-    }
-
-    // If input matches prefix of hint, fill hint
-    if (this.hint && this.hint.toLowerCase().startsWith(value.toLowerCase()) && this.hint !== value) {
-      this.inputEl.value = this.hint;
-      this.focus();
-      this.syncGhost();
-      return;
-    }
-
     const { head, current, afterSpace } = parseLine(value);
     const cycleKey = `${head.join(' ')}|${afterSpace ? '' : current}`;
+
+    // 1. If empty and hint exists: insert first word only
+    if (!value && this.hint) {
+      const firstWord = this.hint.split(/\s+/)[0]!;
+      this.inputEl.value = firstWord;
+      this.wordCycle = [firstWord];
+      this.wordIdx = 0;
+      this.wordKey = firstWord;
+      this.focus();
+      this.syncGhost();
+      return;
+    }
+
+    // 2. If current word is already completely typed and matches uniquely, advance to next word
+    if (!afterSpace && current) {
+      const currentMatches = this.nextWords(head, current);
+      if (currentMatches.length === 1 && currentMatches[0].toLowerCase() === current.toLowerCase()) {
+        const newHead = [...head, currentMatches[0]];
+        const nextOpts = this.nextWords(newHead, '');
+        if (nextOpts.length > 0) {
+          this.inputEl.value = `${newHead.join(' ')} ${nextOpts[0]}`;
+          this.wordCycle = nextOpts;
+          this.wordIdx = 0;
+          this.wordKey = `${newHead.join(' ')}|`;
+          this.focus();
+          this.syncGhost();
+          return;
+        }
+      }
+    }
 
     const options = this.nextWords(head, afterSpace ? '' : current);
     if (!options.length) {

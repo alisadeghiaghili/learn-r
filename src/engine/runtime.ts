@@ -32,7 +32,18 @@ local({
 const SNAPSHOT_R = `
 local({
   nms <- sort(ls(envir = .GlobalEnv, all.names = FALSE))
-  lapply(nms, function(nm) {
+  if (length(nms) == 0) return("[]")
+  clean_str <- function(s) {
+    if (is.null(s) || length(s) == 0) return('""')
+    s <- paste(as.character(s), collapse = " ")
+    s <- gsub("\\\\", "\\\\\\\\", s)
+    s <- gsub('"', '\\\\"', s)
+    s <- gsub("\\n", " ", s)
+    s <- gsub("\\r", "", s)
+    s <- gsub("\\t", " ", s)
+    paste0('"', s, '"')
+  }
+  items <- lapply(nms, function(nm) {
     x <- get(nm, envir = .GlobalEnv, inherits = FALSE)
     cls <- paste(class(x), collapse = "/")
     typ <- typeof(x)
@@ -43,8 +54,16 @@ local({
       )
       paste(utils::head(s, 3), collapse = " · ")
     }, error = function(e) cls)
-    list(name = nm, class = cls, type = typ, length = as.numeric(len), preview = prev)
+    paste0(
+      '{"name":', clean_str(nm),
+      ',"class":', clean_str(cls),
+      ',"type":', clean_str(typ),
+      ',"length":', if (is.finite(len)) as.numeric(len) else 0,
+      ',"preview":', clean_str(prev),
+      '}'
+    )
   })
+  paste0("[", paste(unlist(items), collapse = ","), "]")
 })
 `;
 
@@ -179,9 +198,30 @@ export class RRuntime {
   async snapshotEnv(): Promise<RObjectInfo[]> {
     if (!this.webR) return [];
     try {
-      const raw = await this.webR.evalR(SNAPSHOT_R);
-      const js = await raw.toJs();
-      return this.normalizeSnapshot(js);
+      let jsonStr = '';
+      try {
+        jsonStr = await this.webR.evalRString(SNAPSHOT_R);
+      } catch {
+        const raw = await this.webR.evalR(SNAPSHOT_R);
+        const js = await raw.toJs();
+        jsonStr = typeof js === 'string' ? js : (js as any)?.values?.[0] ?? '';
+      }
+
+      if (jsonStr && typeof jsonStr === 'string' && jsonStr.startsWith('[')) {
+        const parsed = JSON.parse(jsonStr);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((item: any) => ({
+              name: String(item.name ?? ''),
+              class: String(item.class ?? ''),
+              type: String(item.type ?? ''),
+              length: Number(item.length ?? 0),
+              preview: String(item.preview ?? ''),
+            }))
+            .filter((item: RObjectInfo) => Boolean(item.name));
+        }
+      }
+      return [];
     } catch (err) {
       console.warn('snapshotEnv failed', err);
       return [];
@@ -372,46 +412,5 @@ export class RRuntime {
       /* not present */
     }
     this.hasPlot = false;
-  }
-
-  private normalizeSnapshot(js: unknown): RObjectInfo[] {
-    if (!js || typeof js !== 'object') return [];
-    const items = Array.isArray(js)
-      ? js
-      : (js as { values?: unknown[] }).values && Array.isArray((js as { values: unknown[] }).values)
-        ? (js as { values: unknown[] }).values
-        : [js];
-
-    const out: RObjectInfo[] = [];
-    for (const item of items) {
-      if (!item || typeof item !== 'object') continue;
-      const rec = item as Record<string, unknown>;
-      const name = this.extractString(rec.name);
-      if (!name) continue;
-      out.push({
-        name,
-        class: this.extractString(rec.class) || '',
-        type: this.extractString(rec.type) || '',
-        length: Number(this.extractNumber(rec.length) ?? 0),
-        preview: this.extractString(rec.preview) || '',
-      });
-    }
-    return out;
-  }
-
-  private extractString(v: unknown): string {
-    if (typeof v === 'string') return v;
-    if (v && typeof v === 'object' && 'values' in v && Array.isArray((v as { values: unknown[] }).values)) {
-      return String((v as { values: unknown[] }).values[0] ?? '');
-    }
-    return v != null ? String(v) : '';
-  }
-
-  private extractNumber(v: unknown): number {
-    if (typeof v === 'number') return v;
-    if (v && typeof v === 'object' && 'values' in v && Array.isArray((v as { values: unknown[] }).values)) {
-      return Number((v as { values: unknown[] }).values[0] ?? 0);
-    }
-    return Number(v ?? 0);
   }
 }

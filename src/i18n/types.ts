@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'fa';
+export type Locale = 'en' | 'fa' | 'de';
 
 export interface UiStrings {
   brand: string;

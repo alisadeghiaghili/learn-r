@@ -1,9 +1,12 @@
 import type { Locale, UiStrings } from './types';
 import { en } from './en';
 import { fa } from './fa';
+import { de } from './de';
 
-export const LOCALES: Locale[] = ['en', 'fa'];
+export const LOCALES: Locale[] = ['en', 'fa', 'de'];
 const STORAGE_KEY = 'learn-r-locale-v1';
+
+const catalogs: Record<Locale, UiStrings> = { en, fa, de };
 
 let currentLocale: Locale = 'en';
 
@@ -28,9 +31,13 @@ export function initLocale(): void {
       currentLocale = saved;
       return;
     }
-    const nav = navigator.language.slice(0, 2);
-    if (nav === 'fa') {
+    const nav = navigator.language.slice(0, 2).toLowerCase();
+    if (nav === 'fa' || nav === 'pe') {
       currentLocale = 'fa';
+      return;
+    }
+    if (nav === 'de') {
+      currentLocale = 'de';
       return;
     }
   } catch {
@@ -48,7 +55,7 @@ export function applyDocumentLocale(): void {
 }
 
 export function ui(): UiStrings {
-  return currentLocale === 'fa' ? fa : en;
+  return catalogs[currentLocale] ?? en;
 }
 
 export * from './types';

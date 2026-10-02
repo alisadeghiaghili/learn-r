@@ -12,6 +12,7 @@ import { getLocale, setLocale, ui, LOCALES, type Locale } from '../i18n';
 import { COFFEE_BUTTON_HTML, REPO_URL } from './share';
 import { getVisitorCount } from './visitor-counter';
 import { getLevelLearning, getLevelFieldNotes } from '../levels/guidance';
+import { localizeLevel } from '../levels/i18n';
 
 function renderDiffDots(difficulty: number): string {
   const n = Math.max(0, Math.min(5, difficulty));
@@ -183,7 +184,14 @@ export class App {
         const target = btn.dataset.lang as Locale;
         if (target) {
           setLocale(target);
+          if (this.level) {
+            const raw = getLevel(this.level.id);
+            if (raw) {
+              this.level = localizeLevel(raw, target);
+            }
+          }
           this.mount();
+          this.updateTitle();
           void this.refreshDock();
         }
       });
@@ -271,9 +279,10 @@ export class App {
     statEl.hidden = false;
   }
 
-  async enterLevel(id: string): Promise<void> {
-    const level = getLevel(id);
-    if (!level) return;
+  async enterLevel(id: string, opts?: { openLesson?: boolean }): Promise<void> {
+    const raw = getLevel(id);
+    if (!raw) return;
+    const level = localizeLevel(raw, getLocale());
     this.level = level;
     this.showHint = false;
     this.knownNames = new Set();
@@ -284,6 +293,10 @@ export class App {
     await this.updateBoard();
     this.renderDock();
     this.updateTitle();
+
+    if (opts?.openLesson) {
+      this.openLesson();
+    }
   }
 
   async enterSandbox(): Promise<void> {
@@ -383,14 +396,14 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
               {
                 label: u.nextLevel,
                 className: 'primary',
-                onClick: () => void this.enterLevel(next.id),
+                onClick: () => void this.enterLevel(next.id, { openLesson: true }),
               },
             ]
           : []),
         {
           label: u.replayLevel,
           className: 'ghost',
-          onClick: () => void this.enterLevel(this.level!.id),
+          onClick: () => void this.enterLevel(this.level!.id, { openLesson: true }),
         },
         {
           label: u.sandbox,
@@ -620,7 +633,7 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
       .map((s) => {
         const rows = s.levels
           .map((item) => {
-            const l = item.def;
+            const l = localizeLevel(item.def, getLocale());
             const p = this.progress[l.id];
             const solved = Boolean(p?.solved);
             const active = this.level?.id === l.id;
@@ -665,7 +678,7 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
         const id = btn.dataset.level;
         modal.close();
         if (id) {
-          void this.enterLevel(id);
+          void this.enterLevel(id, { openLesson: true });
         }
       });
     });
@@ -676,10 +689,12 @@ ${next ? `Next up: **${next.title}**` : u.foundationsComplete}
       this.openWelcome();
       return;
     }
+    const u = ui();
     showModal({
-      title: `${this.level.title} — Lesson`,
+      title: `${this.level.title} — ${u.lesson}`,
       bodyHtml: renderMarkdown(this.level.lesson),
-      actions: [{ label: ui().closeBtn, onClick: () => undefined }],
+      actions: [{ label: u.closeBtn, className: 'primary', onClick: () => this.terminal.focus() }],
+      onDismiss: () => this.terminal.focus(),
     });
   }
 

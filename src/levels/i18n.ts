@@ -1664,6 +1664,131 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
       "جداول نهایی را در قالب‌های مدرن مانند Parquet ذخیره کنید تا سرعت کوئری ابزارهای BI حداکثر شود.",
     ],
   },
+  "scale-parallel": {
+    title: "۶۶. محاسبات موازی و خوشه‌بندی پردازشی (parallel)",
+    brief: "با پکیج parallel کارهای سنگین CPU را موازی کنید: ساخت کلاستر، ارسال توابع با clusterExport، اجرای parLapply و آزادسازی با stopCluster.",
+    hint: "دستورات cl <- makeCluster(2)، clusterExport(cl, 'heavy_op')، res_parallel <- parLapply(cl, chunks, heavy_op) و stopCluster(cl) را اجرا کنید.",
+    lesson: `### فصل ۶۶ — محاسبات موازی و خوشه‌بندی پردازشی (Parallel Computing with parallel)
+
+زبان R به صورت پیش‌فرض کدهای شما را روی **یک هسته تکین (Single Core)** از پردازنده اجرا می‌کند. وقتی با محاسبات سنگین (مانند شبیه‌سازی مونت‌کارلو، بوت‌استرپینگ، یا برازش هزاران مدل روی زیرمجموعه‌ها) سروکار دارید، استفاده از تنها یک هسته یعنی هدر رفتن پتانسیل سرورها و CPUهای مدرن چند‌هسته‌ای.
+
+پکیج استاندارد \`parallel\` که بخشی از هسته R پایه است، دو سازوکار اصلی برای موازی‌سازی ارائه می‌دهد:
+
+#### ۱. سوکت کلاسترها (Socket Clusters - قابل اجرا در تمام سیستم‌ها از جمله ویندوز):
+یک کلاستر از فرایندهای پس‌زمینه جدید R ایجاد می‌کند:
+\`\`\`r
+cl <- makeCluster(4) # ایجاد ۴ ورکر مجزا
+\`\`\`
+
+#### ۲. انتقال متغیرها (Environment Isolation & clusterExport):
+چون هر ورکر یک فرایند کاملاً مستقل از R است، متغیرها و توابع موجود در \`.GlobalEnv\` به ورکرها منتقل نمی‌شوند مگر اینکه صراحتاً آنها را صادر کنید:
+\`\`\`r
+clusterExport(cl, c("my_func", "lookup_table"))
+\`\`\`
+
+#### ۳. اجرای موازی و آزادسازی منابع:
+\`\`\`r
+results <- parLapply(cl, data_chunks, my_func)
+stopCluster(cl) # همیشه کلاستر را ببندید تا حافظه و سوکت‌ها آزاد شوند
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **باگ خاموش نبود متغیر در ورکر:** اگر متغیری را با \`clusterExport()\` صادر نکنید، \`parLapply\` با خطای \`object '...' not found\` متوقف می‌شود.
+- **نشتی منابع (Zombie R Processes):** اگر بعد از پایان کار \`stopCluster(cl)\` را فراخوانی نکنید، فرایندهای پس‌زمینه R در سیستم باز می‌مانند و منابع سرور را مسدود می‌کنند.
+- **تولید اعداد تصادفی:** تولیدکننده پیش‌فرض اعداد تصادفی R در ورکرها دنباله‌های تکراری تولید می‌کند! برای موازی‌سازی صحیح کارهای تصادفی همیشه از \`clusterSetRNGStream(cl, iseed = 42)\` استفاده کنید.`,
+    checksLabels: [
+      "کلاستر ورکر با makeCluster(2) ساخته شده باشد",
+      "محاسبات موازی با parLapply روی چانک‌ها اجرا شود",
+      "خروجی ورکرها مطابق انتظار ریاضی c(12, 30, 48) باشد",
+    ],
+    learning: [
+      "makeCluster ورکر‌های مستقل پردازشی را از طریق پورت‌های سوکت راه‌اندازی می‌کند",
+      "clusterExport صراحتاً متغیرها را از حافظه اصلی به فضای ایزوله ورکرها منتقل می‌سازد",
+      "parLapply حلقه‌های تابعی را به طور همزمان بین هسته‌های پردازنده توزیع می‌کند",
+      "stopCluster با خاتمه دادن به فرآیندهای پس‌زمینه از نشت حافظه و پورت سیستم جلوگیری می‌کند",
+    ],
+    fieldNotes: [
+      "سوکت کلاسترها روی ویندوز، لینوکس و مک یکسان کار می‌کنند، در حالی که mclapply به fork یونیکس وابسته است.",
+      "برای شبیه‌سازی‌های تصادفی موازی، حتماً سید رندوم را با clusterSetRNGStream تنظیم کنید.",
+    ],
+  },
+  "scale-sparklyr": {
+    title: "۶۷. پردازش کلان‌داده‌ها با sparklyr و Apache Spark",
+    brief: "با sparklyr به یک کلاستر Apache Spark متصل شوید، پایپلاین dplyr را روی کلاستر اجرا کنید و خلاصه شاخص‌ها را با collect استخراج نمایید.",
+    hint: "اتصال با sc <- spark_connect(master = 'local')، کپی با copy_to، فیلتر و گروه‌بندی با dplyr، و در نهایت collect() را اجرا کنید.",
+    lesson: `### فصل ۶۷ — پردازش کلان‌داده‌ها با Apache Spark و sparklyr
+
+وقتی حجم داده‌ها از ظرفیت حافظه RAM سیستم (چند گیگابایت تا ترابایت‌ها) فراتر می‌رود، رویکرد معمول بارگذاری جدول با \`read.csv()\` یا دیتاتیبل با خطای وحشتناک **Out of Memory (OOM)** متوقف می‌شود.
+
+پکیج \`sparklyr\` قدرتمندترین پل ارتباطی زبان R به اکوسیستم **Apache Spark** است:
+1. **سینتکس یکپارچه با dplyr:** شما دقیقاً با همان کدهایی که در \`dplyr\` یاد گرفتید (\`filter\`، \`mutate\`، \`group_by\`، \`summarize\`) با داده‌های ترابایتی روی کلاستر صحبت می‌کنید.
+2. **ترجمه کوئری (SQL Translation & Query Pushdown):** کدهای R شما مستقیماً اجرا نمی‌شوند؛ بلکه به دستورات بهینه‌شده Spark SQL تبدیل شده و توسط کاتالیست اپاچی اسپارک روی ماشین‌های کلاستر پردازش می‌شوند.
+3. **ارزیابی تنبل (Lazy Evaluation):** هیچ دیتایی روی شبکه جابجا نمی‌شود تا زمانی که صراحتاً دستور \`collect()\` را برای دریافت نتایج خلاصه نهایی در حافظه محلی R صدا بزنید.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراخوانی زودهنگام \`collect()\`:** اگر دستور \`collect()\` را قبل از فیلتر یا تجمیع روی یک جدول چندمیلیاردی اجرا کنید، تمام ترابایت‌ها داده به رم لپ‌تاپ شما سرازیر شده و RStudio فوراً کرش می‌کند! همیشه ابتدا تا جای ممکن روی کلاستر فیلتر و خلاصه‌سازی کنید.
+- **تفاوت توابع R و SQL:** توابعی که در R سفارشی نوشته‌اید روی ورکر‌های اسپارک وجود ندارند، مگر اینکه از توابع نگاشت مانند \`spark_apply()\` استفاده کنید.`,
+    checksLabels: [
+      "اتصال به کلاستر با spark_connect(master = 'local') برقرار شده باشد",
+      "داده‌های خام با copy_to به جدول توزیع‌شده اسپارک منتقل شده باشند",
+      "شاخص‌های فروش منطقه‌ای با collect در حافظه محلی R جمع‌آوری شوند",
+      "مجموع ارزش ناخالص فروش ۹۲۰ دلار به تفکیک مناطق سه‌گانه محاسبه شود",
+    ],
+    learning: [
+      "spark_connect یک ارتباط کلاینت-درایور به کلاستر توزیع‌شده آپاچی اسپارک ایجاد می‌کند",
+      "copy_to دیتای محلی را به پارتیشن‌های توزیع‌شده حافظه اسپارک آینه‌سازی می‌کند",
+      "افعال dplyr کوئری‌های تنبل SQL را بدون بارگذاری کل داده مستقیماً به مجریان اسپارک منتقل می‌کنند",
+      "collect نتایج تجمیع‌شده نهایی را از کلاستر به رم محلی کاربر بازمی‌گرداند",
+    ],
+    fieldNotes: [
+      "همیشه پیش از صدا زدن collect داده‌ها را فیلتر و تجمیع کنید تا سیستم با خطای Out-Of-Memory کرش نکند.",
+      "در محیط‌های ابری پروداکشن، sparklyr مستقیماً از دیتا لیک‌ها (S3 و GCS) در فرمت‌های بهینه Parquet می‌خواند.",
+    ],
+  },
+  "scale-caret": {
+    title: "۶۸. یادگیری ماشین و ارزیابی پیش‌بینی‌ها با caret",
+    brief: "یک خط لوله کامل یادگیری ماشین بسازید: تنظیم اعتبارسنجی متقاطع با trainControl، آموزش مدل با train، پیش‌بینی و ترسیم confusionMatrix.",
+    hint: "تنظیم ctrl <- trainControl(method = 'cv', number = 5)، آموزش با train، پیش‌بینی با predict و سنجش با confusionMatrix.",
+    lesson: `### فصل ۶۸ — یادگیری ماشین و ارزیابی مدل‌ها با پکیج caret
+
+پکیج \`caret\` (مخفف Classification And REgression Training) نوشته دکتر مکس کون (Max Kuhn)، استاندارد طلایی و چارچوب یکپارچه یادگیری ماشین در زبان R است. این پکیج بیش از ۲۳۰ الگوریتم مختلف یادگیری ماشین را زیر یک رابط کاربری مشترک و هماهنگ جمع کرده است.
+
+#### مراحل یک پایپلاین استاندارد یادگیری ماشین در R:
+1. **جداسازی داده‌ها (Data Splitting):** تقسیم داده به آموزش و آزمون با حفظ توزیع کلاس‌ها با تابع \`createDataPartition()\`.
+2. **پیکربندی اعتبارسنجی متقاطع (Resampling / Cross-Validation):** با تابع \`trainControl(method = "cv", number = 5)\` تعیین می‌کنید که ارزیابی پایداری مدل روی ۵ تکرار ناهم‌پوشان انجام شود.
+3. **آموزش و تیونینگ خودکار هایپرپارامترها (Training & Hyperparameter Tuning):**
+\`\`\`r
+fit <- train(target ~ ., data = train_data, method = "knn", trControl = ctrl)
+\`\`\`
+4. **پیش‌بینی و ماتریس درهم‌ریختگی (Confusion Matrix):**
+\`\`\`r
+cm <- confusionMatrix(predictions, test_data$target)
+\`\`\`
+ماتریس درهم‌ریختگی علاوه بر دقت (Accuracy)، شاخص‌های کلیدی زیر را محاسبه می‌کند:
+- **Sensitivity (Recall):** توانایی مدل در کشف کلاس‌های مثبت واقعی (بسیار مهم در تشخیص بیماری یا کشف تقلب).
+- **Specificity:** توانایی مدل در رد کلاس‌های منفی.
+- **Kappa Statistic:** سنجش توافق مدل فراتر از شانس تصادفی.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله نشت داده (Data Leakage):** نرمال‌سازی متغیرها یا پر کردن مقادیر گمشده (Imputation) باید صرفاً روی داده‌های Train یاد گرفته شود و سپس همان پارامترها به Test اعمال شوند؛ هرگز کل داده‌ها را قبل از تفکیک نرمال‌سازی نکنید!
+- **عدم تعادل دسته‌ها (Class Imbalance):** اگر ۹۹٪ داده‌ها کلاس منفی باشند، مدلی که همیشه منفی پیش‌بینی کند دقت ۹۹٪ خواهد داشت اما عملاً بی‌فایده است! در این شرایط باید به جای Accuracy به معیار Balanced Accuracy یا AUC-ROC تکیه کنید.`,
+    checksLabels: [
+      "اعتبارسنجی متقاطع ۵ تایی با trainControl تنظیم شده باشد",
+      "مدل دسته‌بندی با تابع train آموزش دیده باشد",
+      "۲۰ پیش‌بینی روی دیتاست آزمون جدید با predict تولید شود",
+      "ماتریس درهم‌ریختگی با دقت اعتبارسنجی حداقل ۸۰٪ محاسبه شود",
+    ],
+    learning: [
+      "trainControl پروتکل‌های نمونه‌برداری مانند 5-Fold Cross Validation را مدیریت می‌کند",
+      "train فرآیند آموزش را بین بیش از ۲۳۰ مدل با جستجوی خودکار هایپرپارامترها یکپارچه می‌سازد",
+      "predict مدل نهایی آموزش‌دیده را بر روی داده‌های آزمون جدید اعمال می‌کند",
+      "confusionMatrix دقت، حساسیت (Recall)، ویژگی (Specificity) و ضریب کاپا را استخراج می‌کند",
+    ],
+    fieldNotes: [
+      "پیش‌پردازش داده‌ها باید صرفاً روی داده‌های آموزش محاسبه و به داده‌های آزمون اعمال شود تا نشت داده رخ ندهد.",
+      "در دیتاست‌های نامتعادل، همیشه معیار Balanced Accuracy یا AUC-ROC را بر دقت خام ترجیح دهید.",
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -3313,6 +3438,131 @@ Schritte einer professionellen Data-Pipeline:
       "Zusammenfassungen als performante Parquet-Dateien für BI-Tools bereitstellen.",
     ],
   },
+  "scale-parallel": {
+    title: "66. Paralleles Rechnen & Multi-Core-Cluster (parallel)",
+    brief: "Beschleunige rechenintensive Jobs mit dem Paket parallel: Cluster starten, Variablen via clusterExport übertragen, parLapply ausführen und mit stopCluster beenden.",
+    hint: "Führe cl <- makeCluster(2), clusterExport(cl, 'heavy_op'), res_parallel <- parLapply(cl, chunks, heavy_op) und stopCluster(cl) aus.",
+    lesson: `### Kapitel 66 — Paralleles Rechnen mit dem parallel-Paket
+
+Standardmäßig arbeitet R **Single-Threaded** auf einem einzigen CPU-Kern. Bei rechenintensiven Aufgaben (Monte-Carlo-Simulationen, Bootstrapping, Kreuzvalidierung) bleibt die Leistung moderner Multi-Core-Prozessoren ungenutzt.
+
+Das Standardpaket \`parallel\` bietet zwei Hauptansätze:
+
+#### 1. Socket-Cluster (Plattformübergreifend inkl. Windows):
+Erstellt unabhängige Hintergrund-R-Prozesse:
+\`\`\`r
+cl <- makeCluster(4) # 4 Worker-Prozesse starten
+\`\`\`
+
+#### 2. Variablen-Export (\`clusterExport\`):
+Da Worker isoliert sind, müssen Variablen und Funktionen explizit übertragen werden:
+\`\`\`r
+clusterExport(cl, c("my_func", "lookup_table"))
+\`\`\`
+
+#### 3. Parallele Ausführung & Ressourcenfreigabe:
+\`\`\`r
+results <- parLapply(cl, data_chunks, my_func)
+stopCluster(cl) # Ressourcen immer freigeben
+\`\`\`
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Fehlender Variablen-Export:** Ohne \`clusterExport()\` bricht \`parLapply\` mit \`object not found\` ab.
+- **Zombie-Prozesse:** Ohne \`stopCluster()\` bleiben Worker-Prozesse im Hintergrund aktiv und blockieren RAM.
+- **Zufallszahlen:** Nutze \`clusterSetRNGStream(cl, iseed = 42)\` für reproduzierbare parallele Zufallsziehungen.`,
+    checksLabels: [
+      "Worker-Cluster via makeCluster(2) instanziiert",
+      "Parallele Berechnung via parLapply über Chunks ausgeführt",
+      "Ergebnisvektor entspricht der Erwartung c(12, 30, 48)",
+    ],
+    learning: [
+      "makeCluster initialisiert isolierte R-Worker-Prozesse über Socket-Verbindungen",
+      "clusterExport überträgt Objekte explizit aus dem globalen Speicher an Worker-Knoten",
+      "parLapply verteilt funktionale Schleifen nebenläufig auf CPU-Kerne",
+      "stopCluster beendet Hintergrundprozesse und verhindert Speicherlecks",
+    ],
+    fieldNotes: [
+      "Socket-Cluster funktionieren auf Windows, Linux und macOS einheitlich; mclapply nutzt Unix-Forking.",
+      "Zufallsgeneratoren bei parallelen Läufen stets mit clusterSetRNGStream initialisieren.",
+    ],
+  },
+  "scale-sparklyr": {
+    title: "67. Big-Data-Verarbeitung mit sparklyr & Apache Spark",
+    brief: "Verbinde R mit einem Apache Spark Cluster über sparklyr, nutze Lazy Evaluation mit dplyr und aggregiere KPIs mit collect.",
+    hint: "Verbinde mit sc <- spark_connect(master = 'local'), spiegele Daten via copy_to, filtere/aggregiere mit dplyr und schließe mit collect() ab.",
+    lesson: `### Kapitel 67 — Big Data mit Apache Spark und sparklyr
+
+Wenn Daten das RAM übersteigen (Gigabytes bis Terabytes), führt das Laden mit \`read.csv()\` zum gefürchteten **Out of Memory (OOM)** Absturz.
+
+Das Paket \`sparklyr\` verbindet R direkt mit **Apache Spark**:
+1. **Einheitliche dplyr-Syntax:** Schreibe gewohnte \`filter()\`, \`group_by()\` und \`summarise()\` Befehle auf Terabyte-Tabellen.
+2. **SQL Pushdown & Catalyst:** Befehle werden in Spark SQL übersetzt und verteilt auf den Cluster-Knoten optimiert ausgeführt.
+3. **Lazy Evaluation:** Berechnungen finden erst statt, wenn \`collect()\` aufgerufen wird.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Verfrühtes \`collect()\`:** Rufe \`collect()\` niemals auf ungefilterten Milliarden-Zeilen-Tabellen auf! Das überlastet den R-Treiber.
+- **Benutzerdefinierte R-Funktionen:** Standard-R-Funktionen laufen nicht automatisch auf Spark-Executoren ohne \`spark_apply()\`.`,
+    checksLabels: [
+      "Verbindung via spark_connect(master = 'local') hergestellt",
+      "Rohdaten via copy_to in Spark-Tabelle gespiegelt",
+      "Regionale KPI-Zusammenfassung via collect im lokalen R-Speicher gesammelt",
+      "Gesamt-GMV von 920 $ über die drei Regionen korrekt berechnet",
+    ],
+    learning: [
+      "spark_connect baut eine Treiber-Verbindung zum verteilten Spark-Cluster auf",
+      "copy_to spiegelt lokale Datenstrukturen in verteilte Spark-Speicherpartitionen",
+      "dplyr-Verben leiten Abfragen ohne Datentransfer direkt als Spark-SQL-Pläne weiter",
+      "collect zieht nur aggregierte Endresultate in den lokalen R-Speicher",
+    ],
+    fieldNotes: [
+      "Filtere und aggregiere Daten immer zuerst in Spark, bevor du collect() ausführst.",
+      "Im Cloud-Betrieb liest sparklyr direkt aus Data Lakes (S3, GCS) im Parquet-Format.",
+    ],
+  },
+  "scale-caret": {
+    title: "68. Machine Learning & Modell-Evaluation mit caret",
+    brief: "Baue eine vollständige ML-Pipeline mit caret: 5-fache Kreuzvalidierung mit trainControl, Modell-Training mit train, Test-Vorhersage und confusionMatrix.",
+    hint: "Konfiguriere ctrl <- trainControl(method = 'cv', number = 5), trainiere mit train, sage mit predict voraus und werte mit confusionMatrix aus.",
+    lesson: `### Kapitel 68 — Machine Learning & Modell-Evaluation mit caret
+
+Das Paket \`caret\` (Classification And REgression Training) von Max Kuhn ist das fundamentale Framework für Machine Learning in R mit über 230 unterstützten Algorithmen.
+
+#### Phasen einer professionellen ML-Pipeline:
+1. **Data Splitting:** Aufteilung in Training und Test mit \`createDataPartition()\`.
+2. **Resampling / Cross-Validation:** \`trainControl(method = "cv", number = 5)\` für 5-fache Validierung.
+3. **Training & Hyperparameter-Tuning:**
+\`\`\`r
+fit <- train(target ~ ., data = train_data, method = "knn", trControl = ctrl)
+\`\`\`
+4. **Evaluierung mit der Konfusionsmatrix:**
+\`\`\`r
+cm <- confusionMatrix(predictions, test_data$target)
+\`\`\`
+Wichtige Kennzahlen neben der Genauigkeit (Accuracy):
+- **Sensitivity (Recall):** Erkennung tatsächlicher Positivfälle.
+- **Specificity:** Korrekte Zurückweisung von Negativfällen.
+- **Kappa:** Übereinstimmungskennzahl bereinigt um Zufallstreffer.
+
+#### ⚠️ Häufige Fallstricke (Common Gotchas):
+- **Data Leakage:** Vorverarbeitung (Skalierung, Imputation) darf nur auf den Trainingsdaten berechnet werden!
+- **Klassenungleichgewicht (Class Imbalance):** Bei unausgewogenen Daten ist Accuracy trügerisch; nutze Balanced Accuracy oder ROC-AUC.`,
+    checksLabels: [
+      "5-fache Kreuzvalidierung via trainControl konfiguriert",
+      "Klassifikationsmodell mit caret::train trainiert",
+      "20 Vorhersagen auf ungesehenem Testdatensatz erzeugt",
+      "Konfusionsmatrix mit Validierungsgenauigkeit >= 80% berechnet",
+    ],
+    learning: [
+      "trainControl steuert Resampling-Verfahren wie 5-Fold Cross Validation",
+      "train vereinheitlicht Modelltraining über hunderte Machine-Learning-Algorithmen",
+      "predict wendet trainierte Modelle auf neue Testdaten an",
+      "confusionMatrix ermittelt Accuracy, Sensitivity, Specificity und Kappa",
+    ],
+    fieldNotes: [
+      "Vorverarbeitung strikt nur auf Trainingsdaten trainieren, um Datenlecks zu vermeiden.",
+      "Bei unausgewogenen Klassen Balanced Accuracy und AUC-ROC statt reiner Genauigkeit bevorzugen.",
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -3899,6 +4149,76 @@ Essential architecture of a production data pipeline:
 2. **Business Metrics:** Computing order volume, aggregate revenue, and average transaction values.
 3. **Defensive Grouping:** Setting \`.groups = "drop"\` prevents latent grouped data frame bugs in downstream steps.
 4. **Data Contract Invariants:** Asserting invariants with \`stopifnot()\` ensures corrupted outputs never reach executive dashboards.`,
+  },
+  "scale-parallel": {
+    lesson: `### Chapter 66 — Parallel Computing & Multi-Core Clusters with parallel
+
+By default, R executes your scripts on a **single CPU core**. When dealing with compute-intensive simulation, bootstrapping, or cross-validation loops, utilizing only one core wastes the compute capacity of modern multi-core workstations and servers.
+
+Base R provides the \`parallel\` package with two primary workflows:
+
+#### 1. Socket Clusters (Cross-Platform / Windows Compatible):
+Spawns background R worker processes communicating over local socket ports:
+\`\`\`r
+cl <- makeCluster(4) # Spawn 4 isolated R workers
+\`\`\`
+
+#### 2. Worker Variable Export (\`clusterExport\`):
+Because each worker is an isolated R process, variables and functions in your global workspace (\`.GlobalEnv\`) are not available unless explicitly transferred:
+\`\`\`r
+clusterExport(cl, c("heavy_op", "lookup_table"))
+\`\`\`
+
+#### 3. Concurrent Execution & Clean Teardown:
+\`\`\`r
+results <- parLapply(cl, data_chunks, heavy_op)
+stopCluster(cl) # Always release worker processes and socket ports
+\`\`\`
+
+#### ⚠️ Common Gotchas:
+- **Missing Worker Variables:** If you forget \`clusterExport()\`, \`parLapply()\` will immediately fail with \`object '...' not found\`.
+- **Zombie Worker Processes:** Failing to call \`stopCluster(cl)\` leaves orphan R processes consuming RAM and CPU in the background.
+- **Parallel Random Numbers:** Use \`clusterSetRNGStream(cl, iseed = 42)\` to ensure independent, reproducible random streams across concurrent workers.`,
+  },
+  "scale-sparklyr": {
+    lesson: `### Chapter 67 — Distributed Big Data with Apache Spark & sparklyr
+
+When dataset sizes exceed available RAM (from gigabytes to petabytes), reading raw CSVs directly into local R memory triggers fatal **Out Of Memory (OOM)** crashes.
+
+The \`sparklyr\` package bridges R to **Apache Spark**:
+1. **Familiar dplyr Syntax:** Write idiomatic \`filter()\`, \`group_by()\`, and \`summarise()\` code directly against massive distributed tables.
+2. **SQL Pushdown & Catalyst Optimization:** Your R pipelines are translated into optimized Spark SQL execution plans run concurrently across cluster executors.
+3. **Lazy Evaluation:** Computations are deferred until you explicitly call \`collect()\` to retrieve small aggregated KPI summaries into local R memory.
+
+#### ⚠️ Common Gotchas:
+- **Premature \`collect()\`:** Calling \`collect()\` on billions of unaggregated rows floods your local driver memory and crashes your session. Always filter and aggregate on the cluster first!
+- **R vs Spark Functions:** Custom R functions cannot run inside Spark SQL pushdown plans unless invoked through \`spark_apply()\`.`,
+  },
+  "scale-caret": {
+    lesson: `### Chapter 68 — Machine Learning & Model Evaluation with caret
+
+The \`caret\` package (Classification And REgression Training) by Max Kuhn provides a unified, production-grade interface to over 230 predictive modeling algorithms in R.
+
+#### Stages of a Machine Learning Workflow in R:
+1. **Stratified Splitting:** Partitioning data into train and test sets while preserving class balance using \`createDataPartition()\`.
+2. **Resampling Protocol:** Specifying k-fold cross-validation strategies via \`trainControl(method = "cv", number = 5)\`.
+3. **Model Training & Hyperparameter Tuning:**
+\`\`\`r
+fit <- train(target ~ ., data = train_set, method = "knn", trControl = ctrl)
+\`\`\`
+4. **Holdout Evaluation & Confusion Matrix:**
+\`\`\`r
+cm <- confusionMatrix(predictions, test_set$target)
+\`\`\`
+Key evaluation metrics reported by \`confusionMatrix()\`:
+- **Accuracy:** Overall proportion of correct predictions.
+- **Sensitivity (Recall):** Ability to detect true positive instances (critical in fraud/diagnostics).
+- **Specificity:** Ability to correctly reject true negative instances.
+- **Kappa:** Inter-rater agreement metric accounting for chance agreement.
+
+#### ⚠️ Common Gotchas:
+- **Data Leakage:** Centering, scaling, or imputation must be calculated exclusively on training partitions and applied to test partitions. Never preprocess before splitting!
+- **Class Imbalance:** On highly skewed outcomes (e.g., 99% negative), raw accuracy is deceptive. Always inspect Balanced Accuracy or ROC-AUC.`,
   },
 };
 

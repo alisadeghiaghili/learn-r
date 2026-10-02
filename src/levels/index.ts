@@ -2242,6 +2242,221 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 3. **تجمیع شاخص‌های کلیدی عملکرد (KPIs):** محاسبه تعداد سفارشات، مجموع فروش، و میانگین ارزش سبد خرید به تفکیک دسته‌بندی با پارامتر امن \`.groups = "drop"\` برای جلوگیری از باگ‌های گروه‌بندی پایدار.
 4. **قراردادهای داده و آزمون‌های دفاعی (Invariants Contract):** بررسی عدم وجود رکوردهای منفی یا تهی با تابع \`stopifnot()\` تا تضمین شود دیتای معیوب هرگز به دشبورد مدیران یا سرورهای گزارش‌گیری راه پیدا نمی‌کند.`,
   },
+  {
+    id: 'scale-parallel',
+    seriesId: 'foundations',
+    title: '66. Parallel Computing & Multi-Core Clusters (parallel)',
+    brief: 'Accelerate CPU-bound tasks by spawning a multi-worker cluster, exporting dependencies with clusterExport(), running parLapply(), and cleanly tearing down with stopCluster().',
+    goal: 'cl <- makeCluster(2)\nclusterExport(cl, "heavy_op")\nres_parallel <- parLapply(cl, chunks, heavy_op)\nstopCluster(cl)',
+    setup: `heavy_op <- function(x) sum(sqrt(x) * 2)
+chunks <- list(c(1, 4, 9), c(16, 25, 36), c(49, 64, 81))
+if (!exists("makeCluster", envir = .GlobalEnv)) {
+  makeCluster <- function(spec) structure(list(spec = spec, env = new.env(parent = .GlobalEnv)), class = "mock_cluster")
+  clusterExport <- function(cl, varlist, envir = .GlobalEnv) {
+    for (v in varlist) assign(v, get(v, envir = envir), envir = cl$env)
+  }
+  parLapply <- function(cl, x, fun, ...) {
+    lapply(x, function(el) {
+      fun_copy <- fun
+      environment(fun_copy) <- cl$env
+      fun_copy(el, ...)
+    })
+  }
+  stopCluster <- function(cl) invisible(NULL)
+  detectCores <- function() 4L
+}`,
+    par: 2,
+    difficulty: 4,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'exists("cl", envir = .GlobalEnv) && inherits(cl, c("cluster", "mock_cluster"))',
+        label: 'Cluster instantiated via makeCluster(2)',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("res_parallel", envir = .GlobalEnv) && is.list(res_parallel) && length(res_parallel) == 3',
+        label: 'parLapply executed parallel computations across chunks',
+      },
+      {
+        type: 'eval',
+        expr: 'identical(as.numeric(unlist(res_parallel)), c(12, 30, 48))',
+        label: 'Parallel worker output matches mathematical expectation: c(12, 30, 48)',
+      },
+    ],
+    hint: 'Initialize cl <- makeCluster(2), export the function with clusterExport(cl, "heavy_op"), run res_parallel <- parLapply(cl, chunks, heavy_op), then stopCluster(cl).',
+    lesson: `### فصل ۶۶ — محاسبات موازی و خوشه‌بندی پردازشی (Parallel Computing with parallel)
+
+زبان R به صورت پیش‌فرض کدهای شما را روی **یک هسته تکین (Single Core)** از پردازنده اجرا می‌کند. وقتی با محاسبات سنگین (مانند شبیه‌سازی مونت‌کارلو، بوت‌استرپینگ، یا برازش هزاران مدل روی زیرمجموعه‌ها) سروکار دارید، استفاده از تنها یک هسته یعنی هدر رفتن پتانسیل سرورها و CPUهای مدرن چند‌هسته‌ای.
+
+پکیج استاندارد \`parallel\` که بخشی از هسته R پایه است، دو سازوکار اصلی برای موازی‌سازی ارائه می‌دهد:
+
+#### ۱. سوکت کلاسترها (Socket Clusters - قابل اجرا در تمام سیستم‌ها از جمله ویندوز):
+یک کلاستر از فرایندهای پس‌زمینه جدید R ایجاد می‌کند:
+\`\`\`r
+cl <- makeCluster(4) # ایجاد ۴ ورکر مجزا
+\`\`\`
+
+#### ۲. انتقال متغیرها (Environment Isolation & clusterExport):
+چون هر ورکر یک فرایند کاملاً مستقل از R است، متغیرها و توابع موجود در \`.GlobalEnv\` به ورکرها منتقل نمی‌شوند مگر اینکه صراحتاً آنها را صادر کنید:
+\`\`\`r
+clusterExport(cl, c("my_func", "lookup_table"))
+\`\`\`
+
+#### ۳. اجرای موازی و آزادسازی منابع:
+\`\`\`r
+results <- parLapply(cl, data_chunks, my_func)
+stopCluster(cl) # همیشه کلاستر را ببندید تا حافظه و سوکت‌ها آزاد شوند
+\`\`\`
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **باگ خاموش نبود متغیر در ورکر:** اگر متغیری را با \`clusterExport()\` صادر نکنید، \`parLapply\` با خطای \`object '...' not found\` متوقف می‌شود.
+- **نشتی منابع (Zombie R Processes):** اگر بعد از پایان کار \`stopCluster(cl)\` را فراخوانی نکنید، فرایندهای پس‌زمینه R در سیستم باز می‌مانند و منابع سرور را مسدود می‌کنند.
+- **تولید اعداد تصادفی:** تولیدکننده پیش‌فرض اعداد تصادفی R در ورکرها دنباله‌های تکراری تولید می‌کند! برای موازی‌سازی صحیح کارهای تصادفی همیشه از \`clusterSetRNGStream(cl, iseed = 42)\` استفاده کنید.`,
+  },
+  {
+    id: 'scale-sparklyr',
+    seriesId: 'foundations',
+    title: '67. Distributed Big Data with sparklyr & Apache Spark',
+    brief: 'Connect to an Apache Spark session using sparklyr, push down lazy dplyr operations to the distributed engine, and collect aggregated business KPIs into local R memory.',
+    goal: 'sc <- spark_connect(master = "local")\ntx_spark <- copy_to(sc, raw_events, "tx_spark", overwrite = TRUE)\nkpi_spark <- tx_spark |>\n  dplyr::filter(status == "SUCCESS") |>\n  dplyr::group_by(region) |>\n  dplyr::summarise(total_gmv = sum(amount), n_tx = dplyr::n()) |>\n  collect()',
+    setup: `library(dplyr)
+raw_events <- data.frame(
+  tx_id = 1:6,
+  region = c("APAC", "EMEA", "APAC", "US", "EMEA", "US"),
+  amount = c(120, 250, 80, 400, 150, 310),
+  status = c("SUCCESS", "SUCCESS", "FAILED", "SUCCESS", "SUCCESS", "FAILED"),
+  stringsAsFactors = FALSE
+)
+if (!exists("spark_connect", envir = .GlobalEnv)) {
+  spark_connect <- function(master = "local") structure(list(master = master, tables = new.env()), class = "mock_spark_connection")
+  copy_to <- function(dest, df, name = deparse(substitute(df)), overwrite = TRUE, ...) {
+    assign(name, df, envir = dest$tables)
+    structure(df, class = c("tbl_spark", "tbl_lazy", "data.frame"))
+  }
+  collect <- function(x, ...) as.data.frame(x)
+}`,
+    par: 2,
+    difficulty: 4,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'exists("sc", envir = .GlobalEnv) && inherits(sc, c("spark_connection", "mock_spark_connection"))',
+        label: 'Connected to Spark cluster via spark_connect(master = "local")',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("tx_spark", envir = .GlobalEnv) && inherits(tx_spark, c("tbl_spark", "tbl_lazy"))',
+        label: 'Raw dataset mirrored to Spark distributed table tx_spark via copy_to()',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("kpi_spark", envir = .GlobalEnv) && is.data.frame(kpi_spark) && nrow(kpi_spark) == 3',
+        label: 'KPI summary collected from Spark cluster into local R memory (3 regions)',
+      },
+      {
+        type: 'eval',
+        expr: 'isTRUE(all.equal(sort(kpi_spark$region), c("APAC", "EMEA", "US"))) && isTRUE(all.equal(sum(kpi_spark$total_gmv), 920))',
+        label: 'Successful GMV aggregates to $920 across APAC (120), EMEA (400), and US (400)',
+      },
+    ],
+    hint: 'Connect with sc <- spark_connect(master = "local"), mirror data with copy_to(sc, raw_events, "tx_spark", overwrite = TRUE), filter status == "SUCCESS", group_by region, summarise total_gmv and n_tx, and collect().',
+    lesson: `### فصل ۶۷ — پردازش کلان‌داده‌ها با Apache Spark و sparklyr
+
+وقتی حجم داده‌ها از ظرفیت حافظه RAM سیستم (چند گیگابایت تا ترابایت‌ها) فراتر می‌رود، رویکرد معمول بارگذاری جدول با \`read.csv()\` یا دیتاتیبل با خطای وحشتناک **Out of Memory (OOM)** متوقف می‌شود.
+
+پکیج \`sparklyr\` قدرتمندترین پل ارتباطی زبان R به اکوسیستم **Apache Spark** است:
+1. **سینتکس یکپارچه با dplyr:** شما دقیقاً با همان کدهایی که در \`dplyr\` یاد گرفتید (\`filter\`، \`mutate\`، \`group_by\`، \`summarize\`) با داده‌های ترابایتی روی کلاستر صحبت می‌کنید.
+2. **ترجمه کوئری (SQL Translation & Query Pushdown):** کدهای R شما مستقیماً اجرا نمی‌شوند؛ بلکه به دستورات بهینه‌شده Spark SQL تبدیل شده و توسط کاتالیست اپاچی اسپارک روی ماشین‌های کلاستر پردازش می‌شوند.
+3. **ارزیابی تنبل (Lazy Evaluation):** هیچ دیتایی روی شبکه جابجا نمی‌شود تا زمانی که صراحتاً دستور \`collect()\` را برای دریافت نتایج خلاصه نهایی در حافظه محلی R صدا بزنید.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراخوانی زودهنگام \`collect()\`:** اگر دستور \`collect()\` را قبل از فیلتر یا تجمیع روی یک جدول چندمیلیاردی اجرا کنید، تمام ترابایت‌ها داده به رم لپ‌تاپ شما سرازیر شده و RStudio فوراً کرش می‌کند! همیشه ابتدا تا جای ممکن روی کلاستر فیلتر و خلاصه‌سازی کنید.
+- **تفاوت توابع R و SQL:** توابعی که در R سفارشی نوشته‌اید روی ورکر‌های اسپارک وجود ندارند، مگر اینکه از توابع نگاشت مانند \`spark_apply()\` استفاده کنید.`,
+  },
+  {
+    id: 'scale-caret',
+    seriesId: 'foundations',
+    title: '68. Predictive Modeling & Evaluation with caret',
+    brief: 'Build an end-to-end Machine Learning pipeline using caret: configure 5-fold cross-validation with trainControl(), train a classification model with train(), predict on unseen test data, and assess performance with confusionMatrix().',
+    goal: 'ctrl <- trainControl(method = "cv", number = 5)\nfit_caret <- train(outcome ~ feature1 + feature2, data = train_set, method = "knn", trControl = ctrl)\npreds <- predict(fit_caret, newdata = test_set)\ncm <- confusionMatrix(preds, test_set$outcome)',
+    setup: `set.seed(42)
+train_set <- data.frame(
+  feature1 = c(rnorm(30, mean = 2, sd = 1), rnorm(30, mean = 5, sd = 1)),
+  feature2 = c(rnorm(30, mean = 2, sd = 1), rnorm(30, mean = 5, sd = 1)),
+  outcome = factor(rep(c("ClassA", "ClassB"), each = 30))
+)
+test_set <- data.frame(
+  feature1 = c(rnorm(10, mean = 2, sd = 1), rnorm(10, mean = 5, sd = 1)),
+  feature2 = c(rnorm(10, mean = 2, sd = 1), rnorm(10, mean = 5, sd = 1)),
+  outcome = factor(rep(c("ClassA", "ClassB"), each = 10))
+)
+if (!exists("trainControl", envir = .GlobalEnv)) {
+  trainControl <- function(method = "cv", number = 5, ...) list(method = method, number = number)
+  train <- function(form, data, method = "knn", trControl = list(), ...) {
+    target_var <- all.vars(form)[1]
+    feature_vars <- all.vars(form)[-1]
+    structure(list(formula = form, target = target_var, features = feature_vars, data = data, method = method), class = "train")
+  }
+  predict.train <- function(object, newdata, ...) {
+    scores <- newdata[[object$features[1]]] + newdata[[object$features[2]]]
+    factor(ifelse(scores > 7, "ClassB", "ClassA"), levels = levels(object$data[[object$target]]))
+  }
+  confusionMatrix <- function(data, reference, ...) {
+    tab <- table(Prediction = data, Reference = reference)
+    acc <- sum(diag(tab)) / sum(tab)
+    structure(list(table = tab, overall = c(Accuracy = acc)), class = "confusionMatrix")
+  }
+}`,
+    par: 2,
+    difficulty: 4,
+    checks: [
+      {
+        type: 'eval',
+        expr: 'exists("ctrl", envir = .GlobalEnv) && is.list(ctrl) && ctrl$number == 5',
+        label: 'Configured 5-fold cross-validation with trainControl(method = "cv", number = 5)',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("fit_caret", envir = .GlobalEnv) && inherits(fit_caret, "train")',
+        label: 'Trained model via caret::train() targeting outcome ~ feature1 + feature2',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("preds", envir = .GlobalEnv) && is.factor(preds) && length(preds) == 20',
+        label: 'Generated 20 predictions on unseen test_set with predict()',
+      },
+      {
+        type: 'eval',
+        expr: 'exists("cm", envir = .GlobalEnv) && inherits(cm, "confusionMatrix") && cm$overall["Accuracy"] >= 0.8',
+        label: 'Computed confusionMatrix() achieving validation accuracy >= 80%',
+      },
+    ],
+    hint: 'Setup ctrl <- trainControl(method = "cv", number = 5), train fit_caret with train(outcome ~ feature1 + feature2, data = train_set, method = "knn", trControl = ctrl), predict preds with predict(fit_caret, newdata = test_set), and cm <- confusionMatrix(preds, test_set$outcome).',
+    lesson: `### فصل ۶۸ — یادگیری ماشین و ارزیابی مدل‌ها با پکیج caret
+
+پکیج \`caret\` (مخفف Classification And REgression Training) نوشته دکتر مکس کون (Max Kuhn)، استاندارد طلایی و چارچوب یکپارچه یادگیری ماشین در زبان R است. این پکیج بیش از ۲۳۰ الگوریتم مختلف یادگیری ماشین را زیر یک رابط کاربری مشترک و هماهنگ جمع کرده است.
+
+#### مراحل یک پایپلاین استاندارد یادگیری ماشین در R:
+1. **جداسازی داده‌ها (Data Splitting):** تقسیم داده به آموزش و آزمون با حفظ توزیع کلاس‌ها با تابع \`createDataPartition()\`.
+2. **پیکربندی اعتبارسنجی متقاطع (Resampling / Cross-Validation):** با تابع \`trainControl(method = "cv", number = 5)\` تعیین می‌کنید که ارزیابی پایداری مدل روی ۵ تکرار ناهم‌پوشان انجام شود.
+3. **آموزش و تیونینگ خودکار هایپرپارامترها (Training & Hyperparameter Tuning):**
+\`\`\`r
+fit <- train(target ~ ., data = train_data, method = "knn", trControl = ctrl)
+\`\`\`
+4. **پیش‌بینی و ماتریس درهم‌ریختگی (Confusion Matrix):**
+\`\`\`r
+cm <- confusionMatrix(predictions, test_data$target)
+\`\`\`
+ماتریس درهم‌ریختگی علاوه بر دقت (Accuracy)، شاخص‌های کلیدی زیر را محاسبه می‌کند:
+- **Sensitivity (Recall):** توانایی مدل در کشف کلاس‌های مثبت واقعی (بسیار مهم در تشخیص بیماری یا کشف تقلب).
+- **Specificity:** توانایی مدل در رد کلاس‌های منفی.
+- **Kappa Statistic:** سنجش توافق مدل فراتر از شانس تصادفی.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تله نشت داده (Data Leakage):** نرمال‌سازی متغیرها یا پر کردن مقادیر گمشده (Imputation) باید صرفاً روی داده‌های Train یاد گرفته شود و سپس همان پارامترها به Test اعمال شوند؛ هرگز کل داده‌ها را قبل از تفکیک نرمال‌سازی نکنید!
+- **عدم تعادل دسته‌ها (Class Imbalance):** اگر ۹۹٪ داده‌ها کلاس منفی باشند، مدلی که همیشه منفی پیش‌بینی کند دقت ۹۹٪ خواهد داشت اما عملاً بی‌فایده است! در این شرایط باید به جای Accuracy به معیار Balanced Accuracy یا AUC-ROC تکیه کنید.`,
+  },
 ];
 
 export function getLevel(id: string): LevelDef | null {
@@ -2386,6 +2601,16 @@ export function seriesOf(): SeriesGroup[] {
         'prod-cli',
         'prod-resilient-db',
         'prod-error-handling',
+      ],
+    },
+    {
+      id: 'scalable-ml',
+      title: 'BIG DATA, ML & PARALLEL COMPUTING',
+      prefix: 'scale',
+      ids: [
+        'scale-parallel',
+        'scale-sparklyr',
+        'scale-caret',
       ],
     },
     {

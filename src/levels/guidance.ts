@@ -724,6 +724,42 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'Automated pipelines export finalized summary tibbles to Parquet or cloud storage for downstream BI tools.',
     ],
   },
+  'scale-parallel': {
+    learning: [
+      'makeCluster() initializes worker R processes communicating via socket connections',
+      'clusterExport() explicitly transfers variables and functions from .GlobalEnv to workers',
+      'parLapply() executes functional loops concurrently across worker nodes',
+      'stopCluster() releases background worker processes and frees system ports and RAM',
+    ],
+    fieldNotes: [
+      'Socket clusters work identically on Windows, Linux, and macOS; mclapply() relies on Unix fork().',
+      'Set reproducible parallel random seeds using clusterSetRNGStream() to avoid correlated draws.',
+    ],
+  },
+  'scale-sparklyr': {
+    learning: [
+      'spark_connect() opens an active driver connection to an Apache Spark cluster',
+      'copy_to() transfers local datasets into distributed Spark memory partitions',
+      'dplyr verbs (filter, group_by, summarize) push down lazy SQL queries directly to Spark executors',
+      'collect() retrieves aggregated summary tables from cluster executors back to local R memory',
+    ],
+    fieldNotes: [
+      'Always filter and aggregate data in Spark before calling collect() to prevent local driver OOM crashes.',
+      'In production, sparklyr reads directly from cloud data lakes (S3, GCS, ADLS) in Parquet/Delta formats.',
+    ],
+  },
+  'scale-caret': {
+    learning: [
+      'trainControl() specifies resampling protocols such as 5-fold cross-validation (method = "cv")',
+      'train() unifies training across 230+ algorithms with automated hyperparameter grid tuning',
+      'predict() applies fitted models to holdout test datasets',
+      'confusionMatrix() computes cross-tabulated accuracy, sensitivity, specificity, and Kappa metrics',
+    ],
+    fieldNotes: [
+      'Never preprocess on the entire dataset prior to splitting to avoid optimistic data leakage.',
+      'On imbalanced classification datasets, prioritize Balanced Accuracy and ROC-AUC over raw Accuracy.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

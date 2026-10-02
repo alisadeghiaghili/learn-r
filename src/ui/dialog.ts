@@ -198,15 +198,26 @@ export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement
   const footer = document.createElement('div');
   footer.className = 'modal-actions';
 
-  const actions = spec.actions && spec.actions.length ? spec.actions : [{ label: 'Close', onClick: () => closeModal() }];
+  const close = () => {
+    if (document.body.contains(overlay)) {
+      overlay.remove();
+    }
+    if (activeOverlay === overlay) {
+      activeOverlay = null;
+      activeDismiss = undefined;
+    }
+    spec.onDismiss?.();
+  };
+
+  const actions = spec.actions && spec.actions.length ? spec.actions : [{ label: 'Close', onClick: () => close() }];
   actions.forEach((act) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = (act.className ?? '').trim();
     btn.textContent = act.label;
     btn.addEventListener('click', () => {
+      close();
       act.onClick();
-      closeModal();
     });
     footer.appendChild(btn);
   });
@@ -220,7 +231,7 @@ export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      closeModal();
+      close();
     }
   });
 
@@ -228,17 +239,21 @@ export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement
   firstBtn?.focus();
 
   return {
-    close: () => closeModal(),
+    close,
     el: overlay,
   };
 }
 
 export function closeModal(): void {
   if (activeOverlay) {
-    activeOverlay.remove();
+    const prev = activeOverlay;
+    const dismiss = activeDismiss;
     activeOverlay = null;
-    activeDismiss?.();
     activeDismiss = undefined;
+    if (document.body.contains(prev)) {
+      prev.remove();
+    }
+    dismiss?.();
   }
 }
 

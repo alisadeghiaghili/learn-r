@@ -140,7 +140,7 @@ export const en: UiStrings = {
     'Objects committed. Confidence up.',
   ],
   baskInIt: 'Bask in it',
-  celebrateOn: (id: string) => `Celebrate on: ${id}`,
+  celebrateOn: (id: string) => `Next Level (${id}) →`,
   browseLevels: 'Browse levels',
   levelComplete: 'Level complete',
   shareTitle: 'Share what you learned (includes your curriculum)',

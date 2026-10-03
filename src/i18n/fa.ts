@@ -145,7 +145,7 @@ export const fa: UiStrings = {
     'متغیرها ثبت شدند. اعتماد به نفس بالا.',
   ],
   baskInIt: 'لذت ببر',
-  celebrateOn: (id: string) => `جشن بعدی: ${id}`,
+  celebrateOn: (id: string) => `مرحله بعد (${id}) →`,
   browseLevels: 'مرور مرحله‌ها',
   levelComplete: 'مرحله کامل شد',
   shareTitle: 'چه چیزی یاد گرفتید را به اشتراک بگذارید (با برنامه‌ی آموزشی شما)',

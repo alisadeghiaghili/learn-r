@@ -141,7 +141,7 @@ export const de: UiStrings = {
     'Objekte committed. Vertrauen hoch.',
   ],
   baskInIt: 'Genießen',
-  celebrateOn: (id: string) => `Weiter feiern: ${id}`,
+  celebrateOn: (id: string) => `Nächstes Level (${id}) →`,
   browseLevels: 'Levels durchstöbern',
   levelComplete: 'Level abgeschlossen',
   shareTitle: 'Teile, was du gelernt hast (inkl. deinem Curriculum)',

@@ -218,6 +218,14 @@ export class App {
     });
 
     this.dockEl.addEventListener('click', (e) => {
+      const nextBtn = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-action="next-level"]');
+      if (nextBtn && this.level) {
+        const next = getNextLevel(this.level.id);
+        if (next) {
+          void this.enterLevel(next.id, { openLesson: true });
+          return;
+        }
+      }
       const target = (e.target as HTMLElement | null)?.closest<HTMLElement>('.g-step-cmd');
       if (target?.dataset.cmd) {
         this.terminal.setInput(target.dataset.cmd);
@@ -329,14 +337,16 @@ export class App {
     const firstGoal = goalLines[0]?.trim() ?? null;
     this.terminal.setHint(firstGoal);
 
-    await this.runtime.resetTo(level.setup, []);
-    await this.updateBoard();
-    this.renderDock();
     this.updateTitle();
+    this.renderDock();
 
     if (opts?.openLesson) {
       this.openLesson();
     }
+
+    await this.runtime.resetTo(level.setup, []);
+    await this.updateBoard();
+    this.renderDock();
   }
 
   async enterSandbox(): Promise<void> {
@@ -638,8 +648,16 @@ export class App {
     });
 
     const firstNext = currentId !== -1 ? steps[currentId]?.command : solutionCmds[0] ?? level.goal;
+    const next = getNextLevel(level.id);
     const nextBlock = solved
-      ? `<div class="next-box met">${escapeHtml(u.allSolutionMet)}</div>`
+      ? `<div class="next-box met">
+          <div>${escapeHtml(u.allSolutionMet)}</div>
+          ${
+            next
+              ? `<button type="button" class="btn primary dock-next-btn" data-action="next-level" style="margin-top: 8px; width: 100%; cursor: pointer;">${escapeHtml(u.celebrateOn(next.id))}</button>`
+              : ''
+          }
+        </div>`
       : `<div class="next-box">
           <div class="next-title">${escapeHtml(u.typeNextTitle)}</div>
           <div class="next-row">
@@ -720,7 +738,18 @@ export class App {
       this.triggerHint();
       return;
     }
-    if (lower === 'goal' || lower === 'guide' || lower === 'steps' || lower === 'next') {
+    if (lower === 'next' || lower === 'next level' || lower === 'continue' || lower === 'بعدی') {
+      if (this.level) {
+        const next = getNextLevel(this.level.id);
+        if (next) {
+          void this.enterLevel(next.id, { openLesson: true });
+          return;
+        }
+        this.openLevels();
+        return;
+      }
+    }
+    if (lower === 'goal' || lower === 'guide' || lower === 'steps') {
       this.focusGuide();
       this.terminal.push('meta', ui().guideAlwaysRight);
       return;

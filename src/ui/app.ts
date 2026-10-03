@@ -13,6 +13,7 @@ import { COFFEE_BUTTON_HTML, REPO_URL, buildShareTargets, shareWithClipboard } f
 import { BASELINE_FALLBACK, getCachedVisitorCount, getVisitorCount } from './visitor-counter';
 import { getLevelLearning, getLevelFieldNotes } from '../levels/guidance';
 import { localizeLevel } from '../levels/i18n';
+import { formatUiHelpText, startUiTour, uiHelpModalHtml } from './ui-help';
 
 function renderDiffDots(difficulty: number): string {
   const n = Math.max(0, Math.min(5, difficulty));
@@ -32,6 +33,7 @@ export class App {
   private showHint = false;
   private knownNames = new Set<string>();
   private cachedVisitorCount: number | null = getCachedVisitorCount();
+  private helpReopenTimer: number | null = null;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -90,15 +92,15 @@ export class App {
     this.root.innerHTML = `
       <div class="app-main">
         <header class="toolbar">
-          <div class="brand">
+          <div class="brand" data-help-id="brand">
             <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="R">
               <rect width="64" height="64" rx="14" fill="#e5edf8"/>
               <g transform="translate(12 12) scale(1.6667)" fill="#2569bb"><path d="M12 2.746c-6.627 0-12 3.599-12 8.037 0 3.897 4.144 7.144 9.64 7.88V16.26c-2.924-.915-4.925-2.755-4.925-4.877 0-3.035 4.084-5.494 9.12-5.494 5.038 0 8.757 1.683 8.757 5.494 0 1.976-.999 3.379-2.662 4.272.09.066.174.128.258.216.169.149.25.363.372.544 2.128-1.45 3.44-3.437 3.44-5.631 0-4.44-5.373-8.038-12-8.038zm-2.111 4.99v13.516l4.093-.002-.002-5.291h1.1c.225 0 .321.066.549.25.272.22.715.982.715.982l2.164 4.063 4.627-.002-2.864-4.826s-.086-.193-.265-.383a2.22 2.22 0 00-.582-.416c-.422-.214-1.149-.434-1.149-.434s3.578-.264 3.578-3.826c0-3.562-3.744-3.63-3.744-3.63zm4.127 2.93l2.478.002s1.149-.062 1.149 1.127c0 1.165-1.149 1.17-1.149 1.17h-2.478zm1.754 6.119c-.494.049-1.012.079-1.54.088v1.807a16.622 16.622 0 002.37-.473l-.471-.891s-.108-.183-.248-.394c-.039-.054-.08-.098-.111-.137z"/></g>
             </svg>
             Learn<span>${escapeHtml(u.brandTagline)}</span>
           </div>
-          <div class="level-title" id="level-title"></div>
-          <div class="toolbar-actions">
+          <div class="level-title" id="level-title" data-help-id="level-title"></div>
+          <div class="toolbar-actions" data-help-id="toolbar">
             <div class="lang-menu">
               <button type="button" class="lang-btn" data-action="lang-toggle" aria-haspopup="menu" aria-expanded="false" aria-label="${escapeHtml(u.language)}">
                 <span data-lang-label>${current.toUpperCase()}</span>
@@ -123,23 +125,23 @@ export class App {
               <button type="button" data-action="local-setup" title="${escapeHtml(u.localSetupTitle)}" class="ghost">${escapeHtml(u.localSetupBtn)}</button>
               <button type="button" class="help-btn" data-action="help" title="${escapeHtml(u.uiGuideTitle)}" aria-label="${escapeHtml(u.help)}">?</button>
             </div>
-            <span class="tb-stat visitors" id="visitor-stat" title="${escapeHtml(u.visitorsTitle)}">
+            <span class="tb-stat visitors" id="visitor-stat" data-help-id="links" title="${escapeHtml(u.visitorsTitle)}">
               <svg class="visitor-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0-2.21-2.69-4-6-4s-6 1.79-6 4v1h12v-1zm-1.07 0H3.07C3.56 11.83 5.48 11 8 11s4.44.83 4.93 2z"/></svg>
               <span class="visitor-count" id="visitor-count">${(this.cachedVisitorCount ?? BASELINE_FALLBACK).toLocaleString('en-US')}</span>
             </span>
-            <a class="tb-link gh" href="${REPO_URL}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.githubTitle)}" aria-label="GitHub repository">
+            <a class="tb-link gh" data-help-id="links" href="${REPO_URL}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.githubTitle)}" aria-label="GitHub repository">
               <svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
             </a>
-            <a class="tb-link support" href="https://www.buymeacoffee.com/alisadeghil" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.supportTitle)}">
+            <a class="tb-link support" data-help-id="links" href="https://www.buymeacoffee.com/alisadeghil" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u.supportTitle)}">
               ${escapeHtml(u.support)}
             </a>
           </div>
         </header>
-        <div class="board-wrap" id="board-wrap"></div>
-        <div class="editor-drawer" id="editor-drawer"></div>
-        <div class="terminal" id="terminal"></div>
+        <div class="board-wrap" id="board-wrap" data-help-id="board"></div>
+        <div class="editor-drawer" id="editor-drawer" data-help-id="editor"></div>
+        <div class="terminal" id="terminal" data-help-id="terminal"></div>
       </div>
-      <aside class="dock" id="dock" aria-label="${escapeHtml(u.guidePanel)}"></aside>
+      <aside class="dock" id="dock" data-help-id="dock" aria-label="${escapeHtml(u.guidePanel)}"></aside>
     `;
 
     this.titleEl = this.root.querySelector('#level-title')!;
@@ -185,7 +187,7 @@ export class App {
         if (action === 'reset') void this.reset();
         if (action === 'sandbox') void this.enterSandbox();
         if (action === 'local-setup') this.openLocalGuide();
-        if (action === 'help') this.openHelp();
+        if (action === 'help') this.openUiHelp(true);
         this.terminal.focus();
       });
     });
@@ -726,8 +728,14 @@ export class App {
     if (!raw) return;
 
     const lower = raw.toLowerCase();
-    if (lower === 'help') {
-      this.openHelp();
+    if (lower === 'help ui' || lower === 'tour' || lower === 'help page') {
+      this.terminal.push('out', formatUiHelpText());
+      this.openUiHelp(true);
+      return;
+    }
+    if (lower === 'help' || lower === '?') {
+      this.terminal.push('out', formatUiHelpText());
+      this.openUiHelp(false);
       return;
     }
     if (lower === 'levels') {
@@ -901,33 +909,40 @@ export class App {
     });
   }
 
-  openHelp(): void {
+  openUiHelp(runTour = false): void {
+    if (runTour) startUiTour(this.root);
     const u = ui();
-    showModal({
-      title: u.help,
-      bodyHtml: renderMarkdown(`
-### Command Reference
-
-| Command | Effect |
-|---|---|
-| \`levels\` | Open the level catalog |
-| \`lesson\` | View detailed explanation for current level |
-| \`hint\` | Reveal the level hint |
-| \`solution\` | Display target solution |
-| \`undo\` | Remove the last stroke |
-| \`reset\` | Clear the environment and start over |
-| \`sandbox\` | Enter open sandbox mode |
-| \`clear\` | Clear the console log |
-| \`script\` | Toggle multi-line R script editor |
-| \`local\` | Open production and local environment setup guide |
-
-### Execution
-- Press **Ctrl / Cmd + Enter** to run the current line or script.
-- Type in the console prompt and hit **Enter**.
-- Tab cycles through autocomplete suggestions.
-      `),
-      actions: [{ label: u.closeBtn, onClick: () => undefined }],
+    const modal = showModal({
+      title: u.uiGuideTitle,
+      bodyHtml: uiHelpModalHtml(),
+      actions: [{ label: u.closeBtn, className: 'ghost', onClick: () => modal.close() }],
+      onClose: () => {
+        if (this.helpReopenTimer !== null) {
+          window.clearTimeout(this.helpReopenTimer);
+          this.helpReopenTimer = null;
+        }
+        this.root.querySelectorAll('.ui-tour-on').forEach((el) => el.classList.remove('ui-tour-on'));
+        this.terminal.focus();
+      },
     });
+
+    modal.el.querySelectorAll<HTMLButtonElement>('[data-focus-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.focusId;
+        if (!id) return;
+        modal.close();
+        startUiTour(this.root, id, 3000);
+        if (this.helpReopenTimer !== null) window.clearTimeout(this.helpReopenTimer);
+        this.helpReopenTimer = window.setTimeout(() => {
+          this.helpReopenTimer = null;
+          this.openUiHelp(false);
+        }, 3000);
+      });
+    });
+  }
+
+  openHelp(): void {
+    this.openUiHelp(false);
   }
 
   openLocalGuide(): void {

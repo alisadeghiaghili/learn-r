@@ -145,4 +145,11 @@ export interface UiStrings {
   shareXFirst: string;
   titleLearnR: string;
   solveMoreLevels: string;
+
+  // Interactive UI Guide & Tour
+  highlightThis: string;
+  useIt: string;
+  uiHelpMapTitle: string;
+  uiHelpCommands: string;
+  helpSections: { id: string; selector: string; title: string; what: string; how: string }[];
 }

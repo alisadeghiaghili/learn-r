@@ -8,7 +8,7 @@ const LAST_VISIT_KEY = 'learn-r:last-visit-date';
 const COUNT_API_BASE = 'https://countapi.mileshilliard.com/api/v1';
 const COUNT_KEY = 'alisadeghiaghili-learn-r';
 const BADGE_URL = 'https://api.visitorbadge.io/api/visitors?path=alisadeghiaghili.learn-r';
-export const BASELINE_FALLBACK = 2400;
+export const BASELINE_FALLBACK = 2;
 
 export interface CachedCount {
   count: number;

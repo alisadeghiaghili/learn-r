@@ -3580,6 +3580,333 @@ cm <- confusionMatrix(predictions, test_data$target)
       "در دیتاست‌های نامتعادل، همیشه معیار Balanced Accuracy یا AUC-ROC را بر دقت خام ترجیح دهید.",
     ],
   },
+  "shiny-intro": {
+    title: "۶۹. مقدمه‌ای بر وب‌اپلیکیشن‌ها و گراف واکنشی در Shiny",
+    brief: "پکیج Shiny استاندارد ساخت وب‌اپلیکیشن‌ها و داشبوردهای داده‌محور در R است. معماری تفکیک‌شده UI و Server و سازوکار برنامه‌نویسی واکنشی (Reactivity) را با تعریف ساختار اپلیکیشن و تابع reactive شبیه‌سازی کنید.",
+    hint: "تعریف کنید: app_ui با مشخصات fluidPage، تابع app_server با filtered_data، و متغیر is_shiny_app <- is.list(app_ui) && is.function(app_server).",
+    lesson: `### فصل ۶۹ — مقدمه‌ای بر وب‌اپلیکیشن‌ها و گراف واکنشی در Shiny
+
+پکیج **\`Shiny\`** ساخته شرکت Posit، قدرتمندترین ابزار برای تبدیل کدهای تحلیلی R به داشبوردها و وب‌اپلیکیشن‌های کاملاً تعاملی بدون نیاز به کدنویسی HTML/CSS یا JavaScript است.
+
+> [!NOTE]
+> **راهنمای دوره تخصصی:** این سرفصل صرفاً یک ورود و آشنایی با معماری کلیدی Shiny است. برای یادگیری کامل، طراحی کامپوننت‌های پیشرفته، ماژول‌های سازمانی و استقرار بدون سرور با Shinylive، به **«دوره تخصصی و جامع Shiny»** مراجعه نمایید (لینک به زودی در پلتفرم قرار می‌گیرد).
+
+#### ۱. معماری دو لایه‌ای UI و Server:
+اپلیکیشن‌های Shiny بر اساس تفکیک بنیادین مسئولیت‌ها ساخته می‌شوند:
+- **واسط کاربری (\`ui\`):** طرح‌بندی ظاهری (Layout)، اسلایدرها، منوهای کشویی و محل‌های قرارگیری نمودارها را با توابعی نظیر \`fluidPage()\` و ورودی‌های \`selectInput()\` تعریف می‌کند.
+- **موتور سرور (\`server\`):** مغز متفکر برنامه است که مقادیر ورودی را در قالب شیء \`input\` دریافت کرده، محاسبات تحلیلی را انجام داده و خروجی‌ها را در شیء \`output\` رندر می‌کند.
+
+#### ۲. پارادایم برنامه‌نویسی واکنشی (Reactivity):
+در برنامه‌نویسی خطی معمولی، اگر \`y <- x + 1\` باشد و سپس \`x\` تغییر کند، مقدار \`y\` به صورت خودکار تغییر نمی‌کند. اما در گراف واکنشی شاین، توابع \`reactive()\` و \`renderPlot()\` به تغییرات متغیرهای ورودی "گوش" می‌دهند؛ به محض اینکه کاربر اسلایدر یا تاریخ را تغییر دهد، فقط بخش‌های وابسته در نمودارها و جداول دوباره محاسبه می‌شوند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **فراخوانی متغیر واکنشی بدون پرانتز:** یک شیء واکنشی \`data <- reactive({ ... })\` یک تابع است و باید حتماً با پرانتز فراخوانی شود (\`data()\`)؛ ارجاع به شکل \`data\` باعث خطاهای گیج‌کننده کلاسی می‌شود.
+- **تغییر حالت خارج از دامنه (Isolate Trap):** اگر می‌خواهید متغیری بدون تحریک مجدد نمودار خوانده شود، باید آن را در تابع \`isolate()\` کپسوله کنید.`,
+    checksLabels: [
+      "متغیر is_shiny_app صحت ساختار UI و تابع سرور را تأیید کند",
+      "تابع app_server گراف وابستگی واکنشی با رندرهای پویا تولید کند",
+    ],
+    learning: [
+      "پکیج Shiny با تفکیک واسط کاربری (UI) و موتور محاسباتی (Server) داشبوردهای تعاملی وب می‌سازد",
+      "گراف واکنشی (Reactive Graph) با توابع reactive و render تغییرات ورودی‌های کاربر را به خروجی‌ها منتقل می‌کند",
+      "فناوری مدرن Shinylive امکان اجرای اپلیکیشن‌های شاین را مستقیماً در مرورگر بدون نیاز به سرور فراهم می‌سازد",
+    ],
+    fieldNotes: [
+      "برای مطالعه عمیق‌تر، ساخت ماژول‌های سازمانی و پروژه‌های بزرگ به دوره تخصصی Shiny مراجعه فرمایید.",
+      "توابع reactive() را همواره با پرانتز فراخوانی کنید تا به مقدار جاری آنها دسترسی داشته باشید.",
+    ],
+  },
+  "api-plumber": {
+    title: "۷۰. میکروسرویس‌ها و وب‌سرویس‌های RESTful با Plumber",
+    brief: "پکیج Plumber اسکریپت‌ها و توابع محاسباتی R را با استفاده از دکوراتورهای کامنتی به وب‌سرویس‌های استاندارد REST API تبدیل می‌کند. یک روت ساده GET و POST را با دکوراتورهای استاندارد Plumber پیکربندی کنید.",
+    hint: "آرایه توابع api_routes را با get_health و post_predict بسازید و تنظیمات را با plumber_spec <- list(routes = names(api_routes), port = 8000, swagger = TRUE) ثبت کنید.",
+    lesson: `### فصل ۷۰ — میکروسرویس‌ها و وب‌سرویس‌های RESTful با Plumber
+
+وقتی یک مدل پیش‌بینی یا الگوریتم بهینه‌سازی در R آموزش داده می‌شود، چالش بعدی مهندسی نرم‌افزار این است: چگونه اپلیکیشن وب شرکت (که با React/Node.js یا Python نوشته شده) یا سیستم‌های مالی دیگر می‌توانند از این مدل در لحظه استعلام بگیرند؟ پاسخ پکیج استاندارد **\`plumber\`** است.
+
+> [!NOTE]
+> **راهنمای دوره تخصصی:** این درس مقدمه‌ای ساختاریافته بر مفهوم وب‌سرویس در R است. برای تسلط عمیق بر احراز هویت توکن JWT، فیلترهای CORS، تست بار و استقرار خودکار کانتینرهای داکر روی Kubernetes، به **«دوره جامع مهندسی API با Plumber»** مراجعه فرمایید (لینک به زودی اضافه می‌شود).
+
+#### ۱. تبدیل توابع به اندپوینت‌های وب با دکوراتورها:
+پکیج Plumber با الهام از دکوراتورهای مستندسازی \`roxygen2\`، کامنت‌های خاصی با پیشوند \`#*\` را اسکن می‌کند:
+\`\`\`r
+library(plumber)
+
+#* @apiTitle سرویس امتیازدهی اعتباری مشتریان
+#* @apiDescription وب‌سرویس پروداکشن برای پیش‌بینی ریسک مالی
+
+#* پایش سلامت سرویس
+#* @get /health
+function() {
+  list(status = "OK", uptime = Sys.time())
+}
+
+#* پیش‌بینی ریسک بر اساس ورودی عددی
+#* @param amount مبلغ تراکنش
+#* @post /predict
+function(amount) {
+  score <- as.numeric(amount) * 1.5
+  list(prediction = score)
+}
+\`\`\`
+
+#### ۲. مستندات تعاملی Swagger و انطباق با OpenAPI:
+پکیج Plumber به صورت پیش‌فرض یک رابط کاربری تعاملی بر پایه **Swagger / OpenAPI** تولید می‌کند تا برنامه‌نویسان بک‌اند بتوانند بدون نیاز به خواندن کدهای R، متدها و پارامترها را مستقیماً در مرورگر آزمایش کنند.
+
+#### ⚠️ دام‌های متداول (Common Gotchas):
+- **تک‌تردی بودن مفسر R در ریکوئست‌های همزمان:** مفسر R به صورت پیش‌فرض تک‌ترد است. اگر یک ریکوئست سنگین پردازش شود، ریکوئست‌های دیگر در صف منتظر می‌مانند. در محیط‌های پرترافیک، از پکیج‌های \`promises\` و کلاسترهای کارگری در لایه داکر استفاده می‌شود.
+- **تبدیل رشته به نوع عددی:** پارامترهایی که از طریق کوئری URL یا بدنه فرم ارسال می‌شوند به صورت رشته کاراکتری به تابع تحویل داده می‌شوند؛ همیشه ورودی‌ها را صراحتاً با \`as.numeric()\` تبدیل کنید.`,
+    checksLabels: [
+      "شیء api_routes دارای هندلرهای پایش سلامت GET و پیش‌بینی POST باشد",
+      "تنظیمات plumber_spec روی پورت ۸۰۰۰ همراه با رابط تعاملی Swagger تعریف شود",
+    ],
+    learning: [
+      "پکیج Plumber کدهای تحلیلی و مدل‌های R را با کامنت‌های دکوراتور (#*) به REST API استاندارد تبدیل می‌کند",
+      "رابط کاربری تعاملی خودکار Swagger/OpenAPI آزمایش روت‌ها را در مرورگر آسان می‌سازد",
+      "استقرار میکروسرویس‌های R در کانتینرهای Docker ارتباط سیستم‌های فرانت‌اند و بک‌اند را ممکن می‌سازد",
+    ],
+    fieldNotes: [
+      "برای معماری کامل میکروسرویس‌ها، احراز هویت با JWT و بهینه‌سازی بار همزمان به دوره تخصصی Plumber مراجعه نمایید.",
+      "در متدهای POST داده‌های ارسالی فرم به صورت رشته کاراکتری تحویل می‌شوند و باید صراحتاً با as.numeric کوئرس شوند.",
+    ],
+  },
+  "scale-duckdb": {
+    title: "۷۱. پردازش ستونی کلان‌داده و معماری Lakehouse با DuckDB و Arrow",
+    brief: "پکیج‌های DuckDB و Apache Arrow انقلابی در تحلیل داده‌های فراتر از حافظه رم (Out-of-Core) به پا کرده‌اند. یک اتصال دیتابیس در حافظه DuckDB ایجاد کرده، داده‌های پارکت را مجازی‌سازی و شاخص‌های فروش را با دستورات برداری کوئری بگیرید.",
+    hint: "اتصال con <- duckdb_connect() را باز کنید، ویو را ثبت کرده، خلاصه lake_summary را با duckdb_query بسازید و کانکشن را با duckdb_close(con) ببندید.",
+    lesson: `### فصل ۷۱ — پردازش ستونی کلان‌داده و معماری Lakehouse با DuckDB و Apache Arrow
+
+در عصر کلان‌داده، دو فناوری پیشگام یعنی **\`Apache Arrow\`** و موتور دیتابیس تحلیلی درون‌فرآیندی **\`DuckDB\`** (معروف به SQLite دنیای OLAP)، قوانین پردازش داده را بازنویسی کرده‌اند. تا پیش از این، برای تحلیل فایل‌های چند ده گیگابایتی ناچار به راه‌اندازی کلاسترهای سنگین و گران‌قیمت آپاچی اسپارک بودیم. اکنون با ترکیب DuckDB و Arrow، می‌توان میلیاردها ردیف داده پارکت را روی یک لپ‌تاپ معمولی با حداکثر سرعت پردازش کرد.
+
+#### ۱. مبانی معماری، اجرای برداری و ذخیره‌سازی ستونی (Columnar Execution):
+- **ذخیره‌سازی ستونی در برابر سطری (Columnar vs Row-Oriented):** پایگاه‌های داده سنتی سطری (مانند PostgreSQL یا SQLite) کل سطر را در حافظه می‌آورند. در نقطه مقابل، دیتابیس‌های تحلیلی مانند DuckDB و فرمت فشرده Apache Parquet داده‌ها را ستون به ستون ذخیره می‌کنند؛ بنابراین اگر کوئری شما فقط به دو ستون \`region\` و \`amount\` نیاز داشته باشد، بقیه ۵۰ ستون جدول اصلاً از دیسک خوانده نمی‌شوند (I/O Reduction تا ۹۰٪).
+- **موتور اجرای برداری بر پایه پردازنده (SIMD Vectorized Engine):** DuckDB به جای پردازش ردیف‌به‌ردیف در مفسر، داده‌ها را در قالب بردار‌های باینری ۲ تا ۱۰ هزارتایی مستقیماً به ثبات‌های کش پردازنده فرستاده و با دستورات موازی سخت‌افزاری (SIMD) پردازش می‌کند.
+- **تبادل حافظه بدون کپی با Apache Arrow (Zero-Copy Arrow C Data Interface):** انتقال دیتا میان پایتون، داک‌دی‌بی و R بدون هیچ‌گونه سربار کپی داده در رم انجام می‌شود؛ همه از یک بافر مشترک بایت‌ها می‌خوانند.
+
+#### ۲. آناتومی کامل کوئری روی فایل‌های غول‌پیکر Parquet:
+\`\`\`r
+library(duckdb)
+library(dplyr)
+
+# ۱. برقراری اتصال درون‌حافظه‌ای
+con <- dbConnect(duckdb::duckdb())
+
+# ۲. کوئری مستقیم روی فایل‌های پارکت بدون بارگذاری در رم
+# DuckDB قادر است فایل‌های ابری S3 یا دیسک محلی را مستقیماً اسکن کند
+lake_summary <- dbGetQuery(
+  con,
+  "SELECT region, SUM(amount) AS total_sales 
+   FROM 's3://data-lake/sales/*.parquet' 
+   GROUP BY region"
+)
+
+# ۳. بستن ایمن کانکشن
+dbDisconnect(con, shutdown = TRUE)
+\`\`\`
+
+#### ۳. تله‌های پنهان و خطاهای سیستمی (Critical Gotchas):
+- **تله پر شدن رم با فراخوانی زودهنگام \`collect()\`:** درست مانند اسپارک، اگر پایپ‌لاین \`tbl(con, "parquet_table")\` را با dplyr بنویسید و پیش از فیلتر یا تجمیع دستور \`collect()\` را اجرا کنید، گیگابایت‌ها دیتا به رم مفسر R ریخته شده و سیستم با خطای Out of Memory کرش می‌کند.
+- **تله قفل فایل در دیتابیس‌های ماندگار دیسک:** به صورت پیش‌فرض دیتابیس پایدار DuckDB توسط فرآیند اول قفل می‌شود. برای دسترسی همزمان چندین اسکریپت تحلیلی به فایل مشترک، باید پرچم \`read_only = TRUE\` را فعال کنید.
+
+#### ۴. استانداردهای صنعتی و ادغام با dbplyr:
+با استفاده از پکیج \`dbplyr\`، شما می‌توانید تمام دستورات استاندارد \`dplyr\` (نظیر \`group_by\` و \`summarise\`) را روی جداول DuckDB اجرا کنید؛ پکیج به صورت خودکار کد R شما را به بهینه‌ترین SQL کامپایل کرده و آن را در موتور C++ داک‌دی‌بی اجرا می‌کند.`,
+    checksLabels: [
+      "کوئری duckdb_query تجمیع ستونی را بر روی ۳ منطقه جغرافیایی اجرا کند",
+      "مجموع ارزش فروش ۴۵۲۰ دلار بدون نیاز به لود کل جدول در رم به درستی محاسبه شود",
+    ],
+    learning: [
+      "موتور DuckDB با ساختار ستونی و اجرای برداری SIMD محاسبات تحلیلی OLAP را تا ۱۰۰ برابر سریع‌تر از دیتابیس‌های سنتی اجرا می‌کند",
+      "پروتکل Apache Arrow تبادل داده میان R، DuckDB و Python را با صفر سربار کپی در رم (Zero-Copy) ممکن می‌سازد",
+      "فایل‌های ستونی Apache Parquet با فشرده‌سازی بالا امکان اسکن گزینشی ستون‌ها از دیسک را فراهم می‌کنند",
+    ],
+    fieldNotes: [
+      "ترکیب DuckDB با dbplyr امکان نوشتن دستورات ساده dplyr و کامپایل خودکار به SQL بهینه‌شده را فراهم می‌سازد.",
+      "برای تحلیل ترابایتی، فایل‌های پارکت را مستقیماً از استوریج ابری S3 یا دیسک محلی بدون دستور collect بخوانید.",
+    ],
+  },
+  "ml-tidymodels": {
+    title: "۷۲. یادگیری ماشین مدرن و تایپ‌سیف با Tidymodels",
+    brief: "اکوسیستم Tidymodels جانشین مدرن و رسمی caret در مهندسی یادگیری ماشین R است. یک پروتکل استاندارد شامل تقسیم‌بندی rsample، دستورالعمل مهندسی ویژگی recipes، و مشخصات مدل با parsnip را در یک گردش‌کار workflow ادغام کنید.",
+    hint: "اشیاء split_spec، feat_recipe و model_spec را بسازید و گردش‌کار را با ml_workflow <- list(recipe = feat_recipe, model = model_spec, trained = TRUE) کامل کنید.",
+    lesson: `### فصل ۷۲ — یادگیری ماشین مدرن، ماژولار و تایپ‌سیف با اکوسیستم Tidymodels
+
+اگرچه پکیج سنتی \`caret\` سال‌ها ستون فقرات یادگیری ماشین در R بود، اما ساختار یکپارچه و مونولیتیک آن همگام با استانداردهای مدرن علم داده نیاز به بازطراحی داشت. دکتر مکس کون (خالق کارِت) به همراه تیم شرکت Posit، اکوسیستم انقلابی **\`tidymodels\`** را به عنوان نسل دوم چارچوب مدلسازی در R توسعه دادند که اصول تمیز کدنویسی Tidyverse را در تار و پود یادگیری ماشین پیاده کرده است.
+
+#### ۱. مبانی معماری و تفکیک ماژولار مسئولیت‌ها (Separation of Concerns):
+به جای یک پکیج غول‌پیکر، Tidymodels از پکیج‌های تخصصی و هماهنگ تشکیل شده است:
+1. **\`rsample\`:** تقسیم داده‌ها (Train/Test) و ایجاد فولد‌های اعتبارسنجی متقاطع بدون نشت اطلاعات.
+2. **\`recipes\`:** مهندسی ویژگی‌ها به صورت اعلامی (Declarative Feature Engineering) شامل نرمال‌سازی، انکودینگ تک‌گرم (One-Hot / Dummy)، و پردازش مقادیر گم‌شده.
+3. **\`parsnip\`:** انتزاع الگوریتم‌ها؛ تعریف یک اینترفیس واحد برای تمام موتورها (مثلاً \`linear_reg()\` می‌تواند به موتور \`lm\`، \`glmnet\` یا \`stan\` متصل شود بدون تغییر در سینتکس).
+4. **\`workflows\`:** اتصال دستورالعمل پیش‌پردازش به مدل مانند چسب، تا فرآیند آموزش و آزمون به صورت یک شیء مستقل و ضد خطا بسته‌بندی شود.
+5. **\`tune\` و \`yardstick\`:** بهینه‌سازی هایپرپارامترها و ارزیابی ماتریس درهم‌ریختگی، ROC-AUC و F1-Score.
+
+#### ۲. آناتومی کامل یک پایپ‌لاین Tidymodels:
+\`\`\`r
+library(tidymodels)
+
+# ۱. تقسیم داده‌ها با rsample
+split <- initial_split(mtcars, prop = 0.8)
+train_data <- training(split)
+test_data  <- testing(split)
+
+# ۲. مهندسی ویژگی با recipes
+car_recipe <- recipe(mpg ~ ., data = train_data) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_corr(all_numeric_predictors(), threshold = 0.9)
+
+# ۳. مشخصات مدل با parsnip
+lm_spec <- linear_reg() |>
+  set_engine("lm") |>
+  set_mode("regression")
+
+# ۴. تلفیق در یک گردش‌کار واحد (Workflow)
+car_wflow <- workflow() |>
+  add_recipe(car_recipe) |>
+  add_model(lm_spec)
+
+# ۵. برازش روی کل داده‌های آموزش
+final_fit <- fit(car_wflow, data = train_data)
+\`\`\`
+
+#### ۳. تله‌های مرگبار و خطاهای متداول در یادگیری ماشین (Critical Gotchas):
+- **تله نشت داده‌ها در پیش‌پردازش (Data Leakage Trap):** در کدهای ضعیف، کاربران قبل از تقسیم داده به Train و Test، میانگین کل ستون را حساب کرده و داده‌ها را نرمال می‌کنند؛ این کار اطلاعات آینده را به مدل لو می‌دهد! پکیج \`recipes\` به صورت تضمینی تمام پارامترها (\`mean\`, \`sd\`) را صرفاً روی Train یاد می‌گیرد (\`prep\`) و سپس همان مقادیر منجمد شده را روی Test اعمال می‌کند (\`bake\`).
+- **تغییر الگوریتم بدون دستکاری کد:** در \`parsnip\` اگر بخواهید رگرسیون را با رندوم فارست جایگزین کنید، نیازی به تغییر کل کدهای پروژه نیست؛ فقط مدل را با \`rand_forest() |> set_engine("ranger")\` جایگزین می‌کنید.
+
+#### ۴. استانداردهای استقرار مدل‌ها در پروداکشن (vetiver):
+در محیط‌های ابری سازمانی، خروجی \`workflow\` نهایی با پکیج **\`vetiver\`** منجمد شده و با یک خط دستور مستقیماً به یک کانتینر داکر یا وب‌سرویس Plumber برای امتیازدهی بلادرنگ تبدیل می‌شود.`,
+    checksLabels: [
+      "گردش‌کار ml_workflow دستورالعمل مهندسی ویژگی و مشخصات مدل را به صورت فعال ترکیب کند",
+      "مدل در حالت رگرسیون تنظیم شده و مرحله پیش‌پردازش step_normalize در دستورالعمل تعریف شده باشد",
+    ],
+    learning: [
+      "اکوسیستم Tidymodels مراحل یادگیری ماشین را به پکیج‌های تخصصی و ماژولار rsample، recipes و parsnip تفکیک می‌کند",
+      "پکیج recipes با تفکیک فاز یادگیری (prep) از فاز اعمال (bake) از نشت اطلاعات (Data Leakage) کاملاً جلوگیری می‌کند",
+      "شیء workflow کل خط لوله پیش‌پردازش و الگوریتم را در یک کپسول مستقل و قابل استقرار منجمد می‌سازد",
+    ],
+    fieldNotes: [
+      "در parsnip تغییر الگوریتم از رگرسیون به رندوم فارست بدون دستکاری کدهای پیش‌پردازش و صرفاً با تغییر مدل انجام می‌شود.",
+      "با پکیج vetiver می‌توانید مدل نهایی workflow را مستقیماً به یک میکروسرویس استاندارد Plumber تبدیل کنید.",
+    ],
+  },
+  "interop-reticulate": {
+    title: "۷۳. پل ارتباطی R و پایتون و محاسبات دو زبانه با reticulate",
+    brief: "پکیج reticulate یک پل ارتباطی دوجانبه بدون درز میان R و پایتون فراهم می‌سازد. پیکربندی یک سشن پایتون، اجرای اسکریپت پایتون با py_run_string و انتقال متغیرها میان R و Python (شیء py) را شبیه‌سازی کنید.",
+    hint: "تنظیمات py_config را با نگارش 3.11 ایجاد کرده، بسته داده r_to_py_payload را بسازید و خروجی محاسباتی را در py_result ذخیره کنید.",
+    lesson: `### فصل ۷۳ — پل ارتباطی R و پایتون و محاسبات دو زبانه با پکیج reticulate
+
+در صنعت پیشرفته علم داده، تعصب روی یک زبان نشانه محدودیت فنی است. واقعیت این است که پایتون در کتابخانه‌های دیپ‌لرنینگ (PyTorch, TensorFlow, Hugging Face) اکوسیستم قدرتمندی دارد، در حالی که R در تحلیل‌های آماری دقیق، مصورسازی شاهکار (ggplot2)، وب‌اپلیکیشن‌ها (Shiny) و گزارش‌نویسی تکرارپذیر بی‌رقیب است. پکیج شگفت‌انگیز **\`reticulate\`** امکان تعامل دوجانبه، بدون درز و همزمان این دو غول نرم‌افزاری را در یک سشن رم فراهم می‌سازد.
+
+#### ۱. مبانی معماری، امبدینگ هسته C و اشتراک رم بدون کپی (Zero-Copy Interop):
+- **تزریق ران‌تایم پایتون درون حافظه R:** پکیج \`reticulate\` به جای ارتباط ناپایدار از طریق خط فرمان، کتابخانه باینری مشترک پایتون (\`libpython.so\` در لینوکس یا \`python3.dll\` در ویندوز) را مستقیماً درون فضای آدرس پروسس R بارگذاری می‌کند.
+- **تبدیل خودکار و اشتراک حافظه:**
+  - آرایه‌های عددی یک‌بعدی و دوبعدی در R مستقیماً بدون کپی شدن فیزیکی به آرایه‌های **NumPy** تبدیل می‌شوند.
+  - دیتافریم‌های R به راحتی به دیتای **Pandas** نگاشت می‌شوند.
+- **دسترسی جادویی دوطرفه:** در محیط R متغیرهای پایتون از طریق شیء \`py$variable\` در دسترس هستند و در کدهای پایتون متغیرهای R از طریق شیء \`r.variable\` خوانده می‌شوند.
+
+#### ۲. آناتومی کامل اجرای کدهای دو زبانه:
+\`\`\`r
+library(reticulate)
+
+# ۱. انتخاب محیط مجازی یا کاندای اختصاصی پروژه
+use_virtualenv("./my_env", required = TRUE)
+
+# ۲. وارد کردن مستقیم ماژول‌های معروف پایتون به R
+np <- import("numpy")
+transformers <- import("transformers")
+
+# ۳. ارسال مستقیم داده‌ها از R به پایتون
+r_to_py_payload <- list(data = c(10, 20, 30), model_type = "transformer")
+py_run_string("
+# این کد پایتون مستقیماً در رم اجرا می‌شود
+import numpy as np
+r_data = np.array(r.r_to_py_payload['data'])
+py_calc = r_data * 2
+")
+
+# ۴. بازخوانی نتیجه محاسبات پایتون در فضای کاری R
+py_result <- list(
+  status = "SUCCESS",
+  transformed = as.numeric(py$py_calc)
+)
+\`\`\`
+
+#### ۳. تله‌های پنهان و خطاهای مرگبار در پروژه‌های دو زبانه (Critical Gotchas):
+- **تله ایندکس‌گذاری پایه ۱ در برابر پایه ۰:** در R اولین عنصر اندیس ۱ است اما در پایتون اندیس ۰ است. هنگام دستکاری اندیس‌ها یا برش آرایه‌ها در کدهای تلفیقی، این اختلاف می‌تواند خطای خاموش آفست یکی (Off-by-one Error) ایجاد کند.
+- **تله اسکالرها و بردارها:** در R مفهوم اسکالر وجود ندارد و عدد \`5\` یک بردار یک عنصری است. در پایتون عدد \`5\` یک اینتیجر خالص است. هنگام ارسال عدد به توابع پایتونی که نوع دقیق می‌خواهند، ممکن است نیاز به کست صریح یا استفاده از \`as.integer()\` باشد.
+- **تداخل مدیریت حافظه و Garbage Collector:** دو مفسر هر کدام زباله‌روب مستقل خود را دارند. پکیج \`reticulate\` مدیریت شمارش ارجاع را انجام می‌دهد، اما نگهداری طولانی‌مدت اشیاء حجیم پایتونی در R ممکن است آزادسازی حافظه را به تاخیر بیندازد.
+
+#### ۴. استانداردهای صنعتی و سناریوهای کاربردی:
+بهترین الگوی سازمانی: اجرای استخراج متون و مدل‌های بزرگ زبانی (LLM / Embeddings) با پایتون، و سپس رسم نمودارهای تحلیلی سطح انتشاراتی با \`ggplot2\` و انتشار خودکار در داشبورد تعاملی Shiny.`,
+    checksLabels: [
+      "شیء py_config محیط پایتون ۳.۱۱ را به همراه کتابخانه NumPy شناسایی کند",
+      "خروجی py_result بردار محاسباتی تغییریافته را بدون خطا با مقادیر ۲۰، ۴۰ و ۶۰ بازگرداند",
+    ],
+    learning: [
+      "پکیج reticulate ران‌تایم پایتون را مستقیماً درون فضای آدرس پروسس R بارگذاری می‌کند",
+      "آرایه‌های NumPy و دیتافریم‌های Pandas بدون سربار کپی در حافظه رم با اشیای R مبادله می‌شوند",
+      "دسترسی دوجانبه از طریق شیء py$ در R و شیء r. در پایتون محاسبات ترکیبی را ساده می‌سازد",
+    ],
+    fieldNotes: [
+      "به تفاوت ایندکس‌گذاری پایه ۱ در R و پایه ۰ در پایتون هنگام تبادل بردارها توجه داشته باشید.",
+      "همواره محیط مجازی اختصاصی پروژه را با use_virtualenv یا use_condaenv مشخص کنید تا از تداخل پکیج‌ها جلوگیری شود.",
+    ],
+  },
+  "pipeline-targets": {
+    title: "۷۴. ارکستراسیون خطوط لوله تحلیلی و کش هوشمند با targets",
+    brief: "پکیج targets فریم‌ورک استاندارد خطوط لوله داده و علم داده بازتولیدپذیر در R است که بر پایه گراف جهت‌دار بدون دور (DAG) کار می‌کند. تعریف تارگت‌های پایپ‌لاین، وابستگی داده‌ها و اجرای بازتولیدپذیر با tar_make را شبیه‌سازی کنید.",
+    hint: "گراف pipeline_dag را با ۴ مرحله از فایل خام تا گزارش تعریف کنید و وضعیت بدون تغییر را با is_pipeline_clean بررسی نمایید.",
+    lesson: `### فصل ۷۴ — ارکستراسیون خطوط لوله تحلیلی و کش هوشمند با پکیج targets
+
+در پروژه‌های داده‌های بزرگ سازمانی، اسکریپت‌های تحلیلی به سرعت طولانی و درهم‌تنیده می‌شوند. رویکرد سنتی این بود که فایل‌ها را با شماره نام‌گذاری می‌کردند: \`01_download.R\`، \`02_clean.R\`، \`03_model.R\`، \`04_report.R\`. با این رویکرد، اگر یک تغییر جزئی در گزارش اعمال می‌شد، کاربر مجبور بود کل فرآیند چند ساعته را از نو اجرا کند، یا بدتر: فراموش می‌کرد اسکریپت میانی را اجرا کند و با خروجی‌های تاریخ‌گذشته تحلیل غلط ارائه می‌داد! پکیج مرجع **\`targets\`** استاندارد طلایی و معادل مدرن Make و dbt در زبان R برای تضمین بازتولیدپذیری قطعی است.
+
+#### ۱. مبانی معماری، گراف جهت‌دار بدون دور (DAG) و هش رمزنگاری:
+- **تحلیل ایستا و کشف درخت وابستگی‌ها (Static AST Analysis):** پکیج \`targets\` پیش از اجرای حتی یک خط کد، سورس‌کد توابع شما را اسکن کرده و یک **گراف جهت‌دار بدون دور (Directed Acyclic Graph - DAG)** از جریان داده‌ها رسم می‌کند.
+- **انگشت‌نگاری و کش هوشمند (Cryptographic Content Hashing):** پکیج برای هر مرحله و داده‌های ورودی یک هش رمزنگاری (مانند MurmurHash یا MD5) محاسبه می‌کند. هنگامی که دستور \`tar_make()\` را فراخوانی می‌کنید:
+  - مراحلی که کد یا داده‌های آن‌ها تغییر نکرده‌اند **کاملاً رد می‌شوند (\`skip\`)** و خروجی فیلترشده از کش خوانده می‌شود.
+  - فقط و فقط مراحلی که داده ورودی آن‌ها تغییر کرده مجدداً اجرا می‌شوند.
+  این قابلیت زمان اجرای پایپ‌لاین‌های ۵ ساعته را به ۵ ثانیه کاهش می‌دهد!
+
+#### ۲. آناتومی کامل پیکربندی در فایل \`_targets.R\`:
+\`\`\`r
+library(targets)
+source("R/functions.R") # بارگذاری توابع خالص
+
+# تعریف لیست گره‌های پایپ‌لاین
+list(
+  # مرحله ۱: رصد فایل خام دیسک
+  tar_target(raw_file, "data/source.csv", format = "file"),
+  
+  # مرحله ۲: تمیزکاری داده‌ها
+  tar_target(cleaned_data, clean_raw_data(raw_file)),
+  
+  # مرحله ۳: آموزش مدل آماری سنگین
+  tar_target(model_fit, train_robust_model(cleaned_data)),
+  
+  # مرحله ۴: گزارش نهایی به همراه اعتبارسنجی
+  tar_target(summary_report, generate_kpi_report(model_fit, cleaned_data))
+)
+\`\`\`
+
+#### ۳. تله‌های پنهان و الگوهای ضد طراحی (Critical Gotchas):
+- **تله توابع ناخالص (Impure Functions Trap):** تارگت‌ها الزاماً باید از توابع خالص (Pure Functions) استفاده کنند؛ یعنی خروجی تابع باید منحصراً به آرگومان‌های ورودی آن وابسته باشد. اگر در بدنه یک تابع از متغیر سراسری \`.GlobalEnv\` استفاده کنید، \`targets\` نمی‌تواند تغییر آن را رهگیری کند و با دیتای کهنه مواجه می‌شوید.
+- **تله ذخیره‌سازی داده‌های حجیم:** ذخیره خروجی‌های بسیار بزرگ در قالب پیش‌فرض \`.rds\` کند است؛ با تعیین \`format = "qs"\` یا \`format = "parquet"\` سرعت خواندن و نوشتن مراحل در کش را تا ۱۰ برابر افزایش دهید.
+
+#### ۴. استانداردهای صنعتی و اجرای موازی در مقیاس کلاستر:
+پکیج \`targets\` با اتصال به فریم‌ورک‌های پردازش موازی نظیر **\`crew\`** یا سامانه‌های خوشه‌ای نظیر Slurm و AWS Batch، گره‌هایی از DAG را که به هم وابستگی ندارند به صورت خودکار روی هسته‌های مختلف CPU یا سرورهای مختلف کلاستر به صورت موازی اجرا می‌کند.`,
+    checksLabels: [
+      "گراف pipeline_dag زنجیره کامل وابستگی‌ها از فایل خام، پاک‌سازی، برازش تا گزارش را پوشش دهد",
+      "سیستم کش هوشمند tar_make گام‌های بدون تغییر را نادیده گرفته و وضعیت پایپ‌لاین را پاک اعلام کند",
+    ],
+    learning: [
+      "پکیج targets گراف جهت‌دار بدون دور (DAG) را با تحلیل ایستا از روی کدهای منبع می‌سازد",
+      "انگشت‌نگاری و کش هوشمند با هش رمزنگاری، اجرای مراحل تکراری بدون تغییر را به صفر ثانیه می‌رساند",
+      "تضمین بازتولیدپذیری قطعی الزامات رگولاتوری و گزارش‌های سازمانی را به بالاترین سطح می‌رساند",
+    ],
+    fieldNotes: [
+      "تمام مراحل targets باید با توابع خالص (Pure Functions) بدون وابستگی به متغیرهای گلوبال نوشته شوند.",
+      "برای ذخیره خروجی‌های حجیم، فرمت باینری سریع format = 'qs' یا format = 'parquet' را انتخاب کنید.",
+    ],
+  },
 };
 
 export const DE_LEVELS: Record<string, LocalizedLevelData> = {
@@ -5354,6 +5681,146 @@ Wichtige Kennzahlen neben der Genauigkeit (Accuracy):
       "Bei unausgewogenen Klassen Balanced Accuracy und AUC-ROC statt reiner Genauigkeit bevorzugen.",
     ],
   },
+  "shiny-intro": {
+    title: "69. Interaktive Web-Apps & Reaktivität mit Shiny",
+    brief: "Shiny erstellt reaktive Web-Apps in R. Modelliere eine getrennte UI/Server-Architektur mit reaktiver Ausführung.",
+    hint: "Definiere app_ui, app_server und is_shiny_app <- is.list(app_ui) && is.function(app_server).",
+    lesson: `### Kapitel 69 — Interaktive Webanwendungen & Reaktivität mit Shiny
+
+Das Paket \`shiny\` von Posit ist der Standard zum Erstellen von interaktiven Webanwendungen und Dashboards in R ohne HTML/JavaScript-Kenntnisse.
+
+> [!NOTE]
+> **Hinweis zum Spezialkurs:** Dies ist eine grundlegende Einführung in die reaktive Architektur. Ein umfassender, fortgeschrittener Kurs für Unternehmens-Dashboards und Shinylive folgt demnächst.
+
+#### UI- und Server-Architektur:
+- **UI (\`app_ui\`):** Deklarative Definition des visuellen Layouts und der Eingabeelemente.
+- **Server (\`app_server\`):** Reaktive Berechnungslogik, die auf Eingabeänderungen lauscht und Outputs rendert.`,
+    checksLabels: [
+      "is_shiny_app validiert UI- und Server-Struktur",
+      "app_server erzeugt reaktiven Abhängigkeitsgraphen",
+    ],
+    learning: [
+      "Shiny trennt UI-Layout und reaktive Server-Logik",
+      "Reaktive Ausdrücke aktualisieren abhängige Outputs automatisch",
+    ],
+    fieldNotes: [
+      "Vertiefte Inhalte zu Modulen und Deployment im kommenden Shiny-Spezialkurs.",
+    ],
+  },
+  "api-plumber": {
+    title: "70. REST-APIs & Microservices mit Plumber",
+    brief: "Plumber verwandelt R-Funktionen mittels Kommentar-Dekoratoren in RESTful HTTP-APIs mit Swagger-Dokumentation.",
+    hint: "Erstelle api_routes und plumber_spec <- list(routes = names(api_routes), port = 8000, swagger = TRUE).",
+    lesson: `### Kapitel 70 — REST-APIs & Microservices mit Plumber
+
+Mit dem Paket \`plumber\` können Analysemodelle und R-Skripte als standardisierte RESTful APIs für Backend-Services bereitgestellt werden.
+
+> [!NOTE]
+> **Hinweis zum Spezialkurs:** Eine vertiefte Behandlung von JWT-Authentifizierung, Docker-Containern und Hochlast-Deployments bietet der kommende Plumber-Spezialkurs.
+
+#### API-Dekoratoren:
+Kommentare mit dem Präfix \`#*\` definieren HTTP-Endpunkte wie \`@get\` und \`@post\` mit automatischer OpenAPI/Swagger-Dokumentation.`,
+    checksLabels: [
+      "api_routes definiert Health- und Predict-Handler",
+      "plumber_spec konfiguriert Port 8000 mit Swagger",
+    ],
+    learning: [
+      "Plumber exponiert R-Funktionen als HTTP-Endpunkte",
+      "Interaktive Swagger-Dokumentation erleichtert API-Tests im Browser",
+    ],
+    fieldNotes: [
+      "Formulardaten in POST-Methoden müssen explizit mit as.numeric konvertiert werden.",
+    ],
+  },
+  "scale-duckdb": {
+    title: "71. Spaltenorientierte Lakehouse-Analytik mit DuckDB & Arrow",
+    brief: "DuckDB und Apache Arrow revolutionieren Out-of-Core-Analysen in R. Führe spaltenbasierte Aggregationen auf Parquet-Daten aus.",
+    hint: "Öffne con <- duckdb_connect(), registriere View, führe duckdb_query aus und schließe mit duckdb_close(con).",
+    lesson: `### Kapitel 71 — Spaltenorientierte Lakehouse-Analytik mit DuckDB & Arrow
+
+DuckDB und Apache Arrow ermöglichen die blitzschnelle Analyse riesiger Parquet-Datensätze direkt auf der Festplatte, ohne den Arbeitsspeicher zu überlasten:
+- **Spaltenorientierte Speicherung:** Liest nur benötigte Spalten ein (bis zu 90% weniger I/O).
+- **SIMD-Vektorisierung:** Maximale Hardware-Parallelisierung auf modernen CPUs.
+- **Zero-Copy mit Arrow:** Nahtloser Datenaustausch ohne Speicherkopien.`,
+    checksLabels: [
+      "duckdb_query führt spaltenbasierte Aggregation aus",
+      "Gesamtumsatz von 4520 $ korrekt berechnet",
+    ],
+    learning: [
+      "Spaltenorientierte Speicherung minimiert I/O-Laufzeiten drastisch",
+      "Apache Arrow ermöglicht speichereffizienten Zero-Copy-Datenaustausch",
+    ],
+    fieldNotes: [
+      "DuckDB und dbplyr übersetzen dplyr-Abfragen direkt in optimiertes C++-SQL.",
+    ],
+  },
+  "ml-tidymodels": {
+    title: "72. Modernes Machine Learning mit Tidymodels",
+    brief: "Tidymodels ist der moderne Tidyverse-Nachfolger von caret. Integriere rsample, recipes und parsnip in einen einheitlichen Workflow.",
+    hint: "Definiere split_spec, feat_recipe, model_spec und kombiniere zu ml_workflow.",
+    lesson: `### Kapitel 72 — Modernes Machine Learning mit Tidymodels
+
+Das modulare Tidymodels-Ökosystem strukturiert den gesamten ML-Lebenszyklus:
+- **\`rsample\`:** Sauberes Aufteilen ohne Data Leakage.
+- **\`recipes\`:** Deklarative Feature-Pipeline mit \`step_*\`-Transformationen.
+- **\`parsnip\`:** Einheitliche Modell-Schnittstelle über verschiedene Algorithmen.
+- **\`workflows\`:** Sichere Kapselung von Vorverarbeitung und Modelltraining.`,
+    checksLabels: [
+      "ml_workflow kombiniert Recipe und Modell",
+      "Pipeline erzwingt Regressionsmodus mit step_normalize",
+    ],
+    learning: [
+      "Trennung von Feature-Engineering (recipes) und Modellierung (parsnip)",
+      "Workflows verhindern Datenlecks zwischen Trainings- und Testdaten",
+    ],
+    fieldNotes: [
+      "Mit vetiver können fertige Workflows direkt als Microservices exportiert werden.",
+    ],
+  },
+  "interop-reticulate": {
+    title: "73. Python-Interoperabilität & Polyglot-R mit reticulate",
+    brief: "reticulate bettet Python nahtlos in R ein. Führe Python-Code aus und tausche Arrays ohne Speicherkopien aus.",
+    hint: "Konfiguriere py_config, erstelle r_to_py_payload und berechne py_result.",
+    lesson: `### Kapitel 73 — Python-Interoperabilität & Polyglot-R mit reticulate
+
+Das Paket \`reticulate\` bindet die C-Laufzeit von Python direkt in den R-Prozess ein:
+- Direkter Zugriff auf Python-Bibliotheken (NumPy, PyTorch, Transformers).
+- Automatische Zero-Copy-Konvertierung von Arrays und DataFrames.
+- Zugriff via \`py$variable\` in R und \`r.variable\` in Python.`,
+    checksLabels: [
+      "py_config erkennt Python 3.11 und NumPy",
+      "py_result liefert transformierte Werte c(20, 40, 60)",
+    ],
+    learning: [
+      "libpython wird direkt in den R-Prozess eingebettet",
+      "Zero-Copy-Datenaustausch zwischen R-Vektoren und NumPy-Arrays",
+    ],
+    fieldNotes: [
+      "Beachte den Unterschied zwischen 1-basiertem (R) und 0-basiertem (Python) Index.",
+    ],
+  },
+  "pipeline-targets": {
+    title: "74. Reproduzierbare Pipeline-Orchestrierung mit targets",
+    brief: "targets ist der Goldstandard für Make-ähnliche Datenpipelines in R mit kryptografischem Artefakt-Caching.",
+    hint: "Definiere pipeline_dag von Rohdaten bis Bericht und prüfe mit is_pipeline_clean.",
+    lesson: `### Kapitel 74 — Pipeline-Orchestrierung mit targets
+
+Das Paket \`targets\` garantiert deterministische und reproduzierbare Datenpipelines:
+- **DAG-Analyse:** Statische Codeanalyse ermittelt automatische Abhängigkeiten.
+- **Kryptografisches Caching:** Unveränderte Schritte werden übersprungen.
+- **Skalierbarkeit:** Parallele Ausführung unabhängiger Zweige über Klastren.`,
+    checksLabels: [
+      "pipeline_dag bildet Datenpipeline vollständig ab",
+      "tar_make-Caching überspringt redundante Schritte",
+    ],
+    learning: [
+      "targets generiert DAG-Graphen aus reinen R-Funktionen",
+      "Inhalts-Hashing garantiert vollständige Reproduzierbarkeit",
+    ],
+    fieldNotes: [
+      "Schreibe Pipeline-Schritte stets als reine Funktionen (Pure Functions).",
+    ],
+  },
 };
 
 export const EN_LEVELS: Record<string, Partial<LocalizedLevelData>> = {
@@ -6010,6 +6477,408 @@ Key evaluation metrics reported by \`confusionMatrix()\`:
 #### ⚠️ Common Gotchas:
 - **Data Leakage:** Centering, scaling, or imputation must be calculated exclusively on training partitions and applied to test partitions. Never preprocess before splitting!
 - **Class Imbalance:** On highly skewed outcomes (e.g., 99% negative), raw accuracy is deceptive. Always inspect Balanced Accuracy or ROC-AUC.`,
+  },
+  "shiny-intro": {
+    lesson: `### Chapter 69 — Interactive Web Apps & Reactive Programming with Shiny
+
+\`shiny\` turns statistical analysis in R into interactive, web-based analytical dashboards and data applications without requiring web development expertise.
+
+#### 1. Core Architecture: UI & Server
+A Shiny app is defined by two complementary components:
+- **UI (\`fluidPage\`):** Defines the HTML layout, widgets (\`selectInput\`, \`sliderInput\`), and output placeholders (\`plotOutput\`, \`tableOutput\`).
+- **Server Function:** Contains the server-side business logic and receives reactive \`input\` and renders into \`output\`.
+\`\`\`r
+library(shiny)
+
+ui <- fluidPage(
+  titlePanel("Interactive Explorer"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("var", "Select Variable:", choices = names(mtcars))
+    ),
+    mainPanel(
+      plotOutput("scatter_plot")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  output$scatter_plot <- renderPlot({
+    hist(mtcars[[input$var]], col = "steelblue", main = paste("Distribution of", input$var))
+  })
+}
+
+shinyApp(ui = ui, server = server)
+\`\`\`
+
+#### 2. The Reactive Execution Graph
+Shiny utilizes a dependency-tracking reactive graph:
+- **Reactive Sources:** User inputs accessed via \`input$id\`.
+- **Reactive Conductors:** Cached intermediate computations declared with \`reactive({ ... })\`.
+- **Reactive Endpoints:** Outputs updated with \`render*()\` or side-effects triggered via \`observeEvent()\`.
+
+When a reactive source changes, all dependent nodes in the graph are marked "invalidated" and recomputed lazily.
+
+> 🎓 **Dedicated Deep-Dive Course:**
+> Shiny is a comprehensive framework covering production modules, bookmarking, async computation with \`promises\`, custom JavaScript bindings, and enterprise deployment. We provide a **dedicated, in-depth Shiny masterclass course** covering full-stack reactive engineering in detail.
+
+#### ⚠️ Common Gotchas:
+- **Accessing \`input\` outside Reactive Contexts:** Calling \`input$var\` directly in the server body without \`render*\`, \`reactive()\`, or \`observe()\` throws an error.
+- **Over-computing without \`reactive()\`: \` Always wrap heavy computations or database queries in a reactive expression so multiple outputs share the cached result rather than recalculating redundantly.`,
+  },
+  "api-plumber": {
+    lesson: `### Chapter 70 — REST APIs & Microservices with Plumber
+
+\`plumber\` enables converting R functions into production-ready RESTful HTTP APIs using simple roxygen-style annotation decorators.
+
+#### 1. Annotations and Endpoints
+Plumber parses special comment blocks (\`#*\`) preceding standard R functions:
+\`\`\`r
+#* @apiTitle Machine Learning Scoring API
+#* @apiDescription Serves real-time inference predictions.
+
+#* Ping endpoint for health checks
+#* @get /health
+function() {
+  list(status = "healthy", timestamp = Sys.time())
+}
+
+#* Predict customer churn probability
+#* @param balance:numeric Customer account balance
+#* @post /predict
+#* @serializer json
+function(balance) {
+  prob <- 1 / (1 + exp(-0.0005 * as.numeric(balance)))
+  list(balance = as.numeric(balance), churn_probability = round(prob, 4))
+}
+\`\`\`
+
+#### 2. Serving the API & Swagger Documentation
+A Plumber router automatically generates interactive OpenAPI (Swagger) UI documentation:
+\`\`\`r
+library(plumber)
+pr <- plumb("api.R")
+pr$run(host = "0.0.0.0", port = 8000)
+\`\`\`
+
+> 🎓 **Dedicated Deep-Dive Course:**
+> For advanced API development—including JWT authentication, rate limiting, CORS configuration, asynchronous request handling, Docker containerization, and microservice orchestration in Kubernetes—please explore our **dedicated Plumber Microservices course**.
+
+#### ⚠️ Common Gotchas:
+- **Type Coercion:** Query string parameters arrive as character strings by default. Always parse numeric values (\`as.numeric()\`) or declare explicit types (\`@param balance:numeric\`).
+- **Single-Threaded Blocking:** By default, R is single-threaded. Long computations block other incoming API requests unless delegated to asynchronous background workers (e.g., using \`future\` or \`promises\`).`,
+  },
+  "scale-duckdb": {
+    lesson: `### Chapter 71 — Columnar Lakehouse Analytics with DuckDB & Arrow
+
+Modern data science workloads frequently exceed local RAM while demanding sub-second analytical aggregations. DuckDB and Apache Arrow revolutionize R's data tier by bringing in-process, vectorized, out-of-core columnar database execution directly to your scripts.
+
+---
+
+### Layer 1: Architecture & Vectorized Execution
+- **Row-Oriented (Postgres/SQLite) vs Columnar (DuckDB):** Row-oriented databases read entire rows into memory, wasting CPU cache bandwidth when only a few columns are needed. DuckDB stores columns contiguously, reading only required attributes.
+- **Vectorized SIMD Engine:** DuckDB operates on chunked arrays (vectors of ~2048 values) using CPU SIMD vector extensions, achieving query throughput millions of rows per second.
+- **Out-of-Core Processing:** DuckDB streams data from disk when dataset sizes exceed physical memory, executing multi-gigabyte joins and aggregations without crashing with \`cannot allocate vector of size...\`.
+
+---
+
+### Layer 2: DuckDB with dbplyr (Seamless Tidyverse Integration)
+You can query DuckDB using familiar \`dplyr\` syntax without writing raw SQL. DuckDB translates dplyr expressions into optimized SQL executed inside the database engine:
+\`\`\`r
+library(duckdb)
+library(dplyr)
+
+# Create an in-process DuckDB connection (or file-backed: "lakehouse.duckdb")
+con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+
+# Register or load data
+duckdb_register(con, "transactions", transactions_df)
+
+# Query lazily - computation stays in DuckDB engine
+lazy_query <- tbl(con, "transactions") %>%
+  filter(status == "completed") %>%
+  group_by(region) %>%
+  summarize(
+    total_sales = sum(amount, na.rm = TRUE),
+    n_orders = n()
+  ) %>%
+  arrange(desc(total_sales))
+
+# Materialize only the aggregated summary into an R tibble
+final_result <- collect(lazy_query)
+dbDisconnect(con, shutdown = TRUE)
+\`\`\`
+
+---
+
+### Layer 3: Zero-Copy Arrow Interoperability & Parquet Lakehouses
+Apache Arrow provides an open, language-agnostic in-memory columnar format. DuckDB can query Arrow datasets with zero serialization overhead:
+\`\`\`r
+library(arrow)
+library(duckdb)
+
+# Read or scan multi-file Parquet partitions without loading all data into RAM
+arrow_ds <- open_dataset("s3_or_local/lakehouse/partitions/", format = "parquet")
+
+# Hand off Arrow dataset to DuckDB for sub-second analytical execution
+con <- dbConnect(duckdb::duckdb())
+duckdb_res <- to_duckdb(arrow_ds, con = con) %>%
+  filter(year >= 2024, region == "EMEA") %>%
+  summarize(avg_revenue = mean(revenue, na.rm = TRUE)) %>%
+  collect()
+\`\`\`
+
+---
+
+### Layer 4: Production Direct Parquet Queries
+DuckDB queries Parquet files directly via glob expressions, applying predicate and projection pushdown directly to the storage layer:
+\`\`\`r
+# DuckDB reads only required columns and skips irrelevant Parquet row groups!
+dbGetQuery(con, "
+  SELECT category, SUM(price * quantity) AS revenue
+  FROM read_parquet('data/sales_*.parquet')
+  WHERE transaction_date >= '2025-01-01'
+  GROUP BY category
+")
+\`\`\`
+
+---
+
+### Layer 5: Common Gotchas & Best Practices
+- **Closing & Shutdown:** DuckDB file-backed databases maintain locks. Always run \`dbDisconnect(con, shutdown = TRUE)\` to flush write-ahead logs (WAL) and release locks.
+- **Pushdown Verification:** Check \`explain(lazy_query)\` to ensure joins and filters are pushed down to DuckDB rather than pulled into R early.
+- **Resource Limits:** In constrained servers, configure memory limits explicitly: \`dbExecute(con, "PRAGMA max_memory='8GB'")\`.`,
+  },
+  "ml-tidymodels": {
+    lesson: `### Chapter 72 — Modern & Type-Safe Machine Learning with Tidymodels
+
+\`tidymodels\` is the modern, modular successor to \`caret\` in R. Created by Max Kuhn and Hadley Wickham, it adheres strictly to tidyverse design principles, eliminating data leakage and providing a unified modeling grammar.
+
+---
+
+### Layer 1: Core Philosophy & Modular Packages
+Traditional R modeling functions have heterogeneous syntax (\`predict()\` returning matrices, vectors, or data frames unpredictably). Tidymodels standardizes ML across decoupled packages:
+1. **\`rsample\`:** Resampling infrastructure (cross-validation, bootstrapping, stratified splitting).
+2. **\`recipes\`:** Declarative preprocessing and feature engineering pipelines.
+3. **\`parsnip\`:** Unified model specification decoupling model types from computational engines.
+4. **\`workflows\`:** Atomic containers bundling preprocessing recipes with model specifications.
+5. **\`tune\` & \`yardstick\`:** Rigorous hyperparameter optimization and evaluation metrics.
+
+---
+
+### Layer 2: The Canonical 5-Step Tidymodels Pipeline
+
+#### Step 1: Stratified Partitioning (\`rsample\`)
+\`\`\`r
+library(tidymodels)
+
+set.seed(42)
+data_split <- initial_split(churn_data, prop = 0.80, strata = churn)
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+cv_folds   <- vfold_cv(train_data, v = 5, strata = churn)
+\`\`\`
+
+#### Step 2: Declarative Preprocessing Recipe (\`recipes\`)
+Recipes record instructions without executing them, preventing data leakage from test sets:
+\`\`\`r
+churn_recipe <- recipe(churn ~ ., data = train_data) %>%
+  step_rm(customer_id) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_dummy(all_nominal_predictors(), -all_outcomes())
+\`\`\`
+
+#### Step 3: Engine-Agnostic Model Specification (\`parsnip\`)
+Change the computational engine (e.g., from \`ranger\` to \`randomForest\`) with a single argument:
+\`\`\`r
+rf_spec <- rand_forest(mtry = tune(), trees = 500, min_n = tune()) %>%
+  set_engine("ranger") %>%
+  set_mode("classification")
+\`\`\`
+
+#### Step 4: Workflow Encapsulation (\`workflows\`)
+Workflows bundle recipe and model together. When evaluated on test data, the recipe is automatically applied using parameters computed strictly on training data:
+\`\`\`r
+churn_wf <- workflow() %>%
+  add_recipe(churn_recipe) %>%
+  add_model(rf_spec)
+\`\`\`
+
+#### Step 5: Final Evaluation (\`tune\` & \`yardstick\`)
+\`\`\`r
+# Fit on train and evaluate on holdout test set in one leak-proof call
+final_fit <- last_fit(churn_wf, split = data_split)
+metrics_table <- collect_metrics(final_fit)
+test_predictions <- collect_predictions(final_fit)
+roc_curve_data <- roc_curve(test_predictions, truth = churn, .pred_Yes)
+\`\`\`
+
+---
+
+### Layer 3: Common Gotchas & Best Practices
+- **Strict Data Leakage Discipline:** Never use \`prep()\` or \`bake()\` manually on your test set outside of a \`workflow\` or \`last_fit()\`. Workflows handle this automatically to guarantee zero data leakage.
+- **Standardized Predictions:** \`predict(fitted_wf, new_data)\` always returns a tibble with predictable column names (\`.pred_class\` or \`.pred_*\`), with rows matching the input data order exactly.`,
+  },
+  "interop-reticulate": {
+    lesson: `### Chapter 73 — Python Interoperability & Polyglot R with reticulate
+
+In enterprise environments, data teams often combine R's world-class statistical and reporting strengths with Python's deep learning and AI ecosystems (PyTorch, TensorFlow, Hugging Face, Transformers). \`reticulate\` provides seamless, zero-copy, in-process interoperability between R and Python.
+
+---
+
+### Layer 1: Architecture & In-Process Address Space
+- **Direct Shared Memory:** \`reticulate\` embeds a complete Python session inside the active R process via \`libpython\`.
+- **No RPC / Zero HTTP Overhead:** Communication does not happen over slow sockets or JSON serialization. Both languages run inside the same memory address space.
+- **Zero-Copy Arrays:** Large numeric vectors and 2D arrays in R share underlying memory buffers with NumPy arrays and Arrow tables without redundant copying.
+
+---
+
+### Layer 2: Python Environment Configuration
+Always lock your Python interpreter and virtual environment deterministically:
+\`\`\`r
+library(reticulate)
+
+# Pin to a specific virtual environment or conda env
+use_virtualenv("~/my-py-env", required = TRUE)
+
+# Verify active Python binary and package versions
+py_config()
+\`\`\`
+
+---
+
+### Layer 3: Importing Modules & Calling Python Objects
+Python modules are imported directly as R objects. Python's object-oriented method calls using \`.\` are accessed in R using the \`$\` operator:
+\`\`\`r
+# Import Python packages
+np <- import("numpy")
+torch <- import("torch")
+sklearn <- import("sklearn.linear_model")
+
+# Instantiate and fit a Python scikit-learn model using R data
+model <- sklearn$LogisticRegression(max_iter = 1000L)
+model$fit(X_train, y_train)
+
+# Generate predictions
+preds <- model$predict(X_test)
+\`\`\`
+
+---
+
+### Layer 4: Bidirectional Memory Sharing (\`r\` and \`py\` Objects)
+You can seamlessly pass variables between R and Python sessions:
+- Access R variables in Python scripts using the \`r\` dictionary: \`r.my_dataset\`.
+- Access Python objects in R sessions using the \`py\` object: \`py$trained_weights\`.
+\`\`\`r
+# Run an inline Python block
+py_run_string("
+import pandas as pd
+df = pd.DataFrame({'a': [1, 2, 3], 'b': [10.5, 20.1, 30.8]})
+df['total'] = df['a'] * df['b']
+")
+
+# Access the resulting Pandas DataFrame directly as an R tibble/data.frame
+r_df <- py$df
+print(head(r_df))
+\`\`\`
+
+---
+
+### Layer 5: Common Gotchas & Best Practices
+- **0-Index vs 1-Index:** Python lists and arrays are 0-indexed; R is 1-indexed. When interacting with Python indexing objects or slices, use \`r_to_py()\` or reticulate helper functions.
+- **Integer Literals:** Python distinguishes strictly between integers and floats. In R, \`4\` is a float (\`numeric\`). Always use \`4L\` when passing integer arguments to Python functions.
+- **GIL and Mutability:** Python objects are mutable by reference. Modifying an object in Python modifies the referenced memory in R.`,
+  },
+  "pipeline-targets": {
+    lesson: `### Chapter 74 — Reproducible Pipeline Orchestration with targets
+
+Data science projects suffer from fragile execution scripts (\`01_load.R\`, \`02_clean.R\`, \`03_model.R\`). When an upstream dataset or cleaning rule changes, knowing which downstream models and reports must be re-executed is error-prone. \`targets\` solves this through Make-like, cryptographic DAG (Directed Acyclic Graph) pipeline orchestration.
+
+---
+
+### Layer 1: Core Concepts & Cryptographic Caching
+- **Pure Functions:** Pipelines are constructed by connecting modular, pure R functions.
+- **Cryptographic Fingerprinting (SHA-256):** \`targets\` computes hash fingerprints of:
+  1. The code of each R function.
+  2. The input data files.
+  3. The serialized output of each pipeline step.
+- **Automatic Skip:** When \`tar_make()\` is called, targets inspects the DAG. Any target whose code, dependencies, and upstream data have not changed is skipped instantly, reading the cached result from disk (\`_targets/objects/\`).
+
+---
+
+### Layer 2: The \`_targets.R\` Pipeline Definition
+A targets pipeline is declared in a single root configuration script: \`_targets.R\`:
+\`\`\`r
+# _targets.R
+library(targets)
+library(tarchetypes)
+
+# Source all custom R functions
+source("R/functions.R")
+
+# Configure pipeline packages and memory settings
+tar_option_set(
+  packages = c("readr", "dplyr", "ggplot2", "tidymodels"),
+  format = "rds"
+)
+
+# Pipeline DAG definition
+list(
+  tar_target(
+    name = raw_file,
+    command = "data/raw_measurements.csv",
+    format = "file"  # Re-runs if CSV file on disk is modified!
+  ),
+  tar_target(
+    name = raw_data,
+    command = read_measurements(raw_file)
+  ),
+  tar_target(
+    name = clean_data,
+    command = clean_measurements(raw_data)
+  ),
+  tar_target(
+    name = model_fit,
+    command = train_model(clean_data)
+  ),
+  tar_target(
+    name = validation_report,
+    command = generate_summary_plot(model_fit, clean_data)
+  )
+)
+\`\`\`
+
+---
+
+### Layer 3: Pipeline Inspection & Execution
+- **\`tar_visnetwork()\`:** Renders an interactive visualization of the pipeline DAG, color-coding targets that are up to date vs out of date.
+- **\`tar_outdated()\`:** Lists targets that require recomputation before running.
+- **\`tar_make()\`:** Executes the pipeline in topologically sorted order, skipping unchanged steps.
+- **\`tar_read(clean_data)\` / \`tar_load(model_fit)\`:** Retrieves cached artifacts without re-executing long-running upstream code.
+
+---
+
+### Layer 4: Dynamic Branching & Parallel Execution
+For massive datasets, \`targets\` supports dynamic branching over data chunks or hyperparameters:
+\`\`\`r
+list(
+  tar_target(batch, 1:10),
+  tar_target(
+    chunk_result,
+    process_batch(batch),
+    pattern = map(batch)  # Dynamically branches across 10 parallel tasks!
+  )
+)
+\`\`\`
+Pairing with \`crew\` or \`future\` runs branches concurrently across local CPU cores or cluster nodes.
+
+---
+
+### Layer 5: Common Gotchas & Best Practices
+- **Pure Function Discipline:** Functions must not depend on global environment variables or undeclared state. Everything a function needs must be passed as an argument.
+- **File Dependencies:** When depending on external files, always specify \`format = "file"\` so targets can track the file's cryptographic hash.
+- **No Hidden Randomness:** Always set deterministic seeds within stochastic targets or in \`tar_option_set(seed = ...)\`.`,
   },
 };
 

@@ -95,10 +95,10 @@ describe('evalExpressions', () => {
 
 describe('formatScore and scoreClass', () => {
   it('formats stroke count and par correctly', () => {
-    expect(formatScore(1, 1)).toBe('1 stroke · par 1 · even');
-    expect(formatScore(1, 2)).toBe('1 stroke · par 2 · under par');
-    expect(formatScore(3, 2)).toBe('3 strokes · par 2 · over par');
-    expect(formatScore(2, null)).toBe('2 strokes');
+    expect(formatScore(1, 1)).toBe('1 command · ideal: 1 (clean run!)');
+    expect(formatScore(1, 2)).toBe('1 command · ideal: 2 (clean run!)');
+    expect(formatScore(3, 2)).toBe('3 commands · ideal: 2');
+    expect(formatScore(2, null)).toBe('2 commands');
   });
 
   it('classifies score appropriately', () => {

@@ -74,6 +74,8 @@ export interface UiStrings {
   idealForLevelShort: (par: number) => string;
   bestSoFar: (commands: number, par: number) => string;
   solvedBanner: (n: number | null) => string;
+  commandsRemaining: (remaining: number, ideal: number) => string;
+  idealCommands: (par: number) => string;
   guideAlwaysRight: string;
 
   // Dialogs & Modals

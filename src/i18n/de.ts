@@ -84,6 +84,11 @@ export const de: UiStrings = {
   bestSoFar: (commands: number, par: number) =>
     `Bisher bester Versuch: ${commands} Befehl${commands === 1 ? '' : 'e'} · Ideal: ${par}`,
   solvedBanner: (n: number | null) => `Level gelöst${n !== null ? ` in ${n} Befehl(en)` : ''}.`,
+  commandsRemaining: (remaining: number, ideal: number) =>
+    remaining <= 0
+      ? `Alle Schritte abgeschlossen · Ideal: ${ideal} Befehl${ideal === 1 ? '' : 'e'}`
+      : `${remaining} verbleibende${remaining === 1 ? 'r' : ''} Befehl${remaining === 1 ? '' : 'e'} · Ideal: ${ideal}`,
+  idealCommands: (par: number) => `Ideal: ${par} Befehl${par === 1 ? '' : 'e'}`,
   guideAlwaysRight: 'Das Leitfaden-Panel ist immer auf der rechten Seite geöffnet. Guide-Taste fokussiert es.',
 
   welcomeTitle: 'LearnR',

@@ -62,16 +62,14 @@ export function evalExpressions(checks: CheckDef[]): string[] {
 }
 
 /**
- * Format strokes against par for golf scoring.
+ * Format commands against ideal count.
  */
 export function formatScore(strokes: number, par: number | null): string {
-  const strokeLabel = `${strokes} stroke${strokes === 1 ? '' : 's'}`;
+  const strokeLabel = `${strokes} command${strokes === 1 ? '' : 's'}`;
   if (par === null) return strokeLabel;
-  const base = `${strokeLabel} · par ${par}`;
-  if (strokes === 0) return base;
-  if (strokes < par) return `${base} · under par`;
-  if (strokes === par) return `${base} · even`;
-  return `${base} · over par`;
+  const base = `${strokeLabel} · ideal: ${par}`;
+  if (strokes <= par) return `${base} (clean run!)`;
+  return base;
 }
 
 /**

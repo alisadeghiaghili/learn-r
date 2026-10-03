@@ -242,8 +242,9 @@ export function showModal(spec: ModalSpec): { close: () => void; el: HTMLElement
     }
   });
 
+  card.scrollTop = 0;
   const firstBtn = footer.querySelector('button');
-  firstBtn?.focus();
+  firstBtn?.focus({ preventScroll: true });
 
   return {
     close,

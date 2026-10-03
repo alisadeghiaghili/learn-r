@@ -84,6 +84,11 @@ export const en: UiStrings = {
   bestSoFar: (commands: number, par: number) =>
     `Best so far: ${commands} command${commands === 1 ? '' : 's'} · ideal: ${par}`,
   solvedBanner: (n: number | null) => `Level solved${n !== null ? ` in ${n} command(s)` : ''}.`,
+  commandsRemaining: (remaining: number, ideal: number) =>
+    remaining <= 0
+      ? `All steps completed · ideal: ${ideal} command${ideal === 1 ? '' : 's'}`
+      : `${remaining} command${remaining === 1 ? '' : 's'} remaining · ideal: ${ideal}`,
+  idealCommands: (par: number) => `ideal: ${par} command${par === 1 ? '' : 's'}`,
   guideAlwaysRight: 'Guide panel is always on the right (full height). Guide button focuses it.',
 
   welcomeTitle: 'LearnR',

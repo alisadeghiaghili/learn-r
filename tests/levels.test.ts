@@ -51,4 +51,12 @@ describe('Level catalog integrity', () => {
     const last = allLevels[allLevels.length - 1]!;
     expect(getNextLevel(last.id)).toBeNull();
   });
+
+  it('maintains strict sequential 1..74 numbering in titles and series tracks', () => {
+    expect(allLevels.length).toBe(74);
+    allLevels.forEach((level, idx) => {
+      const expectedNum = String(idx + 1).padStart(2, '0');
+      expect(level.title.startsWith(`${expectedNum}. `)).toBe(true);
+    });
+  });
 });

@@ -85,6 +85,11 @@ export const fa: UiStrings = {
   bestSoFar: (commands: number, par: number) =>
     `بهترین تاکنون: ${commands} فرمان · ایده‌آل: ${par}`,
   solvedBanner: (n: number | null) => `مرحله حل شد${n !== null ? ` با ${n} فرمان` : ''}.`,
+  commandsRemaining: (remaining: number, ideal: number) =>
+    remaining <= 0
+      ? `همه‌ی گام‌ها انجام شد · ایده‌آل: ${ideal} فرمان`
+      : `${remaining} فرمان تا تکمیل مرحله · ایده‌آل: ${ideal}`,
+  idealCommands: (par: number) => `ایده‌آل: ${par} فرمان`,
   guideAlwaysRight:
     'پنل راهنما همیشه سمت راست باز است (ارتفاع کامل). دکمه‌ی Guide آن را فوکوس می‌کند.',
 

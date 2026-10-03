@@ -9,7 +9,7 @@ export const SERIES: SeriesDef[] = [
 ];
 
 export const allLevels: LevelDef[] = [
-  // Section 1: مقدمه
+
   {
     id: 'hello',
     seriesId: 'foundations',
@@ -42,6 +42,7 @@ print("Hello, R!")
 - **تفاوت کوتیشن‌ها:** در R هر دو نوع کوتیشن تکی (\`'...\'\`) و دوتایی (\`"..."\`) معتبرند، اما استاندارد پذیرفته‌شده کدنویسی R استفاده از گیومه دوتایی است.
 `,
   },
+
   {
     id: 'rstudio',
     seriesId: 'foundations',
@@ -79,7 +80,8 @@ print("Hello, R!")
 `,
   },
 
-  // Section 2: مبانی R
+  // Section 2: مبانی R,
+
   {
     id: 'numbers',
     seriesId: 'foundations',
@@ -119,6 +121,7 @@ print("Hello, R!")
 - **تفاوت \`Inf\` و \`NaN\`:** تقسیم عدد بر صفر در R تولید \`Inf\` یا \`-Inf\` می‌کند، در حالی که \`0 / 0\` مقدار \`NaN\` (Not a Number) بازمی‌گرداند.
 `,
   },
+
   {
     id: 'vectors',
     seriesId: 'foundations',
@@ -160,6 +163,7 @@ mat <- matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE)
 - **تله حذف بعد (Dimension Dropping):** وقتی یک سطر از ماتریس را فیلتر می‌کنید (\`mat[1, ]\`)، R به طور خودکار ساختار ماتریس را به بردار تقلیل می‌دهد. برای حفظ ساختار ماتریس باید از \`drop = FALSE\` استفاده کنید (\`mat[1, , drop = FALSE]\`).
 `,
   },
+
   {
     id: 'data-structures',
     seriesId: 'foundations',
@@ -249,7 +253,8 @@ ordered_f <- reorder(factor_var, numeric_metric, FUN = median)
 `,
   },
 
-  // Section 3: برنامه‌نویسی
+  // Section 3: برنامه‌نویسی,
+
   {
     id: 'control-flow',
     seriesId: 'foundations',
@@ -280,6 +285,7 @@ status <- ifelse(temps >= 85, "heatwave", "normal")
 - **تفاوت \`&amp;\` با \`&amp;&amp;\`:** عملگر \`&amp;\` برای عملیات برداری عنصر به عنصر (مانند فیلتر کردن جداول) است؛ در حالی که \`&amp;&amp;\` اتصال کوتاه و فقط برای عبارات تک‌عنصری در شرط‌های \`if\` طراحی شده است.
 `,
   },
+
   {
     id: 'functions',
     seriesId: 'foundations',
@@ -317,6 +323,7 @@ f_to_c <- function(f) round((f - 32) * 5/9, 1)
 - **خروجی غیرقابل پیش‌بینی \`sapply\`:** تابع \`sapply\` سعی می‌کند خروجی را ساده‌سازی کند. اگر در مواردی خروجی لیست یا ماتریس شود رفتار آن تغییر می‌کند؛ در کدهای حساس صنعتی معمولاً از \`vapply\` با تعریف نوع خروجی استفاده می‌شود.
 `,
   },
+
   {
     id: 'type-safe-apply',
     seriesId: 'foundations',
@@ -363,11 +370,37 @@ vapply(metrics, mean, numeric(1))
 `,
   },
 
-  // Section 4: داده‌ها و ورود داده
+  // Section 4: داده‌ها و ورود داده,
+
+  {
+    id: "prog-r4",
+    seriesId: 'foundations',
+    title: "10. Modern R 4.x Syntax & Features",
+    brief: "R 4.1+ introduces the native forward pipe |> and shorthand lambda syntax \\(x). Chain a sequence using the native pipe and lambda to filter even numbers and square them in quad_sum.",
+    goal: "quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum()\ntxt <- \"  hello world  \" |> trimws()",
+    setup: "",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "quad_sum == 20",
+                "label": "Native pipe |> and lambda \\(x) correctly evaluated quad_sum to 20"
+          },
+          {
+                "type": "eval",
+                "expr": "txt == \"hello world\"",
+                "label": "Native pipe cleanly processed string transformation"
+          }
+    ],
+    hint: "Assign quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum() and txt <- '  hello world  ' |> trimws().",
+    lesson: "### فصل ۵۶ — تغییرات و نوآوری‌های مدرن در زبان R نسخه 4.x\n\nزبان R در نسخه‌های ۴ به بعد دستخوش مدرن‌سازی اساسی شد:\n1. **پایپ نیتیو (`|>`):** دیگر نیازی به `library(magrittr)` نیست! پایپ در سطح گرامر مفسر C پیاده‌سازی شده و سریع‌تر است.\n2. **توابع لامبدا (`\\(x)`):** به جای نوشتن `function(x) x * 2`، می‌توانید خیلی شیک و کوتاه بنویسید `\\(x) x * 2`.\n3. **رشته‌های خام (Raw Strings):** با نحو `r\"(^[a-z]+$)\"` دیگر نیازی به نوشتن دو بک‌اسلش در رجکس‌ها نیست.\n4. **حذف تله ۲۵ ساله `stringsAsFactors`:** از R 4.0 به بعد، ستون‌های متنی دیگر به طور خودکار فاکتور نمی‌شوند!\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت پایپ نیتیو با magrittr:** پایپ نیتیو `|>` تابع سمت راست را حتماً به صورت فراخوانی ارزیابی می‌کند، بنابراین `x |> head()` معتبر است اما `x |> head` در برخی نسخه‌ها اخطار می‌دهد.",
+  },
+
   {
     id: 'import-flat',
     seriesId: 'foundations',
-    title: '10. Flat Files & CSV Import',
+    title: '11. Flat Files & CSV Import',
     brief: 'read.csv() parses tabular comma-separated text into a data.frame. Import csv_text into df.',
     goal: 'csv_text <- "id,name,score\\n1,Alice,95\\n2,Bob,88\\n3,Charlie,72"\ndf <- read.csv(text = csv_text)',
     setup: '',
@@ -396,10 +429,11 @@ vapply(metrics, mean, numeric(1))
 - **پارامتر \`check.names = TRUE\`:** نام ستون‌های حاوی فاصله یا کاراکترهای خاص در حین خواندن با نقطه (\`.\`) جایگزین می‌شوند تا نام‌های معتبر در R بسازند.
 `,
   },
+
   {
     id: 'import-excel',
     seriesId: 'foundations',
-    title: '11. Tabular Data & Inspection',
+    title: '12. Tabular Data & Inspection',
     brief: 'Inspect imported tables. On air_data, compute avg_temp as mean(air_data$Temp) and n_records as nrow(air_data).',
     goal: 'avg_temp <- mean(air_data$Temp)\nn_records <- nrow(air_data)',
     setup: 'air_data <- head(airquality, 10)',
@@ -430,10 +464,11 @@ vapply(metrics, mean, numeric(1))
 - **دیدن کل داده بزرگ:** چاپ تصادفی یک دیتافریم ۱۰۰,۰۰۰ سطری در کنسول ممکن است باعث فریز شدن محیط شود. همیشه از \`head()\` یا \`tail()\` استفاده کنید.
 `,
   },
+
   {
     id: 'import-db',
     seriesId: 'foundations',
-    title: '12. Relational Queries & DB',
+    title: '13. Relational Queries & DB',
     brief: 'Relational data query logic: filter sales_data where amount >= 150 and region == "North" into top_sales.',
     goal: 'top_sales <- subset(sales_data, amount >= 150 & region == "North")',
     setup: 'sales_data <- data.frame(item = c("A", "B", "A", "C", "B"), amount = c(100, 250, 150, 80, 300), region = c("North", "South", "North", "West", "North"))',
@@ -461,10 +496,11 @@ vapply(metrics, mean, numeric(1))
 - **تله مقادیر NA در فیلتر کردن:** اگر در اندیس‌گذاری با \`df[df$amount > 100, ]\` مقادیر \`NA\` وجود داشته باشد، R سطرهایی کاملاً پر از NA تولید می‌کند! تابع \`subset()\` این مشکل را برطرف کرده و رکوردهای نامشخص را به طور خودکار حذف می‌کند.
 `,
   },
+
   {
     id: 'import-web',
     seriesId: 'foundations',
-    title: '13. Web Data & Structured Records',
+    title: '14. Web Data & Structured Records',
     brief: 'APIs return structured records (JSON/nested lists). Extract user names from api_data$items into names.',
     goal: 'names <- sapply(api_data$items, function(u) u$name)',
     setup: 'api_data <- list(status = 200, items = list(list(id = 1, name = "Ali"), list(id = 2, name = "Sara"), list(id = 3, name = "Reza")))',
@@ -487,10 +523,11 @@ vapply(metrics, mean, numeric(1))
 - **تفاوت \`NULL\` با \`NA\` در لیست‌ها:** اگر یک فیلد در رکورد API وجود نداشته باشد مقدار آن در R برابر \`NULL\` می‌شود. اگر \`NULL\` را در یک بردار قرار دهید، عنصر ناپدید شده و طول بردار کم می‌شود!
 `,
   },
+
   {
     id: 'rectangling',
     seriesId: 'foundations',
-    title: '14. Data Rectangling & Hierarchies',
+    title: '15. Data Rectangling & Hierarchies',
     brief: 'Modern APIs return nested trees of records. Rectangle raw_users into a 2D data.frame user_table using do.call(rbind, ...) and compute total_logins.',
     goal: 'user_table <- do.call(rbind, lapply(raw_users, as.data.frame))\ntotal_logins <- sum(user_table$logins)',
     setup: 'raw_users <- list(list(id = 101, name = "Alice", role = "Admin", logins = 42), list(id = 102, name = "Bob", role = "Editor", logins = 15), list(id = 103, name = "Charlie", role = "Viewer", logins = 7))',
@@ -533,11 +570,62 @@ user_table <- do.call(rbind, lapply(raw_records, as.data.frame))
 `,
   },
 
-  // Section 5: پاکسازی و داده‌کاوی
+  // Section 5: پاکسازی و داده‌کاوی,
+
+  {
+    id: "import-readxl",
+    seriesId: 'foundations',
+    title: "16. Excel Worksheets Import with readxl",
+    brief: "readxl reads Excel (.xlsx, .xls) workbooks without external dependencies. Discover worksheets using excel_sheets(workbook_path), import sheet 'Q1_Sales' into q1_data, and compute total q1_revenue.",
+    goal: "sheets <- excel_sheets(workbook_path)\nq1_data <- read_excel(workbook_path, sheet = \"Q1_Sales\")\nq1_revenue <- sum(q1_data$revenue)",
+    setup: "excel_sheets <- function(path) c(\"Summary\", \"Q1_Sales\", \"Q2_Sales\")\nread_excel <- function(path, sheet = 1, range = NULL) {\n  if (sheet == \"Q1_Sales\" || sheet == 2) {\n    data.frame(region = c(\"North\", \"South\"), revenue = c(12000, 18500), stringsAsFactors = FALSE)\n  } else {\n    data.frame(metric = c(\"Total\", \"Target\"), val = c(30500, 28000), stringsAsFactors = FALSE)\n  }\n}\nworkbook_path <- \"financial_report.xlsx\"",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "identical(sheets, c(\"Summary\", \"Q1_Sales\", \"Q2_Sales\"))",
+                "label": "excel_sheets() discovered all 3 worksheet names"
+          },
+          {
+                "type": "eval",
+                "expr": "is.data.frame(q1_data) && nrow(q1_data) == 2 && q1_revenue == 30500",
+                "label": "read_excel() imported Q1_Sales and computed 30500 revenue"
+          }
+    ],
+    hint: "Run sheets <- excel_sheets(workbook_path), q1_data <- read_excel(workbook_path, sheet = 'Q1_Sales'), and q1_revenue <- sum(q1_data$revenue).",
+    lesson: "### فصل ۵۴ — خواندن فایل‌های اکسل با پکیج استاندارد readxl\n\nفایل‌های اکسل فرمت غالب تبادل گزارش‌های تجاری در سازمان‌ها هستند. پکیج **readxl** استاندارد طلایی R برای کار با اکسل است:\n1. بی‌نیازی کامل از نرم‌افزار جاوا یا نصب آفیس مایکروسافت.\n2. **`excel_sheets(path)`:** استخراج نام تمام تب‌های موجود در فایل.\n3. **`read_excel(path, sheet, range)`:** خواندن تب مشخص و استخراج سلول‌ها در قالب یک `tibble` تمیز.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشکال در سطر اول (هدرها):** اگر سطر اول فایل اکسل حاوی یادداشت یا سلول‌های ادغام‌شده (Merge) باشد، R آن را به اشتباه نام ستون در نظر می‌گیرد. همیشه با `skip = n` سطرهای اضافی را رد کنید.",
+  },
+
+  {
+    id: "data-rodbc",
+    seriesId: 'foundations',
+    title: "17. Database Queries with DBI & RODBC",
+    brief: "DBI and ODBC provide relational database connectivity in R. Open a connection with dbConnect(), query active users with dbGetQuery() into admins, and cleanly close with dbDisconnect().",
+    goal: "conn <- dbConnect(\"MockDriver\")\nadmins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\")\nis_closed <- dbDisconnect(conn)",
+    setup: "dbConnect <- function(drv, ...) structure(list(connected = TRUE, tables = list(users = data.frame(id = 1:3, name = c(\"Alice\", \"Bob\", \"Charlie\"), role = c(\"Admin\", \"User\", \"Admin\"), stringsAsFactors = FALSE))), class = \"DBIConnection\")\ndbDisconnect <- function(conn) { conn$connected <- FALSE; TRUE }\ndbGetQuery <- function(conn, statement, ...) {\n  if (!conn$connected) stop(\"Connection closed\")\n  if (grepl(\"role = 'Admin'\", statement)) {\n    conn$tables$users[conn$tables$users$role == \"Admin\", ]\n  } else {\n    conn$tables$users\n  }\n}",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "is.data.frame(admins) && nrow(admins) == 2 && all(admins$role == \"Admin\")",
+                "label": "dbGetQuery() fetched matching admin records via SQL"
+          },
+          {
+                "type": "eval",
+                "expr": "isTRUE(is_closed)",
+                "label": "dbDisconnect() cleanly terminated the connection"
+          }
+    ],
+    hint: "Call conn <- dbConnect('MockDriver'), admins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\"), and is_closed <- dbDisconnect(conn).",
+    lesson: "### فصل ۵۵ — اتصال به پایگاه‌های داده رابطه‌ای با DBI و ODBC\n\nدر محیط‌های سازمانی، داده‌ها در پایگاه‌های داده SQL نگهداری می‌شوند:\n1. **رابط یکپارچه DBI:** صرف‌نظر از اینکه به PostgreSQL، Oracle یا SQLite وصل می‌شوید، ساختار توابع در R یکسان است.\n2. **چرخه حیات اتصال:**\n   - `dbConnect(drv, ...)`: برقراری اتصال امن با سرور\n   - `dbGetQuery(conn, \"SELECT ...\")`: اجرای کوئری و دریافت دیتافریم\n   - `dbDisconnect(conn)`: بستن کانکشن\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فراموش کردن بستن کانکشن:** اتصالات باز رهاشده می‌توانند سقف مجاز اتصالات سرور دیتابیس را پر کرده و کل سیستم را از کار بیندازند. همیشه از `on.exit(dbDisconnect(conn))` استفاده کنید.",
+  },
+
   {
     id: 'tidy-data',
     seriesId: 'foundations',
-    title: '15. Tidy Data & Missing Values',
+    title: '18. Tidy Data & Missing Values',
     brief: 'Real-world data contains missing values (NA). On raw_ozone, find NAs with is.na(), compute avg_ozone with na.rm = TRUE, and extract clean_ozone with na.omit().',
     goal: 'has_na <- is.na(raw_ozone)\navg_ozone <- mean(raw_ozone, na.rm = TRUE)\nclean_ozone <- na.omit(raw_ozone)',
     setup: 'raw_ozone <- airquality$Ozone[1:10]',
@@ -570,10 +658,11 @@ user_table <- do.call(rbind, lapply(raw_records, as.data.frame))
 - **محاسبات با \`NA\` مسری هستند:** اگر برداری حتی ۱ مقدار NA داشته باشد، \`mean(x)\` یا \`sum(x)\` مقدار \`NA\` پس می‌دهد. برای محاسبه صحیح روی داده‌های موجود باید حتماً آرگومان \`na.rm = TRUE\` را فعال کنید.
 `,
   },
+
   {
     id: 'pivoting',
     seriesId: 'foundations',
-    title: '16. Reshaping Data: Pivoting Wide to Long',
+    title: '19. Reshaping Data: Pivoting Wide to Long',
     brief: 'Data is often stored wide with metric times in column headers. Reshape quarterly_sales to tidy long format using reshape() into long_sales with quarter and revenue columns.',
     goal: 'long_sales <- reshape(quarterly_sales, direction = "long", varying = c("Q1", "Q2"), v.names = "revenue", timevar = "quarter", times = c("Q1", "Q2"), idvar = "dept")\nrow.names(long_sales) <- NULL',
     setup: 'quarterly_sales <- data.frame(dept = c("Electronics", "Clothing"), Q1 = c(120, 85), Q2 = c(150, 95))',
@@ -625,10 +714,11 @@ long_df <- reshape(
 - **تله چندگانگی ستون‌های مقیاس‌شده:** هنگام انتقال چند ستون به قالب طویل، باید مطمئن شد نوع داده تمام ستون‌های ورودی سازگار باشد (مثلاً همگی عددی باشند)، وگرنه R تمام مقادیر را به رشته متنی (Character) تبدیل می‌کند.
 `,
   },
+
   {
     id: 'strings-regex',
     seriesId: 'foundations',
-    title: '17. Strings & Regular Expressions',
+    title: '20. Strings & Regular Expressions',
     brief: 'Text manipulation using regex: replace hyphens with underscores in tags using gsub() into clean_tags.',
     goal: 'clean_tags <- gsub("-", "_", tags)',
     setup: 'tags <- c("item-101", "user-admin", "order-2026")',
@@ -653,10 +743,11 @@ long_df <- reshape(
 - **فرار مضاعف از بک‌اسلش (Double Backslash):** در R رشته‌ها بک‌اسلش را تفسیر می‌کنند؛ بنابراین برای نوشتن یک رقم در regex به جای \`\\d\` باید حتماً بنویسید \`\\\\d\`!
 `,
   },
+
   {
     id: 'dplyr',
     seriesId: 'foundations',
-    title: '18. Data Wrangling & Pipelines',
+    title: '21. Data Wrangling & Pipelines',
     brief: 'Chain operations with the native pipe |>. On cars_sample, filter for mpg >= 18 and calculate power-to-weight ratio pwr_ratio = round(hp / wt, 1) into valuable.',
     goal: 'valuable <- subset(cars_sample, mpg >= 18) |> transform(pwr_ratio = round(hp / wt, 1))',
     setup: 'cars_sample <- mtcars[1:8, c("mpg", "hp", "wt")]',
@@ -693,10 +784,11 @@ data |> filter(...) |> transform(...)
 - **نیاز به پرانتز در پایپ بومی:** در پایپ قدیمی \`%>%\` نوشتن \`x %>% mean\` کار می‌کرد؛ اما در پایپ بومی \`|>\` حتماً باید پرانتز توابع را بگذارید (\`x |> mean()\`).
 `,
   },
+
   {
     id: 'joins',
     seriesId: 'foundations',
-    title: '19. Merging & Relational Joins',
+    title: '22. Merging & Relational Joins',
     brief: 'Join tables based on a shared key. Perform a left join with merge(all.x = TRUE) into report.',
     goal: 'report <- merge(users, orders, by = "user_id", all.x = TRUE)',
     setup: 'users <- data.frame(user_id = 1:3, name = c("Ali", "Sara", "Reza"))\norders <- data.frame(user_id = c(1, 2, 4), total = c(150, 320, 90))',
@@ -730,10 +822,11 @@ data |> filter(...) |> transform(...)
 - **انفجار سطرها با کلید تکراری:** اگر کلید انتخابی در یکی از جداول تکراری باشد، عملیات Join سطرها را در یکدیگر ضرب دکارتی می‌کند و تعداد سطرهای خروجی ناخواسته چندبرابر می‌شود.
 `,
   },
+
   {
     id: 'anti-joins',
     seriesId: 'foundations',
-    title: '20. Filtering Joins: Anti-Joins & Semi-Joins',
+    title: '23. Filtering Joins: Anti-Joins & Semi-Joins',
     brief: 'Filtering joins select rows from x based on matches in y without altering columns. Identify users in all_users who lack an active subscription into churned_users and extract churned_ids.',
     goal: 'churned_users <- subset(all_users, !(user_id %in% active_subscribers$user_id))\nchurned_ids <- churned_users$user_id',
     setup: 'all_users <- data.frame(user_id = 1:5, name = c("Alice", "Bob", "Charlie", "David", "Emma"), stringsAsFactors = FALSE)\nactive_subscribers <- data.frame(user_id = c(1, 3, 5), plan = c("Pro", "Basic", "Pro"), stringsAsFactors = FALSE)',
@@ -779,11 +872,62 @@ churned <- subset(all_users, !(id %in% active_users$id))
 `,
   },
 
-  // Section 6: زمان و داده‌های پیشرفته
+  // Section 6: زمان و داده‌های پیشرفته,
+
+  {
+    id: "tidyr-separate-unite",
+    seriesId: 'foundations',
+    title: "24. Column Splitting & Combining with tidyr",
+    brief: "tidyr provides separate() to split compound character columns by a delimiter into multiple variables, and unite() to merge multiple columns into one with a separator.",
+    goal: "sep_df <- separate(patients, col = name_code, into = c(\"first_name\", \"code\"), sep = \"_\")\nreunited_df <- unite(sep_df, col = \"full_tag\", first_name, code, sep = \"-\")",
+    setup: "separate <- function(data, col, into, sep = \"[^[:alnum:]]+\", remove = TRUE) {\n  col_str <- as.character(substitute(col))\n  vals <- as.character(data[[col_str]])\n  split_mat <- do.call(rbind, strsplit(vals, split = sep))\n  res <- data\n  if (remove) res[[col_str]] <- NULL\n  for (i in seq_along(into)) res[[into[i]]] <- split_mat[, i]\n  res\n}\nunite <- function(data, col, ..., sep = \"_\", remove = TRUE) {\n  col_str <- as.character(substitute(col))\n  dots <- as.list(substitute(list(...)))[-1]\n  dot_names <- sapply(dots, as.character)\n  combined <- apply(data[, dot_names, drop = FALSE], 1, paste, collapse = sep)\n  res <- data\n  if (remove) for (nm in dot_names) res[[nm]] <- NULL\n  res[[col_str]] <- combined\n  res\n}\npatients <- data.frame(id = 1:3, name_code = c(\"John_A1\", \"Mary_B2\", \"Alex_C3\"), stringsAsFactors = FALSE)",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "all(c(\"first_name\", \"code\") %in% names(sep_df)) && sep_df$first_name[1] == \"John\"",
+                "label": "separate() successfully split name_code into first_name and code"
+          },
+          {
+                "type": "eval",
+                "expr": "\"full_tag\" %in% names(reunited_df) && reunited_df$full_tag[1] == \"John-A1\"",
+                "label": "unite() concatenated columns into full_tag with hyphen separator"
+          }
+    ],
+    hint: "Run sep_df <- separate(patients, col = name_code, into = c('first_name', 'code'), sep = '_') and reunited_df <- unite(sep_df, col = 'full_tag', first_name, code, sep = '-').",
+    lesson: "### فصل ۵۱ — جداسازی و ادغام ستون‌های متنی با tidyr (توابع separate و unite)\n\nدر بسیاری از داده‌های واقعی، چند متغیر در قالب یک ستون ذخیره شده‌اند (مانند `نام_کد` یا `سال-ماه-روز`):\n- **تابع `separate(data, col, into, sep)`:** این تابع یک ستون متنی مرکب را بر اساس کاراکتر جداکننده برش داده و به چند ستون تحلیلی مستقل تبدیل می‌کند.\n- **تابع `unite(data, col, ..., sep)`:** عمل معکوس را انجام می‌دهد؛ چندین متغیر پراکنده را به یک شناسه ترکیبی متصل می‌سازد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **نابرابری تعداد بخش‌ها:** اگر برخی سطرها ۲ تکه و برخی ۳ تکه شوند، `separate` اخطار می‌دهد. با آرگومان `extra = \"merge\"` تکه‌های اضافه را در آخرین ستون ادغام کنید.",
+  },
+
+  {
+    id: "tidyr-gather-spread",
+    seriesId: 'foundations',
+    title: "25. Classic Reshaping with gather() & spread()",
+    brief: "Before pivot_longer() and pivot_wider(), tidyr relied on gather() and spread(). Reshape metrics_wide into long_metrics with gather(key = metric, value = usage), and restore with spread().",
+    goal: "long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram)\nwide_metrics <- spread(long_metrics, key = metric, value = usage)",
+    setup: "gather <- function(data, key, value, ...) {\n  key_nm <- as.character(substitute(key))\n  val_nm <- as.character(substitute(value))\n  dots <- as.list(substitute(list(...)))[-1]\n  cols_to_gather <- sapply(dots, as.character)\n  id_cols <- setdiff(names(data), cols_to_gather)\n  out_list <- list()\n  for (col in cols_to_gather) {\n    sub_df <- data[, id_cols, drop = FALSE]\n    sub_df[[key_nm]] <- col\n    sub_df[[val_nm]] <- data[[col]]\n    out_list[[length(out_list) + 1]] <- sub_df\n  }\n  do.call(rbind, out_list)\n}\nspread <- function(data, key, value) {\n  key_nm <- as.character(substitute(key))\n  val_nm <- as.character(substitute(value))\n  keys <- unique(data[[key_nm]])\n  id_cols <- setdiff(names(data), c(key_nm, val_nm))\n  res <- unique(data[, id_cols, drop = FALSE])\n  for (k in keys) {\n    sub_data <- data[data[[key_nm]] == k, ]\n    m <- match(res$id, sub_data$id)\n    res[[k]] <- sub_data[[val_nm]][m]\n  }\n  rownames(res) <- NULL\n  res\n}\nmetrics_wide <- data.frame(id = 1:2, cpu = c(45, 80), ram = c(60, 85))",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "nrow(long_metrics) == 4 && all(c(\"id\", \"metric\", \"usage\") %in% names(long_metrics))",
+                "label": "gather() reshaped wide metrics to 4 long records with metric and usage"
+          },
+          {
+                "type": "eval",
+                "expr": "all(c(\"cpu\", \"ram\") %in% names(wide_metrics)) && wide_metrics$cpu[2] == 80",
+                "label": "spread() restored original wide format"
+          }
+    ],
+    hint: "Execute long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram) and wide_metrics <- spread(long_metrics, key = metric, value = usage).",
+    lesson: "### فصل ۵۲ — تغییر شکل کلاسیک با gather و spread (دانش ضروری نگهداری کدها)\n\nمیلیون‌ها خط کد R در سراسر جهان با توابع تاریخی `gather` و `spread` نوشته شده‌اند:\n- **`gather(data, key, value, ...)`:** ستون‌های عریض را جمع کرده و به دو ستون کلید-مقدار (طویل) تبدیل می‌کند.\n- **`spread(data, key, value)`:** مقادیر ستون کلید را به ستون‌های مجزا تبدیل کرده و جدول را عریض می‌کند.\n\nتوابع نسل دوم `pivot_longer` و `pivot_wider` جایگزین این دو شدند تا نام‌گذاری واضح‌تر و کنترل خطای بهتری ارائه دهند، اما شناخت این توابع برای هر متخصص R الزامی است.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم نیاز به کوتیشن برای key و value در gather:** در `gather` نام‌های جدید بدون کوتیشن ارسال می‌شوند که در صورت تشابه با متغیرهای محیطی می‌تواند سردرگمی ایجاد کند.",
+  },
+
   {
     id: 'datetime',
     seriesId: 'foundations',
-    title: '21. Dates & Times',
+    title: '26. Dates & Times',
     brief: 'Convert character strings to Date objects using as.Date() and compute days_between as a numeric duration.',
     goal: 'start_date <- as.Date("2026-01-01")\nend_date <- as.Date("2026-01-15")\ndays_between <- as.numeric(end_date - start_date)',
     setup: '',
@@ -811,10 +955,11 @@ churned <- subset(all_users, !(id %in% active_users$id))
 - **کدهای سال ۴ رقمی و ۲ رقمی:** در فرمت‌بندی تاریخ، \`%Y\` نشان‌دهنده سال ۴ رقمی (2026) و \`%y\` نشان‌دهنده سال ۲ رقمی (26) است. اشتباه گرفتن این دو باعث خطای محاسباتی سده می‌شود.
 `,
   },
+
   {
     id: 'data-table',
     seriesId: 'foundations',
-    title: '22. Fast Group Aggregation',
+    title: '27. Fast Group Aggregation',
     brief: 'Aggregate data across categories. Use aggregate() to compute average miles per gallon (mpg) by cylinder count (cyl) in mtcars into cyl_summary.',
     goal: 'cyl_summary <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean)',
     setup: '',
@@ -847,10 +992,11 @@ churned <- subset(all_users, !(id %in% active_users$id))
 - **تکمیل سطرهای دارای NA:** به طور پیش‌فرض، \`aggregate\` سطرهایی که در متغیرهای گروه‌بندی آنها \`NA\` وجود دارد را حذف می‌کند، مگر اینکه با پارامتر \`na.action = na.pass\` مانع شوید.
 `,
   },
+
   {
     id: 'outliers-plots',
     seriesId: 'foundations',
-    title: '23. Outliers & Base Plots',
+    title: '28. Outliers & Base Plots',
     brief: 'Detect statistical outliers with IQR() and visualize distribution using a publication-ready boxplot with labels.',
     goal: 'iqr_val <- IQR(ozone_clean)\nboxplot(ozone_clean, col = "#2569bb", main = "Ozone Distribution (ppb)", ylab = "Ozone (ppb)")',
     setup: 'ozone_clean <- na.omit(airquality$Ozone)',
@@ -879,11 +1025,37 @@ churned <- subset(all_users, !(id %in% active_users$id))
 `,
   },
 
-  // Section 7: آمار و مدل‌سازی (جدید و حرفه‌ای)
+  // Section 7: آمار و مدل‌سازی (جدید و حرفه‌ای),
+
+  {
+    id: "tidy-hms",
+    seriesId: 'foundations',
+    title: "29. Time of Day & Durations with hms",
+    brief: "The hms package represents time of day independent of calendar dates. Parse shift_starts using parse_hms(), define lunch_time using hms(hours = 12, minutes = 30), and calculate time_diff in hours.",
+    goal: "start_times <- parse_hms(shift_starts)\nlunch_time <- hms(hours = 12, minutes = 30)\ntime_diff <- as.numeric(lunch_time - start_times[1], units = \"secs\") / 3600",
+    setup: "hms <- function(seconds = 0, minutes = 0, hours = 0) {\n  total_sec <- as.numeric(seconds) + as.numeric(minutes) * 60 + as.numeric(hours) * 3600\n  structure(total_sec, class = c(\"hms\", \"difftime\"), units = \"secs\")\n}\nas_hms <- function(x) {\n  if (is.character(x)) {\n    parts <- strsplit(x, \":\")\n    secs <- sapply(parts, function(p) {\n      p <- as.numeric(p)\n      if (length(p) == 3) p[1] * 3600 + p[2] * 60 + p[3]\n      else if (length(p) == 2) p[1] * 3600 + p[2] * 60\n      else p[1]\n    })\n    structure(secs, class = c(\"hms\", \"difftime\"), units = \"secs\")\n  } else {\n    structure(as.numeric(x), class = c(\"hms\", \"difftime\"), units = \"secs\")\n  }\n}\nparse_hms <- as_hms\nshift_starts <- c(\"08:30:00\", \"09:15:00\", \"14:00:00\")",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "inherits(start_times, \"hms\") && length(start_times) == 3",
+                "label": "start_times parsed as valid hms vector of length 3"
+          },
+          {
+                "type": "eval",
+                "expr": "lunch_time == 45000 && time_diff == 4",
+                "label": "lunch_time created at 12:30 and time_diff accurately computed as 4 hours"
+          }
+    ],
+    hint: "Call start_times <- parse_hms(shift_starts), lunch_time <- hms(hours = 12, minutes = 30), and calculate time_diff.",
+    lesson: "### فصل ۵۳ — مدیریت ساعت روز و بازه‌های زمانی با پکیج hms\n\nدر بسیاری از کاربردها مانند برنامه‌ریزی شیفت‌های بیمارستانی یا زمان‌بندی مترو، ما به **ساعت روز** نیاز داریم نه یک تاریخ تقویمی خاص:\n- **کلاس `hms`:** زمان را به صورت ثانیه‌های بعد از نیمه‌شب ذخیره کرده و به زیبایی در فرمت `HH:MM:SS` نمایش می‌دهد.\n- **محاسبات بازه‌ای:** تفریق دو مقدار `hms` طول مدت فیزیکی بین دو رویداد را بدون تداخل سال یا ماه محاسبه می‌کند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم تفکیک ساعت با تاریخ:** استفاده از `POSIXct` برای ساعت خالی باعث می‌شود R تاریخ امروز را به آن بچسباند که در محاسبات اختلاف روزانه خطاساز است.",
+  },
+
   {
     id: 'regression',
     seriesId: 'foundations',
-    title: '24. Linear Regression & Model Diagnostics',
+    title: '30. Linear Regression & Model Diagnostics',
     brief: 'Fit a multiple linear regression model predicting mpg from vehicle weight (wt) and horsepower (hp) in mtcars, extracting model summary and R-squared.',
     goal: 'fit <- lm(mpg ~ wt + hp, data = mtcars)\nr_squared <- summary(fit)$r.squared',
     setup: '',
@@ -925,10 +1097,11 @@ summary(fit)
 - **تله R-squared بالا:** با افزودن متغیرهای بی‌ربط، \`R-squared\` همیشه افزایش می‌یابد! در رگرسیون چندگانه همیشه باید \`Adjusted R-squared\` را بررسی کنید.
 `,
   },
+
   {
     id: 'hypothesis',
     seriesId: 'foundations',
-    title: '25. Hypothesis Testing & Predictions',
+    title: '31. Hypothesis Testing & Predictions',
     brief: 'Conduct a two-sample t-test comparing fuel efficiency across transmission types (am in mtcars), and predict mpg for a 3000-lb car with 150 hp.',
     goal: 'ttest_res <- t.test(mpg ~ am, data = mtcars)\npred_mpg <- as.numeric(predict(fit, newdata = data.frame(wt = 3.0, hp = 150)))',
     setup: 'fit <- lm(mpg ~ wt + hp, data = mtcars)',
@@ -964,10 +1137,11 @@ summary(fit)
 - **هم‌نام بودن ستون‌های \`newdata\`:** ورودی \`newdata\` در تابع \`predict\` باید حتماً یک \`data.frame\` باشد و نام ستون‌های آن دقیقاً مطابق با متغیرهای ورودی فرمول اولیه مدل باشد.
 `,
   },
+
   {
     id: 'appendix',
     seriesId: 'foundations',
-    title: '26. Capstone: End-to-End Analysis',
+    title: '32. Capstone: End-to-End Analysis',
     brief: 'Complete pipeline on airquality: clean NAs, compute correlation between Temp and Ozone, and render an exploratory scatter plot with regression trendline (abline).',
     goal: 'clean_air <- na.omit(airquality)\ncor_val <- cor(clean_air$Ozone, clean_air$Temp)\nplot(clean_air$Temp, clean_air$Ozone, pch = 19, col = "#2569bb", xlab = "Temp (F)", ylab = "Ozone (ppb)", main = "Ozone vs Temperature")\nabline(lm(Ozone ~ Temp, data = clean_air), col = "#ff8c1a", lwd = 2)',
     setup: '',
@@ -1000,11 +1174,39 @@ summary(fit)
 `,
   },
 
-  // Section 8: توسعه پکیج و مهندسی نرم‌افزار با R (بر اساس کتاب R Packages)
+  // Section 8: توسعه پکیج و مهندسی نرم‌افزار با R (بر اساس کتاب R Packages),
+
+  {
+    id: "repro-rmarkdown",
+    seriesId: 'foundations',
+    title: "33. Reproducible Reporting with R Markdown",
+    brief: "R Markdown integrates narrative markdown with executable R code chunks. Construct a reproducible report document text with YAML header, chunk options (echo = FALSE, eval = TRUE), and verify structure with parse_rmd().",
+    goal: "rmd_template <- c(\n  \"---\",\n  \"title: 'Quarterly Sales Report'\",\n  \"output: html_document\",\n  \"---\",\n  \"\",\n  \"## Summary Analysis\",\n  \"```{r sales-chunk, echo = FALSE, eval = TRUE}\",\n  \"total_sales <- 45000\",\n  \"```\",\n  \"Total recorded sales amount is `r total_sales` dollars.\"\n)\ndoc_text <- paste(rmd_template, collapse = \"\\n\")\ndoc_check <- parse_rmd(doc_text)",
+    setup: "parse_rmd <- function(text) {\n  has_yaml <- grepl(\"^---\\ntitle:\", text)\n  has_chunk <- grepl(\"```\\\\{r.*\\\\}\", text)\n  chunks <- regmatches(text, gregexpr(\"```\\\\{r.*?\\\\}.*?```\", text, perl = TRUE))[[1]]\n  list(valid_yaml = has_yaml, chunk_count = length(chunks))\n}",
+    par: 1,
+    difficulty: 2,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "isTRUE(doc_check$valid_yaml) && doc_check$chunk_count >= 1",
+                "label": "R Markdown document has valid YAML frontmatter and code chunk"
+          },
+          {
+                "type": "eval",
+                "expr": "grepl(\"echo = FALSE\", doc_text) && grepl(\"`r total_sales`\", doc_text)",
+                "label": "Document incorporates chunk option echo = FALSE and inline R expression"
+          }
+    ],
+    hint: "Assemble rmd_template with YAML frontmatter, code chunk with echo = FALSE, and inline code `r total_sales`, then call parse_rmd().",
+    lesson: "### فصل ۵۸ — تولید گزارش‌های علمی و تکرارپذیر با R Markdown و Knitr\n\nتکرارپذیری (Reproducibility) قلب تپنده علم داده مدرن است. به جای کپی-پیست کردن دستی اعداد و نمودارها در ورد یا پاورپوینت، از **R Markdown** استفاده می‌کنیم:\n1. **سربرگ YAML:** تنظیمات سند بین دو خط `---` در ابتدای فایل.\n2. **چانک‌های کد (Code Chunks):** بلوک‌های کدی که با سه بک‌تیک و `{r}` آغاز می‌شوند.\n3. **تنظیمات کلیدی چانک:**\n   - `echo = FALSE`: اجرای کد بدون نمایش متن کد در گزارش نهایی (ایده‌آل برای مدیران)\n   - `eval = FALSE`: نمایش کد بدون اجرای آن\n   - `warning = FALSE, message = FALSE`: پنهان کردن پیام‌های سیستمی\n4. **کدهای درون‌متنی (Inline R):** تزریق خودکار متغیرها درون متن گزارش با نحو `` `r var` ``.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **محیط کاری ایزوله هنگام رِندر:** فرآیند ساخت گزارش (`render`) کدها را در یک سشن تازه R اجرا می‌کند؛ بنابراین تمام متغیرها و پکیج‌های موردنیاز باید صراحتاً درون خود فایل `.Rmd` بارگذاری و تعریف شده باشند.",
+  },
+
+  // Section 11: مهندسی پروداکشن و محیط لوکال,
+
   {
     id: 'pkg-anatomy',
     seriesId: 'foundations',
-    title: '27. Package Anatomy & DESCRIPTION',
+    title: '34. Package Anatomy & DESCRIPTION',
     brief: 'Every R package is centered around a DESCRIPTION file. Create a valid metadata record using write.dcf() with Package, Title, Version, and License.',
     goal: 'desc <- data.frame(Package = "datapkg", Title = "Data Utilities", Version = "0.1.0", License = "MIT", Description = "Practical analytical tools.")\nwrite.dcf(desc, file = "DESCRIPTION")\npkg_desc <- as.list(as.data.frame(read.dcf("DESCRIPTION")))',
     setup: 'if (file.exists("DESCRIPTION")) file.remove("DESCRIPTION")',
@@ -1044,10 +1246,11 @@ summary(fit)
 - **شماره‌گذاری نسخه:** همیشه از نسخه‌بندی معنایی (Semantic Versioning) با حداقل ۳ بخش عددی استفاده کنید (مانند \`0.1.0\`).
 `,
   },
+
   {
     id: 'pkg-deps',
     seriesId: 'foundations',
-    title: '28. Dependencies: Imports vs Suggests',
+    title: '35. Dependencies: Imports vs Suggests',
     brief: 'Never call library() inside package code! Write a robust safe_median function that checks if stats is available via requireNamespace() and calls stats::median().',
     goal: 'safe_median <- function(x) {\n  if (!requireNamespace("stats", quietly = TRUE)) {\n    stop("Package \'stats\' required.")\n  }\n  stats::median(x, na.rm = TRUE)\n}',
     setup: '',
@@ -1091,10 +1294,11 @@ if (!requireNamespace("pkg", quietly = TRUE)) {
 - **تله Depends vs Imports:** فیلد قدیمی \`Depends\` تمام توابع پکیج پیش‌نیاز را به فضای سراسری کاربر تحمیل می‌کند و باعث تداخل نام متغیرها می‌شود. استاندارد مدرن همیشه استفاده از \`Imports\` است.
 `,
   },
+
   {
     id: 'pkg-code',
     seriesId: 'foundations',
-    title: '29. Package Code & Side Effects (on.exit)',
+    title: '36. Package Code & Side Effects (on.exit)',
     brief: 'Package functions must never leave side effects in the global environment. Write with_temp_digits using on.exit(add = TRUE) to format numbers under a temporary digits setting.',
     goal: 'with_temp_digits <- function(x, digits = 2) {\n  old_opt <- options(digits = digits)\n  on.exit(options(old_opt), add = TRUE)\n  format(x)\n}',
     setup: '',
@@ -1137,10 +1341,11 @@ my_fn <- function(x) {
 - **فراموش کردن آرگومان \`add = TRUE\`:** اگر \`add = TRUE\` را قرار ندهید، هر فراخوانی جدید \`on.exit()\` دستورات قبلی ثبت‌شده را پاک می‌کند! همیشه بنویسید \`on.exit(..., add = TRUE)\`.
 `,
   },
+
   {
     id: 'pkg-roxygen',
     seriesId: 'foundations',
-    title: '30. Documentation with roxygen2',
+    title: '37. Documentation with roxygen2',
     brief: 'In R packages, functions are documented using roxygen2 comments. Implement normalize_vec and define its roxygen metadata tags for title, param, return, and export.',
     goal: 'normalize_vec <- function(x) {\n  rng <- range(x, na.rm = TRUE)\n  if (diff(rng) == 0) return(rep(0, length(x)))\n  (x - rng[1]) / diff(rng)\n}\nroxy_tags <- list(title = "Normalize vector", param = "x: Numeric vector", return = "Scaled numeric vector in [0, 1]", export = TRUE)',
     setup: '',
@@ -1186,10 +1391,11 @@ normalize_vec <- function(x) { ... }
 - **از قلم انداختن تگ \`@export\`:** اگر \`@export\` را بالای تابعی نگذارید، آن تابع در پکیج باقی می‌ماند اما خصوصی (Internal) تلقی می‌شود و کاربران پس از \`library(mypkg)\` به آن دسترسی مستقیم نخواهند داشت.
 `,
   },
+
   {
     id: 'pkg-namespace',
     seriesId: 'foundations',
-    title: '31. NAMESPACE & Information Hiding',
+    title: '38. NAMESPACE & Information Hiding',
     brief: 'The NAMESPACE file defines public exports and imported foreign symbols. Write a NAMESPACE file exporting normalize_vec and importing median and IQR from stats.',
     goal: 'writeLines(c("export(normalize_vec)", "importFrom(stats, median, IQR)"), con = "NAMESPACE")\nns_content <- readLines("NAMESPACE")',
     setup: 'if (file.exists("NAMESPACE")) file.remove("NAMESPACE")',
@@ -1225,10 +1431,11 @@ normalize_vec <- function(x) { ... }
 - **تله وارد کردن فله‌ای با \`import(pkg)\`:** هرگز کل یک پکیج بزرگ را با \`import(pkg)\` وارد نکنید! این کار صدها تابع را وارد فضای داخلی پکیج کرده و ریسک تداخل را به شدت بالا می‌برد. همیشه از \`importFrom(pkg, fun1, fun2)\` استفاده کنید.
 `,
   },
+
   {
     id: 'pkg-testing',
     seriesId: 'foundations',
-    title: '32. Unit Testing with testthat',
+    title: '39. Unit Testing with testthat',
     brief: 'Unit testing powers reliable R packages. Implement testthat-compatible assertions expect_equal and expect_error, and run a test_suite verifying normalize_vec.',
     goal: 'expect_equal <- function(act, exp) { stopifnot(isTRUE(all.equal(act, exp))); TRUE }\nexpect_error <- function(expr) { ok <- tryCatch({ expr; FALSE }, error = function(e) TRUE); stopifnot(ok); TRUE }\ntest_results <- list(t1 = expect_equal(normalize_vec(1:3), c(0, 0.5, 1)), t2 = expect_error(stop("Err")))',
     setup: 'normalize_vec <- function(x) { rng <- range(x, na.rm = TRUE); if (diff(rng) == 0) rep(0, length(x)) else (x - rng[1]) / diff(rng) }',
@@ -1266,10 +1473,11 @@ normalize_vec <- function(x) { ... }
 - **تست اعشاری با \`==\` در تست‌ها:** هرگز ننویسید \`expect_true(val == 0.3)\`! در سیستم‌های عامل و پردازنده‌های مختلف محاسبات اعشاری تفاوت‌های ناچیزی دارند که باعث شکست تست می‌شود. همیشه از \`expect_equal()\` استفاده کنید.
 `,
   },
+
   {
     id: 'pkg-data',
     seriesId: 'foundations',
-    title: '33. Package Data & Extdata Assets',
+    title: '40. Package Data & Extdata Assets',
     brief: 'Packages ship raw non-R files in inst/extdata. Create inst/extdata/sample_cars.csv and load it back using read.csv() into raw_asset.',
     goal: 'dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)\nwrite.csv(head(mtcars, 5), file = "inst/extdata/sample_cars.csv", row.names = FALSE)\nraw_asset <- read.csv("inst/extdata/sample_cars.csv")',
     setup: '',
@@ -1308,10 +1516,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 - **مسیردهی اشتباه با \`inst\` در سیستم کاربر:** هرگز در کد تابع ننویسید \`system.file("inst/extdata", ...)\`! چون پیشوند \`inst/\` در پکیج نصب‌شده حذف شده است.
 `,
   },
+
   {
     id: 'pkg-check',
     seriesId: 'foundations',
-    title: '34. R CMD check & CRAN Readiness',
+    title: '41. R CMD check & CRAN Readiness',
     brief: 'R CMD check is the gold standard quality gate. Write check_package to verify DESCRIPTION metadata and NAMESPACE exports, returning 0 errors, warnings, and notes.',
     goal: 'check_package <- function(desc_path = "DESCRIPTION", ns_path = "NAMESPACE") {\n  d <- as.list(as.data.frame(read.dcf(desc_path)))\n  req_fields <- c("Package", "Title", "Version", "License", "Description")\n  has_fields <- all(req_fields %in% names(d))\n  ns <- readLines(ns_path)\n  has_exp <- any(grepl("^export\\\\(", ns))\n  list(ok = has_fields && has_exp, errors = 0, warnings = 0, notes = 0)\n}\ncheck_result <- check_package()',
     setup: 'write.dcf(data.frame(Package = "mypkg", Title = "Tool", Version = "1.0.0", License = "MIT", Description = "A package."), "DESCRIPTION")\nwriteLines("export(fn)", "NAMESPACE")',
@@ -1355,10 +1564,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 - **متغیرهای ستونی در dplyr و R CMD check NOTE:** ارزیابی غیر استاندارد (NSE) در توابعی مثل \`subset()\` یا \`dplyr::filter()\` باعث می‌شود \`R CMD check\` فکر کند نام ستون‌ها متغیرهای سراسری تعریف‌نشده هستند! راه‌حل استاندارد: معرفی آنها در \`R/globals.R\` با دستور \`utils::globalVariables(c("col1", "col2"))\`.
 `,
   },
+
   {
     id: "tidy-tibble",
     seriesId: 'foundations',
-    title: "35. Modern Data Frames with tibble",
+    title: "42. Modern Data Frames with tibble",
     brief: "Tibbles enforce stricter semantics than base data.frames. Upgrade raw_df to a tibble tbl with as_tibble() and create a new tibble grades with columns student and mark.",
     goal: "tbl <- as_tibble(raw_df)\ngrades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85))",
     setup: "as_tibble <- function(x) { class(x) <- unique(c(\"tbl_df\", \"tbl\", class(x))); x }\ntibble <- function(...) { dots <- list(...); df <- as.data.frame(dots, stringsAsFactors = FALSE); class(df) <- unique(c(\"tbl_df\", \"tbl\", class(df))); df }\nraw_df <- data.frame(id = 1:3, name = c(\"Alice\", \"Bob\", \"Charlie\"), score = c(95, 88, 92), stringsAsFactors = FALSE)",
@@ -1379,10 +1589,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Call tbl <- as_tibble(raw_df) and grades <- tibble(student = c(\"A\", \"B\"), mark = c(90, 85)).",
     lesson: "### فصل ۳۵ — ساختار مدرن داده‌ها با tibble\n\nپکیج `tibble` ستون فقرات ساختار داده‌های اکوسیستم `tidyverse` است و نسخه بازطراحی‌شده `data.frame` سنتی R به شمار می‌رود.\nتفاوت‌های بنیادین تیبل‌ها با دیتافریم سنتی:\n1. **عدم تطابق ناقص ستون‌ها (No Partial Matching):** اگر ستونی بنام `xyz` داشته باشید، دستور `df$x` در دیتافریم سنتی به اشتباه آن را پیدا می‌کند اما در `tibble` اخطار صادر می‌شود.\n2. **عدم کاهش ناخواسته ابعاد (No Silent Dimension Drop):** در دیتافریم سنتی اگر یک ستون را با `df[, 1]` انتخاب کنید، جدول ناگهان به یک بردار تقلیل می‌یابد. در تیبل همیشه یک شیء دو بعدی باقی می‌ماند.\n3. **نمایش بهینه و چاپ هوشمند:** هنگام چاپ تیبل در کنسول، فقط ۱۰ سطر اول نمایش داده شده و نوع دقیق داده هر ستون مانند `<dbl>` یا `<chr>` در بالای آن درج می‌گردد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل ماتریس به تیبل:** برای تبدیل ماتریس‌ها یا جداول سنتی به تیبل همیشه از `as_tibble()` استفاده کنید نه `tibble()`. تابع `tibble()` برای ساخت دستی ستون‌ها به کار می‌رود.",
   },
+
   {
     id: "tidy-dplyr",
     seriesId: 'foundations',
-    title: "36. Fast Data Manipulation with dplyr",
+    title: "43. Fast Data Manipulation with dplyr",
     brief: "dplyr standardizes wrangling with 5 core verbs. Filter flights where dep_delay > 0, compute speed = air_time / 60 with mutate, and arrange by desc(dep_delay) into delayed_flights.",
     goal: "delayed_flights <- flights |> filter(dep_delay > 0) |> mutate(speed = air_time / 60) |> arrange(desc(dep_delay))",
     setup: "filter <- function(.data, ...) { expr <- substitute(...); cond <- eval(expr, envir = .data, enclos = parent.frame()); .data[cond & !is.na(cond), , drop = FALSE] }\nmutate <- function(.data, ...) { dots <- match.call(expand.dots = FALSE)$...; res <- .data; for (nm in names(dots)) { res[[nm]] <- eval(dots[[nm]], envir = res, enclos = parent.frame()) }; res }\ndesc <- function(x) -xtfrm(x)\narrange <- function(.data, ...) { expr <- substitute(order(...)); ord <- eval(expr, envir = .data, enclos = parent.frame()); .data[ord, , drop = FALSE] }\nflights <- data.frame(dest = c(\"IAH\", \"MIA\", \"IAH\", \"JFK\", \"MIA\"), dep_delay = c(15, -5, 30, 0, 45), air_time = c(180, 150, 190, 320, 140), stringsAsFactors = FALSE)",
@@ -1408,10 +1619,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Pipe flights into filter(dep_delay > 0), mutate(speed = air_time / 60), and arrange(desc(dep_delay)).",
     lesson: "### فصل ۳۶ — دستکاری داده‌ها با افعال پنج‌گانه dplyr\n\nپکیج `dplyr` دستور زبان پالایش و تبدیل داده‌ها در علم داده مدرن است.\nعملیات اصلی حول ۵ فعل بنیادی انجام می‌شود:\n- **`filter()`**: انتخاب سطرهایی که شرط‌های منطقی معینی را برآورده می‌کنند.\n- **`select()`**: انتخاب یا حذف ستون‌های خاص با نام یا موقعیت.\n- **`mutate()`**: ایجاد ستون‌های محاسباتی جدید بر پایه ستون‌های موجود.\n- **`arrange()`**: مرتب‌سازی سطرها به صورت صعودی یا نزولی با `desc()`.\n- **`summarise()`**: تجمیع و خلاصه‌سازی ستون‌ها (مانند میانگین، مجموع و واریانس).\n\nترکیب این توابع با عملگر پایپ (`|>`) باعث خوانایی شبیه به زبان طبیعی می‌شود.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه در استفاده از عملگر مساوی:** در تابع `filter()` همیشه از عملگر مقایسه‌ای `==` استفاده کنید نه عملگر انتساب `=`.\n- **ماسک کردن توابع توسط سایر پکیج‌ها:** تابع `filter` در R پایه یا در پکیج `stats` برای سری‌های زمانی وجود دارد. در صورت تداخل، صراحتاً بنویسید `dplyr::filter()`.",
   },
+
   {
     id: "tidy-ggplot2",
     seriesId: 'foundations',
-    title: "37. Grammar of Graphics with ggplot2",
+    title: "44. Grammar of Graphics with ggplot2",
     brief: "ggplot2 implements the Grammar of Graphics by layering data, aesthetics, and geoms. Build scatter_p using ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\").",
     goal: "scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\")",
     setup: "ggplot <- function(data = NULL, mapping = list()) { structure(list(data = data, mapping = mapping, layers = list(), labels = list()), class = \"ggplot\") }\naes <- function(x, y, ...) { as.list(match.call())[-1] }\ngeom_point <- function(...) { list(geom = \"point\", params = list(...)) }\nlabs <- function(...) { list(labels = list(...)) }\n`+.ggplot` <- function(p, layer) { if (!is.null(layer$geom)) p$layers <- c(p$layers, list(layer)); if (!is.null(layer$labels)) p$labels <- c(p$labels, layer$labels); p }",
@@ -1437,10 +1649,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Use scatter_p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + labs(title = \"Fuel Economy\").",
     lesson: "### فصل ۳۷ — تصویرسازی علمی با گرامر گرافیک (ggplot2)\n\nپکیج `ggplot2` پیاده‌سازی نظریه دستور زبان گرافیک (Leland Wilkinson) است.\nیک نمودار در ggplot2 حاصل ترکیب چند لایه مجزا با عملگر `+` است:\n1. **داده‌ها (Data):** یک `data.frame` یا `tibble` که مشاهدات را در بر دارد.\n2. **نگاشت‌های زیبایی‌شناختی (`aes`):** اتصال متغیرهای داده به ابعاد بصری نمودار مانند محور افقی (`x`)، محور عمودی (`y`)، رنگ (`color`) و اندازه (`size`).\n3. **لایه‌های هندسی (`geom_*`):** نحوه ترسیم نقاط، خطوط یا ستون‌ها (`geom_point`, `geom_line`, `geom_col`).\n4. **برچسب‌ها و تم‌ها (`labs`, `theme`):** تنظیم عنوان، راهنماها و استایل گرافیکی.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **استفاده از پایپ `|>` به جای `+`:** در دستورات `ggplot2` لایه‌ها همیشه با عملگر `+` ترکیب می‌شوند نه عملگر پایپ `|>`!\n- **قرار دادن رنگ ثابت درون `aes()`:** اگر می‌خواهید همه نقاط آبی باشند بنویسید `geom_point(color = \"blue\")`. قرار دادن آن درون `aes(color = \"blue\")` آن را به عنوان یک دسته داده‌ای تعبیر می‌کند.",
   },
+
   {
     id: "tidy-tidyr",
     seriesId: 'foundations',
-    title: "38. Modern Tidy Reshaping with tidyr",
+    title: "45. Modern Tidy Reshaping with tidyr",
     brief: "tidyr standardizes data reshaping. Use pivot_longer() to pivot survey_wide cols c(\"q1\", \"q2\") into names_to = \"question\" and values_to = \"score\" stored in survey_tidy.",
     goal: "survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\")",
     setup: "pivot_longer <- function(data, cols, names_to = \"name\", values_to = \"value\") { cols <- as.character(substitute(cols)); if (cols[1] == \"c\") cols <- cols[-1]; id_cols <- setdiff(names(data), cols); res_list <- list(); for (col in cols) { sub_df <- data[, id_cols, drop = FALSE]; sub_df[[names_to]] <- col; sub_df[[values_to]] <- data[[col]]; res_list[[length(res_list) + 1]] <- sub_df }; out <- do.call(rbind, res_list); rownames(out) <- NULL; out }\nsurvey_wide <- data.frame(id = 1:3, dept = c(\"Dev\", \"QA\", \"Ops\"), q1 = c(4, 5, 3), q2 = c(5, 4, 4), stringsAsFactors = FALSE)",
@@ -1466,10 +1679,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Run survey_tidy <- pivot_longer(survey_wide, cols = c(\"q1\", \"q2\"), names_to = \"question\", values_to = \"score\")",
     lesson: "### فصل ۳۸ — بازآرایی و استانداردسازی داده‌ها با tidyr\n\nداده‌های تمیز (Tidy Data) سه قانون طلایی دارند:\n1. هر متغیر باید ستون اختصاصی خود را داشته باشد.\n2. هر مشاهده باید در یک سطر مجزا قرار گیرد.\n3. هر مقدار باید در یک سلول منفرد بنشیند.\n\nپکیج `tidyr` توابع قدرتمندی برای تغییر شکل داده‌ها ارائه می‌کند:\n- **`pivot_longer()`**: تبدیل جداول عریض (که نام ستون‌ها در واقع مقادیر یک متغیر هستند) به فرم طویل و استاندارد.\n- **`pivot_wider()`**: عمل معکوس برای تبدیل داده‌های طویل به ماتریس‌های گزارش‌گیری عریض.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **توابع منسوخ `gather` و `spread`:** توابع `gather()` و `spread()` قدیمی هستند و دیگر نباید در کدهای جدید استفاده شوند. همیشه از توابع نسل دوم `pivot_longer()` و `pivot_wider()` استفاده کنید.",
   },
+
   {
     id: "tidy-stringr",
     seriesId: 'foundations',
-    title: "39. Consistent String Manipulation with stringr",
+    title: "46. Consistent String Manipulation with stringr",
     brief: "stringr provides a unified str_* API with consistent string-first signatures. Detect errors with str_detect(log_records, \"^ERR\") in err_mask, and sanitize codes with str_replace_all in clean_logs.",
     goal: "err_mask <- str_detect(log_records, \"^ERR\")\nclean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\")",
     setup: "str_detect <- function(string, pattern) grepl(pattern, string)\nstr_replace_all <- function(string, pattern, replacement) gsub(pattern, replacement, string)\nstr_c <- function(..., sep = \"\", collapse = NULL) paste(..., sep = sep, collapse = collapse)\nlog_records <- c(\"ERR:404 Page not found\", \"INFO:200 User login\", \"ERR:500 Database timeout\", \"WARN:429 Rate limited\")",
@@ -1495,10 +1709,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Use err_mask <- str_detect(log_records, \"^ERR\") and clean_logs <- str_replace_all(log_records, \"ERR:[0-9]+\", \"ALERT\").",
     lesson: "### فصل ۳۹ — پردازش یکدست رشته‌های متنی با stringr\n\nدر توابع متنی R پایه مانند `grep` و `sub`، ترتیب آرگومان‌ها ناهمگون است (گاهی الگوی regex اول می‌آید و گاهی رشته).\nپکیج `stringr` این مشکل را با طراحی بی‌نقص حل کرده است:\n1. همه توابع با پیشوند `str_` شروع می‌شوند که استفاده از تکمیل خودکار (Autocomplete) در ادیتور را بسیار لذت‌بخش می‌کند.\n2. بردار متنی (`string`) **همیشه اولین آرگومان** است، بنابراین به‌طور طبیعی با پایپ (`|>`) هماهنگ است.\n3. خروجی‌ها همیشه طول و رفتار قابل پیش‌بینی با مقادیر `NA` دارند.\n\nتوابع کلیدی:\n- **`str_detect(string, pattern)`**: بازگرداندن بردار بولی برای تطابق الگو.\n- **`str_replace_all(string, pattern, replacement)`**: جایگزینی تمام موارد منطبق با عبارت باقاعده.\n- **`str_extract(string, pattern)`**: استخراج زیررشته منطبق با الگو.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فرار دادن کاراکترهای Regex:** در زبان R به دلیل اسکیپ شدن بک‌اسلش در رشته‌ها، برای کاراکترهای خاص رجکس باید دو بک‌اسلش استفاده شود (مانند `\\\\d+` برای اعداد).",
   },
+
   {
     id: "tidy-forcats",
     seriesId: 'foundations',
-    title: "40. Categorical Data Wrangling with forcats",
+    title: "47. Categorical Data Wrangling with forcats",
     brief: "forcats simplifies factor manipulation. Reorder dept levels by median salary using fct_reorder in staff$dept_ord, then invert the order with fct_rev in staff$dept_rev.",
     goal: "staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median)\nstaff$dept_rev <- fct_rev(staff$dept_ord)",
     setup: "fct_reorder <- function(.f, .x, .fun = median, ...) { f <- as.factor(.f); vals <- tapply(.x, f, .fun, ...); factor(f, levels = levels(f)[order(vals)]) }\nfct_rev <- function(f) { f <- as.factor(f); factor(f, levels = rev(levels(f))) }\nstaff <- data.frame(dept = c(\"Sales\", \"Support\", \"Engineering\", \"Sales\", \"Support\", \"Engineering\"), salary = c(60000, 45000, 95000, 65000, 50000, 105000), stringsAsFactors = FALSE)",
@@ -1519,10 +1734,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Run staff$dept_ord <- fct_reorder(staff$dept, staff$salary, .fun = median) and staff$dept_rev <- fct_rev(staff$dept_ord).",
     lesson: "### فصل ۴۰ — کار هوشمند با متغیرهای دسته‌ای (forcats)\n\nفاکتورها (`factors`) در R برای متغیرهای دسته‌ای با سطوح مشخص استفاده می‌شوند.\nبه صورت پیش‌فرض، سطوح فاکتورها به ترتیب الفبایی مرتب می‌شوند که در نمودارها و مدل‌های آماری ترتیب معناداری نیست.\nپکیج تخصصی `forcats` ابزارهایی برای مدیریت حرفه‌ای فاکتورها فراهم می‌کند:\n- **`fct_reorder(.f, .x, .fun)`**: مرتب‌سازی سطوح فاکتور بر اساس مقدار خلاصه یک متغیر عددی دیگر.\n- **`fct_rev(f)`**: معکوس کردن ترتیب سطوح فاکتور (مناسب برای محورهای نمودار افقی).\n- **`fct_lump_n(f, n)`**: تجمیع دسته‌های کم‌تکرار در دسته جامع `Other`.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تبدیل فاکتور عددی به عدد:** اگر یک فاکتور حاوی مقادیر `c(\"10\", \"20\")` را با `as.numeric()` تبدیل کنید، کدهای ایندکس داخلی آن را برمی‌گرداند! همیشه بنویسید `as.numeric(as.character(f))`.",
   },
+
   {
     id: "tidy-lubridate",
     seriesId: 'foundations',
-    title: "41. Date-Time Parsing & Rounding with lubridate",
+    title: "48. Date-Time Parsing & Rounding with lubridate",
     brief: "lubridate makes working with dates intuitive. Parse date_strings with ymd() into event_dates, snap to start-of-month with floor_date(..., \"month\") in event_months, and extract wday() in event_days.",
     goal: "event_dates <- ymd(date_strings)\nevent_months <- floor_date(event_dates, unit = \"month\")\nevent_days <- wday(event_dates)",
     setup: "ymd <- function(x) as.Date(x, format = \"%Y-%m-%d\")\nfloor_date <- function(x, unit = \"month\") { d <- as.Date(x); if (unit == \"month\") as.Date(format(d, \"%Y-%m-01\")) else if (unit == \"year\") as.Date(format(d, \"%Y-01-01\")) else d }\nwday <- function(x) as.integer(format(as.Date(x), \"%w\")) + 1L\ndate_strings <- c(\"2026-03-15\", \"2026-03-22\", \"2026-04-05\", \"2026-04-18\")",
@@ -1548,10 +1764,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Assign event_dates <- ymd(date_strings), event_months <- floor_date(event_dates, unit = \"month\"), and event_days <- wday(event_dates).",
     lesson: "### فصل ۴۱ — تحلیل و پردازش شهودی زمان با lubridate\n\nمدیریت تاریخ و زمان در R پایه نیازمند به‌خاطرسپردن کدهای فرمت پیچیده مانند `\"%Y-%m-%d %H:%M:%S\"` بود.\nپکیج مدرن `lubridate` با طراحی شهودی محاسبات زمانی را دگرگون کرده است:\n- **توابع خواندن فوری بر اساس ترتیب حروف:**\n  - `ymd(\"2026-03-15\")`: سال، ماه، روز\n  - `dmy(\"15-03-2026\")`: روز، ماه، سال\n  - `ymd_hms(\"2026-03-15 14:30:00\")`: سال، ماه، روز به همراه ساعت، دقیقه، ثانیه\n- **گرد کردن زمان (Rounding):**\n  - `floor_date(x, unit = \"month\")`: رِند کردن به آغاز ماه\n  - `ceiling_date(x, unit = \"week\")`: رِند کردن به ابتدای هفته بعد\n- **استخراج اجزا:** `year()`, `month()`, `wday()`\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت Period و Duration:** پکیج lubridate میان دوره تقویمی (`Period` مانند ۱ ماه که بسته به ماه ۲۸ تا ۳۱ روز است) و طول فیزیکی زمان (`Duration` مانند دقیقاً ۸۶۴۰۰ ثانیه برای ۱ روز) تمایز قائل می‌شود.",
   },
+
   {
     id: "tidy-purrr",
     seriesId: 'foundations',
-    title: "42. Functional Programming & Iteration with purrr",
+    title: "49. Functional Programming & Iteration with purrr",
     brief: "purrr provides type-stable functional iteration. Use map_dbl() on sensor_readings to compute mean into avg_readings, and map_chr() to tag sensors as \"OK\" or \"ALERT\" into sensor_status.",
     goal: "avg_readings <- map_dbl(sensor_readings, mean)\nsensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\")",
     setup: "map <- function(.x, .f, ...) lapply(.x, .f, ...)\nmap_dbl <- function(.x, .f, ...) { vapply(.x, .f, numeric(1), ...) }\nmap_chr <- function(.x, .f, ...) { vapply(.x, .f, character(1), ...) }\nmap_lgl <- function(.x, .f, ...) { vapply(.x, .f, logical(1), ...) }\nsensor_readings <- list(zone_a = c(42.1, 44.5, 41.8), zone_b = c(55.2, 58.0, 54.1), zone_c = c(38.0, 39.5, 40.2))",
@@ -1572,10 +1789,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Run avg_readings <- map_dbl(sensor_readings, mean) and sensor_status <- map_chr(avg_readings, function(x) if (x > 50) \"ALERT\" else \"OK\").",
     lesson: "### فصل ۴۲ — برنامه‌نویسی تابعی و تکرار امن با purrr\n\nدر برنامه‌نویسی حرفه‌ای R، حلقه‌های `for` به ندرت استفاده می‌شوند و جای خود را به برنامه‌نویسی تابعی (Functional Programming) می‌دهند.\nتابع سنتی `sapply()` خطرناک است زیرا نوع خروجی آن به داده‌ها بستگی دارد و ممکن است گاهی بردار، ماتریس یا لیست برگرداند.\nپکیج `purrr` با تضمین نوع بازگشتی (Type Stability)، پایداری کد را به حداکثر می‌رساند:\n- **`map(.x, .f)`**: اجرای تابع و تضمین بازگرداندن یک لیست (`list`).\n- **`map_dbl(.x, .f)`**: اجرای تابع با تضمین بازگرداندن بردار عددی اعشاری (`double`). در صورت مغایرت نوع، بلافاصله خطا صادر می‌شود.\n- **`map_chr(.x, .f)`**: تضمین بازگرداندن بردار متنی (`character`).\n- **`map_lgl(.x, .f)`**: تضمین بازگرداندن بردار بولی (`logical`).\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **خطاهای سایلنت در `sapply`:** هرگز در کد پکیج‌ها یا پایپلاین‌های تولیدی از `sapply()` استفاده نکنید! پکیج `purrr` یا `vapply()` پایه جایگزین‌های کاملاً امن هستند.",
   },
+
   {
     id: "adv-memory",
     seriesId: 'foundations',
-    title: "43. Names, Values & Memory Semantics",
+    title: "50. Names, Values & Memory Semantics",
     brief: "R objects follow copy-on-modify semantics. Assigning alias_vec <- orig creates a shared reference, and mutating alias_vec[1] <- 99 duplicates memory without altering orig. In contrast, environments have reference semantics and mutate in place.",
     goal: "orig <- c(10, 20, 30)\nalias_vec <- orig\nalias_vec[1] <- 99\nshared_env <- new.env()\nshared_env$val <- 100\nalias_env <- shared_env\nalias_env$val <- 200",
     setup: "",
@@ -1596,10 +1814,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Assign orig <- c(10, 20, 30), alias_vec <- orig, alias_vec[1] <- 99, shared_env <- new.env(), shared_env$val <- 100, alias_env <- shared_env, alias_env$val <- 200.",
     lesson: "### فصل ۴۳ — مدیریت حافظه و رفتار Copy-on-Modify در R\n\nیکی از مهم‌ترین و پیشرفته‌ترین مفاهیم در معماری داخلی R نحوه اتصال نام‌ها (Names) به مقادیر (Values) است:\n\n1. **رفتار Copy-on-Modify:**\nهنگامی که می‌نویسید `y <- x`، زبان R مقادیر `x` را کپی نمی‌کند! در عوض، هر دو متغیر به یک بلوک حافظه یکسان اشاره می‌کنند. تنها زمانی که یکی از آن‌ها را ویرایش کنید (`y[1] <- 99`)، سیستم R یک نسخه مجزا در حافظه می‌سازد.\n\n2. **رفتار Modify-in-Place (محیط‌ها):**\nتنها استثنای ساختاری در R، اشیاء از نوع `environment` هستند. محیط‌ها همواره ارجاعی (Reference Semantics) هستند؛ یعنی ویرایش یک متغیر ارجاعی، اصل شیء را در جا تغییر می‌دهد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **کپی‌های پنهان درون حلقه‌ها:** اگر یک دیتافریم بزرگ را درون حلقه `for` سطر به سطر آپدیت کنید، R در هر تکرار کل جدول را در حافظه کپی می‌کند که منجر به افت تصاعدی سرعت می‌شود.",
   },
+
   {
     id: "adv-environments",
     seriesId: 'foundations',
-    title: "44. Environments, Scoping & Closures",
+    title: "51. Environments, Scoping & Closures",
     brief: "Functions capture their enclosing environment, enabling stateful closures. Implement a function factory make_counter(start = 0) where the inner function increments internal state via the super-assignment operator <<- on every invocation.",
     goal: "make_counter <- function(start = 0) {\n  count <- start\n  function() {\n    count <<- count + 1\n    count\n  }\n}\nc1 <- make_counter(10)\nr1 <- c1()\nr2 <- c1()",
     setup: "",
@@ -1625,10 +1844,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Define make_counter <- function(start = 0) { count <- start; function() { count <<- count + 1; count } } and test with c1.",
     lesson: "### فصل ۴۴ — محیط‌ها، دامنه‌ها و توابع حالت‌دار (Closures)\n\nدر زبان R، هر تابع حامل یک محیط محصورکننده (Enclosing Environment) است:\n- **کارخانه تابع (Function Factory):** تابعی است که تابعی دیگر تولید می‌کند.\n- **عملگر `<<-` (Super-assignment):** متغیر را در محیط محلی جاری نمی‌سازد، بلکه در محیط‌های والد به سمت ریشه جستجو کرده و اولین متغیر با آن نام را تغییر می‌دهد.\n\nاین قابلیت پایه ساخت کش‌ها (Caching)، مولدهای شناسه و ابزارهای مانیتورینگ بدون نیاز به متغیرهای سراسری ناامن است.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **خطرات `<<-` کنترل‌نشده:** اگر متغیر هدف در محیط‌های محصورکننده وجود نداشته باشد، `<<-` به اجبار آن را در `.GlobalEnv` ایجاد می‌کند که می‌تواند باعث رفتارهای جانبی ناخواسته شود.",
   },
+
   {
     id: "adv-conditions",
     seriesId: 'foundations',
-    title: "45. Advanced Conditions & Error Handling",
+    title: "52. Advanced Conditions & Error Handling",
     brief: "Conditions form an S3 class hierarchy. Implement safe_divide(a, b) that raises a custom S3 error class division_by_zero when b == 0, and handle it gracefully with tryCatch().",
     goal: "safe_divide <- function(a, b) {\n  if (b == 0) {\n    cond <- structure(list(message = \"Cannot divide by zero\", call = sys.call()), class = c(\"division_by_zero\", \"error\", \"condition\"))\n    stop(cond)\n  }\n  a / b\n}\ndiv_res <- tryCatch(safe_divide(10, 0), division_by_zero = function(e) list(status = \"handled\", error_class = class(e)[1]))",
     setup: "",
@@ -1649,10 +1869,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Build a custom condition using structure(list(...), class = c('division_by_zero', 'error', 'condition')) and catch it with tryCatch().",
     lesson: "### فصل ۴۵ — مدیریت پیشرفته شرایط و خطاهای سفارشی در R\n\nتوسعه‌دهندگان حرفه‌ای به جای پرتاب رشته‌های متنی ساده با `stop(\"error\")`، از **کلاس‌های خطای اختصاصی (Custom Conditions)** استفاده می‌کنند.\n\nمزایای خطاهای ساخت‌یافته S3:\n1. برنامه‌های فراخواننده می‌توانند بدون متوسل شدن به Regex متن خطا، مستقیماً بر اساس نوع کلاس (`division_by_zero`) تصمیم‌گیری کنند.\n2. متادیتاهایی مانند ورودی نامعتبر یا زمان وقوع در خود شیء خطا ضمیمه می‌شوند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **بررسی خطا با تطابق رشته‌ای:** اگر کدهای شما نوع خطا را بر اساس مقایسه متن `e$message == \"error\"` چک کنند، با کوچک‌ترین تغییر نگارشی یا تغییر زبان سیستم‌عامل کدها از کار می‌افتند!",
   },
+
   {
     id: "adv-s3",
     seriesId: 'foundations',
-    title: "46. S3 Object-Oriented Programming",
+    title: "53. S3 Object-Oriented Programming",
     brief: "S3 is R's foundational OOP system, relying on generic functions and method dispatch via UseMethod(). Define a generic describe(x, ...), a constructor new_account(owner, balance), and the S3 method describe.account(x, ...).",
     goal: "describe <- function(x, ...) UseMethod(\"describe\")\nnew_account <- function(owner, balance) {\n  stopifnot(is.character(owner), is.numeric(balance))\n  structure(list(owner = owner, balance = balance), class = \"account\")\n}\ndescribe.account <- function(x, ...) paste0(\"Account[\", x$owner, \"]: $\", x$balance)\nacc <- new_account(\"Alice\", 1500)\nacc_desc <- describe(acc)",
     setup: "",
@@ -1678,10 +1899,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Create generic describe <- function(x, ...) UseMethod('describe'), constructor new_account, and method describe.account.",
     lesson: "### فصل ۴۶ — برنامه‌نویسی شیءگرا با سیستم S3 در R\n\nسیستم S3 قلب محاسبات شیءگرای زبان R پایه و Tidyverse است:\n1. **توابع ژنریک (Generics):** توابعی مثل `print`, `summary`, `plot` که رفتار ثابتی ندارند، بلکه تصمیم‌گیری را با `UseMethod(\"name\")` به متد مربوط به کلاس شیء واگذار می‌کنند.\n2. **نام‌گذاری متدها:** متدها با الگوی `generic.class` تعریف می‌شوند (مانند `print.data.frame`).\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه در نام‌گذاری متدها با نقطه:** از گذاشتن نقطه در نام توابع عادی پرهیز کنید (مثل `my.function`)، زیرا R ممکن است اشتباهاً تصور کند این تابع متدی از یک تابع ژنریک به نام `my` برای شیء از کلاس `function` است!",
   },
+
   {
     id: "adv-r6",
     seriesId: 'foundations',
-    title: "47. Encapsulated OOP with R6",
+    title: "54. Encapsulated OOP with R6",
     brief: "R6 implements encapsulated OOP with mutable reference semantics. Define an Accumulator class using R6Class with public value = 0 and add(n), instantiate acc <- Accumulator$new(), and chain acc$add(10)$add(5).",
     goal: "Accumulator <- R6Class(\"Accumulator\", public = list(\n  value = 0,\n  add = function(n) { self$value <- self$value + n; invisible(self) }\n))\nacc <- Accumulator$new()\nacc$add(10)$add(5)\ntotal <- acc$value",
     setup: "R6Class <- function(classname, public = list()) {\n  generator <- list(\n    new = function(...) {\n      inst <- new.env(parent = emptyenv())\n      for (nm in names(public)) {\n        val <- public[[nm]]\n        if (is.function(val)) {\n          environment(val) <- inst\n          inst[[nm]] <- val\n        } else {\n          inst[[nm]] <- val\n        }\n      }\n      inst$self <- inst\n      class(inst) <- c(classname, \"R6\")\n      inst\n    }\n  )\n  class(generator) <- \"R6ClassGenerator\"\n  generator\n}",
@@ -1702,10 +1924,36 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Define Accumulator <- R6Class('Accumulator', public = list(value = 0, add = function(n) { self$value <- self$value + n; invisible(self) })), instantiate, and chain $add(10)$add(5).",
     lesson: "### فصل ۴۷ — شیءگرایی کپسوله‌شده و مدرن با R6\n\nبرخلاف S3 که شیءگرایی تابعی است، پکیج **R6** شیءگرایی کلاسیک (Encapsulated OOP) را فراهم می‌کند:\n1. متدها و خصوصیات متعلق به خود شیء هستند (`object$method()`).\n2. رفتار ارجاعی (Reference Semantics): وقتی یک شیء R6 را تغییر می‌دهید، داده‌ها در حافظه کپی نمی‌شوند بلکه همان شیء مستقیماً آپدیت می‌شود.\n3. کلمه کلیدی `self`: برای دسترسی به متدها و فیلدهای داخلی شیء.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **انتساب شیء R6 با `<-`:** دستور `b <- a` یک کپی جدید نمی‌سازد! هر دو متغیر به یک نمونه واحد اشاره دارند. تغییر `b` مستقیماً `a` را تغییر می‌دهد.",
   },
+
+  {
+    id: "adv-s7",
+    seriesId: 'foundations',
+    title: "55. Unified Object-Oriented Programming with S7",
+    brief: "S7 is the modern unified OOP system by the R Consortium succeeding S3 and S4. Define a Dog class with typed properties name and age, declare a bark generic, implement the Dog method, and call it on my_dog.",
+    goal: "Dog <- new_class(\"Dog\", properties = list(name = class_character, age = class_numeric))\nbark <- new_generic(\"bark\", \"x\")\nmethod(bark, \"Dog\") <- function(x) paste0(x$name, \" barks: Woof!\")\nmy_dog <- Dog(name = \"Buddy\", age = 3)\nbark_msg <- bark(my_dog)",
+    setup: "class_character <- \"character\"\nclass_numeric <- \"numeric\"\nnew_class <- function(name, properties = list()) {\n  cls <- function(...) {\n    args <- list(...)\n    obj <- new.env(parent = emptyenv())\n    for (p in names(properties)) {\n      val <- args[[p]]\n      exp_type <- properties[[p]]\n      if (exp_type == \"character\" && !is.character(val)) stop(\"Invalid character property\")\n      if (exp_type == \"numeric\" && !is.numeric(val)) stop(\"Invalid numeric property\")\n      obj[[p]] <- val\n    }\n    class(obj) <- c(name, \"S7_object\")\n    obj\n  }\n  class(cls) <- \"S7_class\"\n  cls\n}\nnew_generic <- function(name, dispatch_args) {\n  methods_env <- new.env(parent = emptyenv())\n  gen <- function(x, ...) {\n    cls <- class(x)[1]\n    m <- methods_env[[cls]]\n    if (is.null(m)) stop(\"No method for class: \", cls)\n    m(x, ...)\n  }\n  attr(gen, \"methods\") <- methods_env\n  class(gen) <- \"S7_generic\"\n  gen\n}\n`method<-` <- function(generic, signature, value) {\n  methods_env <- attr(generic, \"methods\")\n  sig_name <- if (is.character(signature)) signature else attr(signature, \"class\")[1]\n  methods_env[[sig_name]] <- value\n  generic\n}",
+    par: 1,
+    difficulty: 3,
+    checks: [
+          {
+                "type": "eval",
+                "expr": "inherits(my_dog, \"Dog\") && inherits(my_dog, \"S7_object\")",
+                "label": "my_dog is a valid typed instance of Dog S7 class"
+          },
+          {
+                "type": "eval",
+                "expr": "bark_msg == \"Buddy barks: Woof!\"",
+                "label": "bark generic correctly dispatched to Dog S7 method"
+          }
+    ],
+    hint: "Instantiate Dog <- new_class('Dog', properties = list(name = class_character, age = class_numeric)), define bark generic, assign method, and invoke on my_dog.",
+    lesson: "### فصل ۵۷ — سیستم شیءگرایی یکپارچه و آینده‌نگر S7 در R\n\nزبان R برای دهه‌ها با دوگانگی میان **S3** (بسیار ساده اما غیررسمی و بدون اعتبارسنجی نوع) و **S4** (بسیار پیچیده و سنگین) روبرو بود.\nکنسرسیوم رسمی R (R Consortium) با همکاری طراحان ارشد زبان R و شرکت Posit، سیستم **S7** را به عنوان آینده شیءگرایی R معرفی کردند:\n- **کلاس‌های تایپ‌سیف (`new_class`):** خصوصیات اشیاء دارای نوع تضمین‌شده هستند.\n- **ژنریک‌ها و متدهای مدرن (`new_generic`, `method`):** دیسپچ چندگانه و تمیز بدون سردرگمی نام‌گذاری.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم سازگاری نوع ویژگی‌ها:** در S7 اگر ویژگی `age` از نوع عددی باشد و شما رشته پاس بدهید، سیستم در لحظه ساخت خطا صادر می‌کند که مانع از خطاهای پنهان در اجرای برنامه‌ها می‌شود.",
+  },
+
   {
     id: "adv-expressions",
     seriesId: 'foundations',
-    title: "48. Expressions, AST & Code as Data",
+    title: "56. Expressions, AST & Code as Data",
     brief: "In R, code is an Abstract Syntax Tree (AST). Capture code using expr <- quote(log(x + 1)), extract its function symbol into fn_sym, its inner call into inner_call, and rewrite the call to sqrt in modified_expr.",
     goal: "expr <- quote(log(x + 1))\nfn_sym <- expr[[1]]\ninner_call <- expr[[2]]\nmodified_expr <- expr\nmodified_expr[[1]] <- quote(sqrt)\nx <- 8\neval_res <- eval(modified_expr)",
     setup: "",
@@ -1731,10 +1979,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Capture expr <- quote(log(x + 1)), assign fn_sym <- expr[[1]], inner_call <- expr[[2]], rewrite modified_expr[[1]] <- quote(sqrt), and eval with x <- 8.",
     lesson: "### فصل ۴۸ — کدهای R به عنوان داده: عبارات و درخت نحو انتزاعی (AST)\n\nیکی از شگفت‌انگیزترین توانمندی‌های R قابلیت **Metaprogramming** (نوشتن کدی که کدهای دیگر را بررسی یا تولید می‌کند) است:\n\n- **تابع `quote()`:** کد را اجرا نمی‌کند، بلکه ساختار گرامری آن را به عنوان یک شیء بازمی‌گرداند.\n- **اجزای یک Call در R:** هر فراخوانی تابع در واقع یک ساختار شبیه به لیست است که:\n  - عنصر اول `expr[[1]]`: نماد تابع (Symbol)\n  - عناصر بعدی `expr[[2]]`, `expr[[3]]`: آرگومان‌ها هستند.\n\nشما می‌توانید کدهای R را مانند عناصر یک لیست تغییر دهید و سپس با `eval()` اجرا کنید!\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشتباه میان Symbol و رشته:** نماد `quote(x)` یک نام متغیر در R است، در حالی که `\"x\"` یک رشته متنی است. این دو در ارزیابی کدهای متانویسی رفتار کاملاً متفاوتی دارند.",
   },
+
   {
     id: "adv-quasiquote",
     seriesId: 'foundations',
-    title: "49. Quasiquotation & Non-Standard Evaluation",
+    title: "57. Quasiquotation & Non-Standard Evaluation",
     brief: "Non-Standard Evaluation (NSE) powers tidyverse data masking. Implement mask_filter(df, condition) that captures an unquoted condition with substitute() and evaluates it within the environment of df.",
     goal: "mask_filter <- function(df, condition) {\n  cond_expr <- substitute(condition)\n  mask <- eval(cond_expr, envir = df, enclos = parent.frame())\n  df[mask & !is.na(mask), , drop = FALSE]\n}\ndataset <- data.frame(id = 1:4, score = c(95, 70, 88, 62), passed = c(TRUE, FALSE, TRUE, FALSE))\npassed_students <- mask_filter(dataset, score >= 80 & passed == TRUE)",
     setup: "",
@@ -1760,10 +2009,11 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Define mask_filter <- function(df, condition) using substitute(condition) and eval(..., envir = df, enclos = parent.frame()).",
     lesson: "### فصل ۴۹ — ارزیابی غیر استاندارد (NSE) و Data Masking\n\nتا به حال فکر کرده‌اید چرا در dplyr می‌نویسیم `filter(df, age > 18)` و نیازی به گذاشتن کوتیشن اطراف `age` نیست؟\nاین جادو حاصل **Non-Standard Evaluation (NSE)** است:\n\n1. **ضبط عبارت با `substitute()`:** تابع به جای محاسبه مقدار ورودی، خود فرمول ورودی کاربر را به شکل یک درخت عبارتی می‌گیرد.\n2. **ارزیابی در بستر جدول با `eval(..., envir = df)`:** به R دستور می‌دهیم نام ستون‌های جدول `df` را مانند متغیرهای یک فضای کاری ببیند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تداخل نام ستون و متغیر محلی (Name Collisions):** اگر متغیری بیرون از جدول هم‌نام با یکی از ستون‌ها باشد، Data Mask ستون جدول را ارجحیت می‌دهد. برای اشاره صریح به متغیر خارجی در پکیج‌های مدرن از `.env$var` استفاده می‌شود.",
   },
+
   {
     id: "adv-profiling",
     seriesId: 'foundations',
-    title: "50. Benchmarking & Memory Optimization",
+    title: "58. Benchmarking & Memory Optimization",
     brief: "Avoid the quadratic O(N^2) dynamic vector expansion trap c(vec, val) inside loops. Implement fast_squares(n) by pre-allocating output with numeric(n) and index assignment out[i] <- i^2.",
     goal: "fast_squares <- function(n) {\n  out <- numeric(n)\n  for (i in seq_len(n)) {\n    out[i] <- i^2\n  }\n  out\n}\nsq_100 <- fast_squares(100)",
     setup: "",
@@ -1789,200 +2039,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
     hint: "Pre-allocate out <- numeric(n), fill with a for loop out[i] <- i^2, and test sq_100 <- fast_squares(100).",
     lesson: "### فصل ۵۰ — بهینه‌سازی عملکرد، پروفایلینگ و تله‌های حافظه\n\nزبان R برای محاسبات ماتریسی فوق‌العاده سریع است، اما کدهای ناشیانه می‌توانند آن را به شدت کند کنند:\n\n1. **تله گسترش داینامیک بردار (Quadratic Growing Trap):**\nنوشتن `v <- c(v, x)` داخل حلقه بدترین اشتباه ممکن است! چون طول بردار مشخص نیست، R در هر تکرار یک بردار جدید در رم می‌سازد و تمام داده‌های قبلی را کپی می‌کند که پیچیدگی زمانی آن $O(N^2)$ است.\n\n2. **راه‌حل طلایی: پیش‌تخصیص حافظه (Pre-allocation):**\nهمیشه قبل از حلقه، با `numeric(n)` یا `vector(\"list\", n)` ظرف نهایی را با اندازه معین بسازید تا پیچیدگی زمانی به $O(N)$ کاهش یابد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **برداری‌سازی بر حلقه‌های سنتی ارجح است:** قبل از نوشتن هر حلقه‌ای، بررسی کنید آیا تابع برداری آماده‌ای (مانند `(1:n)^2`) برای آن وجود دارد یا خیر.",
   },
-  {
-    id: "tidyr-separate-unite",
-    seriesId: 'foundations',
-    title: "51. Column Splitting & Combining with tidyr",
-    brief: "tidyr provides separate() to split compound character columns by a delimiter into multiple variables, and unite() to merge multiple columns into one with a separator.",
-    goal: "sep_df <- separate(patients, col = name_code, into = c(\"first_name\", \"code\"), sep = \"_\")\nreunited_df <- unite(sep_df, col = \"full_tag\", first_name, code, sep = \"-\")",
-    setup: "separate <- function(data, col, into, sep = \"[^[:alnum:]]+\", remove = TRUE) {\n  col_str <- as.character(substitute(col))\n  vals <- as.character(data[[col_str]])\n  split_mat <- do.call(rbind, strsplit(vals, split = sep))\n  res <- data\n  if (remove) res[[col_str]] <- NULL\n  for (i in seq_along(into)) res[[into[i]]] <- split_mat[, i]\n  res\n}\nunite <- function(data, col, ..., sep = \"_\", remove = TRUE) {\n  col_str <- as.character(substitute(col))\n  dots <- as.list(substitute(list(...)))[-1]\n  dot_names <- sapply(dots, as.character)\n  combined <- apply(data[, dot_names, drop = FALSE], 1, paste, collapse = sep)\n  res <- data\n  if (remove) for (nm in dot_names) res[[nm]] <- NULL\n  res[[col_str]] <- combined\n  res\n}\npatients <- data.frame(id = 1:3, name_code = c(\"John_A1\", \"Mary_B2\", \"Alex_C3\"), stringsAsFactors = FALSE)",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "all(c(\"first_name\", \"code\") %in% names(sep_df)) && sep_df$first_name[1] == \"John\"",
-                "label": "separate() successfully split name_code into first_name and code"
-          },
-          {
-                "type": "eval",
-                "expr": "\"full_tag\" %in% names(reunited_df) && reunited_df$full_tag[1] == \"John-A1\"",
-                "label": "unite() concatenated columns into full_tag with hyphen separator"
-          }
-    ],
-    hint: "Run sep_df <- separate(patients, col = name_code, into = c('first_name', 'code'), sep = '_') and reunited_df <- unite(sep_df, col = 'full_tag', first_name, code, sep = '-').",
-    lesson: "### فصل ۵۱ — جداسازی و ادغام ستون‌های متنی با tidyr (توابع separate و unite)\n\nدر بسیاری از داده‌های واقعی، چند متغیر در قالب یک ستون ذخیره شده‌اند (مانند `نام_کد` یا `سال-ماه-روز`):\n- **تابع `separate(data, col, into, sep)`:** این تابع یک ستون متنی مرکب را بر اساس کاراکتر جداکننده برش داده و به چند ستون تحلیلی مستقل تبدیل می‌کند.\n- **تابع `unite(data, col, ..., sep)`:** عمل معکوس را انجام می‌دهد؛ چندین متغیر پراکنده را به یک شناسه ترکیبی متصل می‌سازد.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **نابرابری تعداد بخش‌ها:** اگر برخی سطرها ۲ تکه و برخی ۳ تکه شوند، `separate` اخطار می‌دهد. با آرگومان `extra = \"merge\"` تکه‌های اضافه را در آخرین ستون ادغام کنید.",
-  },
-  {
-    id: "tidyr-gather-spread",
-    seriesId: 'foundations',
-    title: "52. Classic Reshaping with gather() & spread()",
-    brief: "Before pivot_longer() and pivot_wider(), tidyr relied on gather() and spread(). Reshape metrics_wide into long_metrics with gather(key = metric, value = usage), and restore with spread().",
-    goal: "long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram)\nwide_metrics <- spread(long_metrics, key = metric, value = usage)",
-    setup: "gather <- function(data, key, value, ...) {\n  key_nm <- as.character(substitute(key))\n  val_nm <- as.character(substitute(value))\n  dots <- as.list(substitute(list(...)))[-1]\n  cols_to_gather <- sapply(dots, as.character)\n  id_cols <- setdiff(names(data), cols_to_gather)\n  out_list <- list()\n  for (col in cols_to_gather) {\n    sub_df <- data[, id_cols, drop = FALSE]\n    sub_df[[key_nm]] <- col\n    sub_df[[val_nm]] <- data[[col]]\n    out_list[[length(out_list) + 1]] <- sub_df\n  }\n  do.call(rbind, out_list)\n}\nspread <- function(data, key, value) {\n  key_nm <- as.character(substitute(key))\n  val_nm <- as.character(substitute(value))\n  keys <- unique(data[[key_nm]])\n  id_cols <- setdiff(names(data), c(key_nm, val_nm))\n  res <- unique(data[, id_cols, drop = FALSE])\n  for (k in keys) {\n    sub_data <- data[data[[key_nm]] == k, ]\n    m <- match(res$id, sub_data$id)\n    res[[k]] <- sub_data[[val_nm]][m]\n  }\n  rownames(res) <- NULL\n  res\n}\nmetrics_wide <- data.frame(id = 1:2, cpu = c(45, 80), ram = c(60, 85))",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "nrow(long_metrics) == 4 && all(c(\"id\", \"metric\", \"usage\") %in% names(long_metrics))",
-                "label": "gather() reshaped wide metrics to 4 long records with metric and usage"
-          },
-          {
-                "type": "eval",
-                "expr": "all(c(\"cpu\", \"ram\") %in% names(wide_metrics)) && wide_metrics$cpu[2] == 80",
-                "label": "spread() restored original wide format"
-          }
-    ],
-    hint: "Execute long_metrics <- gather(metrics_wide, key = metric, value = usage, cpu, ram) and wide_metrics <- spread(long_metrics, key = metric, value = usage).",
-    lesson: "### فصل ۵۲ — تغییر شکل کلاسیک با gather و spread (دانش ضروری نگهداری کدها)\n\nمیلیون‌ها خط کد R در سراسر جهان با توابع تاریخی `gather` و `spread` نوشته شده‌اند:\n- **`gather(data, key, value, ...)`:** ستون‌های عریض را جمع کرده و به دو ستون کلید-مقدار (طویل) تبدیل می‌کند.\n- **`spread(data, key, value)`:** مقادیر ستون کلید را به ستون‌های مجزا تبدیل کرده و جدول را عریض می‌کند.\n\nتوابع نسل دوم `pivot_longer` و `pivot_wider` جایگزین این دو شدند تا نام‌گذاری واضح‌تر و کنترل خطای بهتری ارائه دهند، اما شناخت این توابع برای هر متخصص R الزامی است.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم نیاز به کوتیشن برای key و value در gather:** در `gather` نام‌های جدید بدون کوتیشن ارسال می‌شوند که در صورت تشابه با متغیرهای محیطی می‌تواند سردرگمی ایجاد کند.",
-  },
-  {
-    id: "tidy-hms",
-    seriesId: 'foundations',
-    title: "53. Time of Day & Durations with hms",
-    brief: "The hms package represents time of day independent of calendar dates. Parse shift_starts using parse_hms(), define lunch_time using hms(hours = 12, minutes = 30), and calculate time_diff in hours.",
-    goal: "start_times <- parse_hms(shift_starts)\nlunch_time <- hms(hours = 12, minutes = 30)\ntime_diff <- as.numeric(lunch_time - start_times[1], units = \"secs\") / 3600",
-    setup: "hms <- function(seconds = 0, minutes = 0, hours = 0) {\n  total_sec <- as.numeric(seconds) + as.numeric(minutes) * 60 + as.numeric(hours) * 3600\n  structure(total_sec, class = c(\"hms\", \"difftime\"), units = \"secs\")\n}\nas_hms <- function(x) {\n  if (is.character(x)) {\n    parts <- strsplit(x, \":\")\n    secs <- sapply(parts, function(p) {\n      p <- as.numeric(p)\n      if (length(p) == 3) p[1] * 3600 + p[2] * 60 + p[3]\n      else if (length(p) == 2) p[1] * 3600 + p[2] * 60\n      else p[1]\n    })\n    structure(secs, class = c(\"hms\", \"difftime\"), units = \"secs\")\n  } else {\n    structure(as.numeric(x), class = c(\"hms\", \"difftime\"), units = \"secs\")\n  }\n}\nparse_hms <- as_hms\nshift_starts <- c(\"08:30:00\", \"09:15:00\", \"14:00:00\")",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "inherits(start_times, \"hms\") && length(start_times) == 3",
-                "label": "start_times parsed as valid hms vector of length 3"
-          },
-          {
-                "type": "eval",
-                "expr": "lunch_time == 45000 && time_diff == 4",
-                "label": "lunch_time created at 12:30 and time_diff accurately computed as 4 hours"
-          }
-    ],
-    hint: "Call start_times <- parse_hms(shift_starts), lunch_time <- hms(hours = 12, minutes = 30), and calculate time_diff.",
-    lesson: "### فصل ۵۳ — مدیریت ساعت روز و بازه‌های زمانی با پکیج hms\n\nدر بسیاری از کاربردها مانند برنامه‌ریزی شیفت‌های بیمارستانی یا زمان‌بندی مترو، ما به **ساعت روز** نیاز داریم نه یک تاریخ تقویمی خاص:\n- **کلاس `hms`:** زمان را به صورت ثانیه‌های بعد از نیمه‌شب ذخیره کرده و به زیبایی در فرمت `HH:MM:SS` نمایش می‌دهد.\n- **محاسبات بازه‌ای:** تفریق دو مقدار `hms` طول مدت فیزیکی بین دو رویداد را بدون تداخل سال یا ماه محاسبه می‌کند.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم تفکیک ساعت با تاریخ:** استفاده از `POSIXct` برای ساعت خالی باعث می‌شود R تاریخ امروز را به آن بچسباند که در محاسبات اختلاف روزانه خطاساز است.",
-  },
-  {
-    id: "import-readxl",
-    seriesId: 'foundations',
-    title: "54. Excel Worksheets Import with readxl",
-    brief: "readxl reads Excel (.xlsx, .xls) workbooks without external dependencies. Discover worksheets using excel_sheets(workbook_path), import sheet 'Q1_Sales' into q1_data, and compute total q1_revenue.",
-    goal: "sheets <- excel_sheets(workbook_path)\nq1_data <- read_excel(workbook_path, sheet = \"Q1_Sales\")\nq1_revenue <- sum(q1_data$revenue)",
-    setup: "excel_sheets <- function(path) c(\"Summary\", \"Q1_Sales\", \"Q2_Sales\")\nread_excel <- function(path, sheet = 1, range = NULL) {\n  if (sheet == \"Q1_Sales\" || sheet == 2) {\n    data.frame(region = c(\"North\", \"South\"), revenue = c(12000, 18500), stringsAsFactors = FALSE)\n  } else {\n    data.frame(metric = c(\"Total\", \"Target\"), val = c(30500, 28000), stringsAsFactors = FALSE)\n  }\n}\nworkbook_path <- \"financial_report.xlsx\"",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "identical(sheets, c(\"Summary\", \"Q1_Sales\", \"Q2_Sales\"))",
-                "label": "excel_sheets() discovered all 3 worksheet names"
-          },
-          {
-                "type": "eval",
-                "expr": "is.data.frame(q1_data) && nrow(q1_data) == 2 && q1_revenue == 30500",
-                "label": "read_excel() imported Q1_Sales and computed 30500 revenue"
-          }
-    ],
-    hint: "Run sheets <- excel_sheets(workbook_path), q1_data <- read_excel(workbook_path, sheet = 'Q1_Sales'), and q1_revenue <- sum(q1_data$revenue).",
-    lesson: "### فصل ۵۴ — خواندن فایل‌های اکسل با پکیج استاندارد readxl\n\nفایل‌های اکسل فرمت غالب تبادل گزارش‌های تجاری در سازمان‌ها هستند. پکیج **readxl** استاندارد طلایی R برای کار با اکسل است:\n1. بی‌نیازی کامل از نرم‌افزار جاوا یا نصب آفیس مایکروسافت.\n2. **`excel_sheets(path)`:** استخراج نام تمام تب‌های موجود در فایل.\n3. **`read_excel(path, sheet, range)`:** خواندن تب مشخص و استخراج سلول‌ها در قالب یک `tibble` تمیز.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **اشکال در سطر اول (هدرها):** اگر سطر اول فایل اکسل حاوی یادداشت یا سلول‌های ادغام‌شده (Merge) باشد، R آن را به اشتباه نام ستون در نظر می‌گیرد. همیشه با `skip = n` سطرهای اضافی را رد کنید.",
-  },
-  {
-    id: "data-rodbc",
-    seriesId: 'foundations',
-    title: "55. Database Queries with DBI & RODBC",
-    brief: "DBI and ODBC provide relational database connectivity in R. Open a connection with dbConnect(), query active users with dbGetQuery() into admins, and cleanly close with dbDisconnect().",
-    goal: "conn <- dbConnect(\"MockDriver\")\nadmins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\")\nis_closed <- dbDisconnect(conn)",
-    setup: "dbConnect <- function(drv, ...) structure(list(connected = TRUE, tables = list(users = data.frame(id = 1:3, name = c(\"Alice\", \"Bob\", \"Charlie\"), role = c(\"Admin\", \"User\", \"Admin\"), stringsAsFactors = FALSE))), class = \"DBIConnection\")\ndbDisconnect <- function(conn) { conn$connected <- FALSE; TRUE }\ndbGetQuery <- function(conn, statement, ...) {\n  if (!conn$connected) stop(\"Connection closed\")\n  if (grepl(\"role = 'Admin'\", statement)) {\n    conn$tables$users[conn$tables$users$role == \"Admin\", ]\n  } else {\n    conn$tables$users\n  }\n}",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "is.data.frame(admins) && nrow(admins) == 2 && all(admins$role == \"Admin\")",
-                "label": "dbGetQuery() fetched matching admin records via SQL"
-          },
-          {
-                "type": "eval",
-                "expr": "isTRUE(is_closed)",
-                "label": "dbDisconnect() cleanly terminated the connection"
-          }
-    ],
-    hint: "Call conn <- dbConnect('MockDriver'), admins <- dbGetQuery(conn, \"SELECT * FROM users WHERE role = 'Admin'\"), and is_closed <- dbDisconnect(conn).",
-    lesson: "### فصل ۵۵ — اتصال به پایگاه‌های داده رابطه‌ای با DBI و ODBC\n\nدر محیط‌های سازمانی، داده‌ها در پایگاه‌های داده SQL نگهداری می‌شوند:\n1. **رابط یکپارچه DBI:** صرف‌نظر از اینکه به PostgreSQL، Oracle یا SQLite وصل می‌شوید، ساختار توابع در R یکسان است.\n2. **چرخه حیات اتصال:**\n   - `dbConnect(drv, ...)`: برقراری اتصال امن با سرور\n   - `dbGetQuery(conn, \"SELECT ...\")`: اجرای کوئری و دریافت دیتافریم\n   - `dbDisconnect(conn)`: بستن کانکشن\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **فراموش کردن بستن کانکشن:** اتصالات باز رهاشده می‌توانند سقف مجاز اتصالات سرور دیتابیس را پر کرده و کل سیستم را از کار بیندازند. همیشه از `on.exit(dbDisconnect(conn))` استفاده کنید.",
-  },
-  {
-    id: "prog-r4",
-    seriesId: 'foundations',
-    title: "56. Modern R 4.x Syntax & Features",
-    brief: "R 4.1+ introduces the native forward pipe |> and shorthand lambda syntax \\(x). Chain a sequence using the native pipe and lambda to filter even numbers and square them in quad_sum.",
-    goal: "quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum()\ntxt <- \"  hello world  \" |> trimws()",
-    setup: "",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "quad_sum == 20",
-                "label": "Native pipe |> and lambda \\(x) correctly evaluated quad_sum to 20"
-          },
-          {
-                "type": "eval",
-                "expr": "txt == \"hello world\"",
-                "label": "Native pipe cleanly processed string transformation"
-          }
-    ],
-    hint: "Assign quad_sum <- 1:4 |> (\\(x) x * 2)() |> sum() and txt <- '  hello world  ' |> trimws().",
-    lesson: "### فصل ۵۶ — تغییرات و نوآوری‌های مدرن در زبان R نسخه 4.x\n\nزبان R در نسخه‌های ۴ به بعد دستخوش مدرن‌سازی اساسی شد:\n1. **پایپ نیتیو (`|>`):** دیگر نیازی به `library(magrittr)` نیست! پایپ در سطح گرامر مفسر C پیاده‌سازی شده و سریع‌تر است.\n2. **توابع لامبدا (`\\(x)`):** به جای نوشتن `function(x) x * 2`، می‌توانید خیلی شیک و کوتاه بنویسید `\\(x) x * 2`.\n3. **رشته‌های خام (Raw Strings):** با نحو `r\"(^[a-z]+$)\"` دیگر نیازی به نوشتن دو بک‌اسلش در رجکس‌ها نیست.\n4. **حذف تله ۲۵ ساله `stringsAsFactors`:** از R 4.0 به بعد، ستون‌های متنی دیگر به طور خودکار فاکتور نمی‌شوند!\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **تفاوت پایپ نیتیو با magrittr:** پایپ نیتیو `|>` تابع سمت راست را حتماً به صورت فراخوانی ارزیابی می‌کند، بنابراین `x |> head()` معتبر است اما `x |> head` در برخی نسخه‌ها اخطار می‌دهد.",
-  },
-  {
-    id: "adv-s7",
-    seriesId: 'foundations',
-    title: "57. Unified Object-Oriented Programming with S7",
-    brief: "S7 is the modern unified OOP system by the R Consortium succeeding S3 and S4. Define a Dog class with typed properties name and age, declare a bark generic, implement the Dog method, and call it on my_dog.",
-    goal: "Dog <- new_class(\"Dog\", properties = list(name = class_character, age = class_numeric))\nbark <- new_generic(\"bark\", \"x\")\nmethod(bark, \"Dog\") <- function(x) paste0(x$name, \" barks: Woof!\")\nmy_dog <- Dog(name = \"Buddy\", age = 3)\nbark_msg <- bark(my_dog)",
-    setup: "class_character <- \"character\"\nclass_numeric <- \"numeric\"\nnew_class <- function(name, properties = list()) {\n  cls <- function(...) {\n    args <- list(...)\n    obj <- new.env(parent = emptyenv())\n    for (p in names(properties)) {\n      val <- args[[p]]\n      exp_type <- properties[[p]]\n      if (exp_type == \"character\" && !is.character(val)) stop(\"Invalid character property\")\n      if (exp_type == \"numeric\" && !is.numeric(val)) stop(\"Invalid numeric property\")\n      obj[[p]] <- val\n    }\n    class(obj) <- c(name, \"S7_object\")\n    obj\n  }\n  class(cls) <- \"S7_class\"\n  cls\n}\nnew_generic <- function(name, dispatch_args) {\n  methods_env <- new.env(parent = emptyenv())\n  gen <- function(x, ...) {\n    cls <- class(x)[1]\n    m <- methods_env[[cls]]\n    if (is.null(m)) stop(\"No method for class: \", cls)\n    m(x, ...)\n  }\n  attr(gen, \"methods\") <- methods_env\n  class(gen) <- \"S7_generic\"\n  gen\n}\n`method<-` <- function(generic, signature, value) {\n  methods_env <- attr(generic, \"methods\")\n  sig_name <- if (is.character(signature)) signature else attr(signature, \"class\")[1]\n  methods_env[[sig_name]] <- value\n  generic\n}",
-    par: 1,
-    difficulty: 3,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "inherits(my_dog, \"Dog\") && inherits(my_dog, \"S7_object\")",
-                "label": "my_dog is a valid typed instance of Dog S7 class"
-          },
-          {
-                "type": "eval",
-                "expr": "bark_msg == \"Buddy barks: Woof!\"",
-                "label": "bark generic correctly dispatched to Dog S7 method"
-          }
-    ],
-    hint: "Instantiate Dog <- new_class('Dog', properties = list(name = class_character, age = class_numeric)), define bark generic, assign method, and invoke on my_dog.",
-    lesson: "### فصل ۵۷ — سیستم شیءگرایی یکپارچه و آینده‌نگر S7 در R\n\nزبان R برای دهه‌ها با دوگانگی میان **S3** (بسیار ساده اما غیررسمی و بدون اعتبارسنجی نوع) و **S4** (بسیار پیچیده و سنگین) روبرو بود.\nکنسرسیوم رسمی R (R Consortium) با همکاری طراحان ارشد زبان R و شرکت Posit، سیستم **S7** را به عنوان آینده شیءگرایی R معرفی کردند:\n- **کلاس‌های تایپ‌سیف (`new_class`):** خصوصیات اشیاء دارای نوع تضمین‌شده هستند.\n- **ژنریک‌ها و متدهای مدرن (`new_generic`, `method`):** دیسپچ چندگانه و تمیز بدون سردرگمی نام‌گذاری.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **عدم سازگاری نوع ویژگی‌ها:** در S7 اگر ویژگی `age` از نوع عددی باشد و شما رشته پاس بدهید، سیستم در لحظه ساخت خطا صادر می‌کند که مانع از خطاهای پنهان در اجرای برنامه‌ها می‌شود.",
-  },
-  {
-    id: "repro-rmarkdown",
-    seriesId: 'foundations',
-    title: "58. Reproducible Reporting with R Markdown",
-    brief: "R Markdown integrates narrative markdown with executable R code chunks. Construct a reproducible report document text with YAML header, chunk options (echo = FALSE, eval = TRUE), and verify structure with parse_rmd().",
-    goal: "rmd_template <- c(\n  \"---\",\n  \"title: 'Quarterly Sales Report'\",\n  \"output: html_document\",\n  \"---\",\n  \"\",\n  \"## Summary Analysis\",\n  \"```{r sales-chunk, echo = FALSE, eval = TRUE}\",\n  \"total_sales <- 45000\",\n  \"```\",\n  \"Total recorded sales amount is `r total_sales` dollars.\"\n)\ndoc_text <- paste(rmd_template, collapse = \"\\n\")\ndoc_check <- parse_rmd(doc_text)",
-    setup: "parse_rmd <- function(text) {\n  has_yaml <- grepl(\"^---\\ntitle:\", text)\n  has_chunk <- grepl(\"```\\\\{r.*\\\\}\", text)\n  chunks <- regmatches(text, gregexpr(\"```\\\\{r.*?\\\\}.*?```\", text, perl = TRUE))[[1]]\n  list(valid_yaml = has_yaml, chunk_count = length(chunks))\n}",
-    par: 1,
-    difficulty: 2,
-    checks: [
-          {
-                "type": "eval",
-                "expr": "isTRUE(doc_check$valid_yaml) && doc_check$chunk_count >= 1",
-                "label": "R Markdown document has valid YAML frontmatter and code chunk"
-          },
-          {
-                "type": "eval",
-                "expr": "grepl(\"echo = FALSE\", doc_text) && grepl(\"`r total_sales`\", doc_text)",
-                "label": "Document incorporates chunk option echo = FALSE and inline R expression"
-          }
-    ],
-    hint: "Assemble rmd_template with YAML frontmatter, code chunk with echo = FALSE, and inline code `r total_sales`, then call parse_rmd().",
-    lesson: "### فصل ۵۸ — تولید گزارش‌های علمی و تکرارپذیر با R Markdown و Knitr\n\nتکرارپذیری (Reproducibility) قلب تپنده علم داده مدرن است. به جای کپی-پیست کردن دستی اعداد و نمودارها در ورد یا پاورپوینت، از **R Markdown** استفاده می‌کنیم:\n1. **سربرگ YAML:** تنظیمات سند بین دو خط `---` در ابتدای فایل.\n2. **چانک‌های کد (Code Chunks):** بلوک‌های کدی که با سه بک‌تیک و `{r}` آغاز می‌شوند.\n3. **تنظیمات کلیدی چانک:**\n   - `echo = FALSE`: اجرای کد بدون نمایش متن کد در گزارش نهایی (ایده‌آل برای مدیران)\n   - `eval = FALSE`: نمایش کد بدون اجرای آن\n   - `warning = FALSE, message = FALSE`: پنهان کردن پیام‌های سیستمی\n4. **کدهای درون‌متنی (Inline R):** تزریق خودکار متغیرها درون متن گزارش با نحو `` `r var` ``.\n\n#### ⚠️ دام‌های متداول (Common Gotchas):\n- **محیط کاری ایزوله هنگام رِندر:** فرآیند ساخت گزارش (`render`) کدها را در یک سشن تازه R اجرا می‌کند؛ بنابراین تمام متغیرها و پکیج‌های موردنیاز باید صراحتاً درون خود فایل `.Rmd` بارگذاری و تعریف شده باشند.",
-  },
 
-  // Section 11: مهندسی پروداکشن و محیط لوکال
   {
     id: "prod-renv",
     seriesId: 'foundations',
@@ -2016,6 +2073,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 #### ⚠️ دام‌های متداول (Common Gotchas):
 - **کامیت نکردن پوشه \`renv/library\` در Git:** دایرکتوری \`renv/library\` حاوی باینری‌های سنگین است و باید در \`.gitignore\` باشد. شما فقط باید فایل‌های متنی سبک \`renv.lock\`، \`.Rprofile\` و \`renv/activate.R\` را در گیت ثبت کنید.`,
   },
+
   {
     id: "prod-secrets-env",
     seriesId: 'foundations',
@@ -2050,6 +2108,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 #### ⚠️ دام‌های متداول (Common Gotchas):
 - **رشته خالی به جای NA:** در زبان R اگر متغیر محیطی تعریف نشده باشد، \`Sys.getenv("KEY")\` مقدار \`""\` (رشته خالی) برمی‌گرداند نه \`NA\`! برای بررسی وجود متغیر همیشه از \`nzchar(Sys.getenv("KEY"))\` استفاده کنید.`,
   },
+
   {
     id: "prod-cli",
     seriesId: 'foundations',
@@ -2086,6 +2145,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 #### ⚠️ دام‌های متداول (Common Gotchas):
 - **تفاوت پیام‌ها و خروجی‌ها:** در کارهای Batch، خروجی‌های اطلاع‌رسانی را با \`message()\` بنویسید نه \`print()\`. توابع مانیتورینگ سرور خروجی‌های \`message()\` را در \`stderr\` لاگ می‌کنند که با خروجی اصلی دیتا قاطی نشود.`,
   },
+
   {
     id: "prod-resilient-db",
     seriesId: 'foundations',
@@ -2119,6 +2179,7 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 #### ⚠️ دام‌های متداول (Common Gotchas):
 - **فراموش کردن آرگومان \`add = TRUE\`:** به طور پیش‌فرض، فراخوانی دوم \`on.exit()\` فراخوانی اول را لغو و بازنویسی می‌کند! برای اینکه چند عملیات پاکسازی را پشت سر هم ثبت کنید، همیشه صراحتاً بنویسید: \`on.exit(dbDisconnect(con), add = TRUE)\`.`,
   },
+
   {
     id: "prod-error-handling",
     seriesId: 'foundations',
@@ -2170,82 +2231,12 @@ path <- system.file("extdata", "sample_cars.csv", package = "mypkg")
 - **تبدیل کاراکتر خراب به عدد ارور نیست، Warning است!** تابع \`as.numeric("bad")\` خطای کشنده تولید نمی‌کند، بلکه مقدار \`NA\` به همراه یک \`warning\` برمی‌گرداند. بنابراین در مدیریت خطاهای واقعی داده باید علاوه بر \`error\`، هندلر \`warning\` را نیز مدیریت کنید.`,
   },
 
-  // Section 12: پروژه‌های جامع دنیای واقعی
-  {
-    id: "capstone-dirty-data",
-    seriesId: 'foundations',
-    title: "64. Capstone I: Dirty Real-World Data Cleansing",
-    brief: "Real datasets have mixed formats, sentinel missing values, whitespace, and improper types. Clean and normalize the messy raw transaction log.",
-    goal: "clean_tx <- raw_tx |>\n  dplyr::mutate(\n    tx_id = stringr::str_trim(tx_id),\n    customer_code = stringr::str_to_lower(stringr::str_trim(customer_code)),\n    clean_price = suppressWarnings(as.numeric(stringr::str_replace_all(raw_price, \"[\\\\$,]\", \"\")))\n  ) |>\n  dplyr::mutate(\n    clean_price = dplyr::if_else(is.na(clean_price) | clean_price < 0, NA_real_, clean_price)\n  ) |>\n  dplyr::filter(!is.na(clean_price))",
-    setup: "library(tibble)\nlibrary(dplyr)\nlibrary(stringr)\n\nraw_tx <- tibble(\n  tx_id = c(\" TX-101 \", \"TX-102\", \" TX-103 \", \"TX-104 \"),\n  raw_price = c(\"$1,250.00\", \"N/A\", \"$350.50\", \"-999.00\"),\n  customer_code = c(\"  c_alpha \", \"C_BETA\", \"c_alpha\", \"  c_gamma  \")\n)",
-    par: 1,
-    difficulty: 4,
-    checks: [
-      {
-        type: "eval",
-        expr: "exists(\"clean_tx\", envir = .GlobalEnv, inherits = FALSE)",
-        label: "Dataset clean_tx exists in the workspace",
-      },
-      {
-        type: "eval",
-        expr: "nrow(clean_tx) == 2 && all(clean_tx$clean_price > 0)",
-        label: "clean_tx isolates the 2 valid transactions with cleaned positive numeric prices",
-      },
-      {
-        type: "eval",
-        expr: "identical(clean_tx$customer_code, c(\"c_alpha\", \"c_alpha\"))",
-        label: "customer_code is trimmed and normalized to lowercase",
-      },
-    ],
-    hint: "Use stringr::str_trim(), stringr::str_to_lower(), stringr::str_replace_all() to strip $, replace negative values with NA_real_, and filter(!is.na(clean_price)).",
-    lesson: `### فصل ۶۴ — پروژه جامع اول: تمیزکاری داده‌های کثیف دنیای واقعی
+  // Section 12: پروژه‌های جامع دنیای واقعی,
 
-در کتاب‌های آموزشی، دیتاست‌ها همیشه مرتب و آماده تحلیل هستند. اما در دنیای واقعی، بیش از ۸۰٪ وقت یک متخصص داده صرف مقابله با موارد زیر می‌شود:
-1. **مقادیر گمشده پنهان (Sentinel Values):** سیستم‌های قدیمی داده‌های ناموجود را با \`-999\`، \`"N/A"\` یا \`"UNKNOWN"\` ثبت می‌کنند.
-2. **علائم پولی و هزارگان:** اعداد به فرمت متنی مانند \`"$1,250.00"\` ذخیره شده‌اند و تبدیل مستقیم آن‌ها با شکست مواجه می‌شود.
-3. **فضاهای خالی ناخواسته و حروف کوچک/بزرگ:** \`"  c_alpha "\` با \`"c_alpha"\` در گروه‌بندی یکسان در نظر گرفته نمی‌شوند مگر آنکه نرمال‌سازی شوند.
-
-در این مرحله جامع، شما با ترکیب \`stringr::str_trim\`، \`stringr::str_replace_all\`، \`dplyr::mutate\`، و گزاره‌های شرطی دفاعی، داده‌های خام را به یک تیبل تمیز و استاندارد تبدیل می‌کنید.`,
-  },
-  {
-    id: "capstone-pipeline",
-    seriesId: 'foundations',
-    title: "65. Capstone II: Production Analytical Pipeline",
-    brief: "Execute an end-to-end analytical pipeline: join transaction logs with product metadata, compute business KPIs, and validate data invariants.",
-    goal: "kpi_summary <- orders |>\n  dplyr::inner_join(products, by = \"product_id\") |>\n  dplyr::mutate(revenue = quantity * unit_price) |>\n  dplyr::group_by(category) |>\n  dplyr::summarise(\n    total_orders = dplyr::n(),\n    total_revenue = sum(revenue),\n    avg_order_value = mean(revenue),\n    .groups = \"drop\"\n  )\nstopifnot(nrow(kpi_summary) == 2, all(kpi_summary$total_revenue > 0))",
-    setup: "library(tibble)\nlibrary(dplyr)\n\norders <- tibble(\n  order_id = 1:5,\n  product_id = c(\"P1\", \"P2\", \"P1\", \"P3\", \"P2\"),\n  quantity = c(2, 1, 4, 3, 5)\n)\n\nproducts <- tibble(\n  product_id = c(\"P1\", \"P2\", \"P3\"),\n  category = c(\"Hardware\", \"Software\", \"Hardware\"),\n  unit_price = c(50.0, 120.0, 30.0)\n)",
-    par: 2,
-    difficulty: 4,
-    checks: [
-      {
-        type: "eval",
-        expr: "exists(\"kpi_summary\", envir = .GlobalEnv, inherits = FALSE)",
-        label: "Dataset kpi_summary exists in the workspace",
-      },
-      {
-        type: "eval",
-        expr: "identical(sort(kpi_summary$category), c(\"Hardware\", \"Software\"))",
-        label: "kpi_summary contains aggregated metrics for Hardware and Software categories",
-      },
-      {
-        type: "eval",
-        expr: "isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Hardware\"], 390)) && isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Software\"], 720))",
-        label: "Total revenue accurately aggregates to $390 (Hardware) and $720 (Software)",
-      },
-    ],
-    hint: "Join orders with products via inner_join, compute revenue = quantity * unit_price, group_by(category) and summarise with .groups = 'drop', then assert with stopifnot().",
-    lesson: `### فصل ۶۵ — پروژه جامع دوم: خط لوله تحلیل داده و اعتبارسنجی پروداکشن
-
-یک خط لوله تحلیلی سازمانی (Production Analytical Pipeline) شامل ۴ گام اساسی است:
-1. **اتصال داده‌های رابطه‌ای (Relational Joins):** ترکیب جدول رویدادها (Orders) با جدول ابعادی کاتالوگ (Products) بر اساس کلید واحد \`product_id\`.
-2. **مهندسی ویژگی و محاسبات درآمد:** محاسبه ارزش هر سفارش به صورت برداری (\`quantity * unit_price\`).
-3. **تجمیع شاخص‌های کلیدی عملکرد (KPIs):** محاسبه تعداد سفارشات، مجموع فروش، و میانگین ارزش سبد خرید به تفکیک دسته‌بندی با پارامتر امن \`.groups = "drop"\` برای جلوگیری از باگ‌های گروه‌بندی پایدار.
-4. **قراردادهای داده و آزمون‌های دفاعی (Invariants Contract):** بررسی عدم وجود رکوردهای منفی یا تهی با تابع \`stopifnot()\` تا تضمین شود دیتای معیوب هرگز به دشبورد مدیران یا سرورهای گزارش‌گیری راه پیدا نمی‌کند.`,
-  },
   {
     id: 'scale-parallel',
     seriesId: 'foundations',
-    title: '66. Parallel Computing & Multi-Core Clusters (parallel)',
+    title: '64. Parallel Computing & Multi-Core Clusters (parallel)',
     brief: 'Accelerate CPU-bound tasks by spawning a multi-worker cluster, exporting dependencies with clusterExport(), running parLapply(), and cleanly tearing down with stopCluster().',
     goal: 'cl <- makeCluster(2)\nclusterExport(cl, "heavy_op")\nres_parallel <- parLapply(cl, chunks, heavy_op)\nstopCluster(cl)',
     setup: `heavy_op <- function(x) sum(sqrt(x) * 2)
@@ -2314,10 +2305,11 @@ stopCluster(cl) # همیشه کلاستر را ببندید تا حافظه و �
 - **نشتی منابع (Zombie R Processes):** اگر بعد از پایان کار \`stopCluster(cl)\` را فراخوانی نکنید، فرایندهای پس‌زمینه R در سیستم باز می‌مانند و منابع سرور را مسدود می‌کنند.
 - **تولید اعداد تصادفی:** تولیدکننده پیش‌فرض اعداد تصادفی R در ورکرها دنباله‌های تکراری تولید می‌کند! برای موازی‌سازی صحیح کارهای تصادفی همیشه از \`clusterSetRNGStream(cl, iseed = 42)\` استفاده کنید.`,
   },
+
   {
     id: 'scale-sparklyr',
     seriesId: 'foundations',
-    title: '67. Distributed Big Data with sparklyr & Apache Spark',
+    title: '65. Distributed Big Data with sparklyr & Apache Spark',
     brief: 'Connect to an Apache Spark session using sparklyr, push down lazy dplyr operations to the distributed engine, and collect aggregated business KPIs into local R memory.',
     goal: 'sc <- spark_connect(master = "local")\ntx_spark <- copy_to(sc, raw_events, "tx_spark", overwrite = TRUE)\nkpi_spark <- tx_spark |>\n  dplyr::filter(status == "SUCCESS") |>\n  dplyr::group_by(region) |>\n  dplyr::summarise(total_gmv = sum(amount), n_tx = dplyr::n()) |>\n  collect()',
     setup: `library(dplyr)
@@ -2374,10 +2366,11 @@ if (!exists("spark_connect", envir = .GlobalEnv)) {
 - **فراخوانی زودهنگام \`collect()\`:** اگر دستور \`collect()\` را قبل از فیلتر یا تجمیع روی یک جدول چندمیلیاردی اجرا کنید، تمام ترابایت‌ها داده به رم لپ‌تاپ شما سرازیر شده و RStudio فوراً کرش می‌کند! همیشه ابتدا تا جای ممکن روی کلاستر فیلتر و خلاصه‌سازی کنید.
 - **تفاوت توابع R و SQL:** توابعی که در R سفارشی نوشته‌اید روی ورکر‌های اسپارک وجود ندارند، مگر اینکه از توابع نگاشت مانند \`spark_apply()\` استفاده کنید.`,
   },
+
   {
     id: 'scale-caret',
     seriesId: 'foundations',
-    title: '68. Predictive Modeling & Evaluation with caret',
+    title: '66. Predictive Modeling & Evaluation with caret',
     brief: 'Build an end-to-end Machine Learning pipeline using caret: configure 5-fold cross-validation with trainControl(), train a classification model with train(), predict on unseen test data, and assess performance with confusionMatrix().',
     goal: 'ctrl <- trainControl(method = "cv", number = 5)\nfit_caret <- train(outcome ~ feature1 + feature2, data = train_set, method = "knn", trControl = ctrl)\npreds <- predict(fit_caret, newdata = test_set)\ncm <- confusionMatrix(preds, test_set$outcome)',
     setup: `set.seed(42)
@@ -2458,11 +2451,12 @@ cm <- confusionMatrix(predictions, test_data$target)
 - **عدم تعادل دسته‌ها (Class Imbalance):** اگر ۹۹٪ داده‌ها کلاس منفی باشند، مدلی که همیشه منفی پیش‌بینی کند دقت ۹۹٪ خواهد داشت اما عملاً بی‌فایده است! در این شرایط باید به جای Accuracy به معیار Balanced Accuracy یا AUC-ROC تکیه کنید.`,
   },
 
-  // Section 13: اکوسیستم مدرن، پلتفرم‌های ابری و استقرار سازمانی
+  // Section 13: اکوسیستم مدرن، پلتفرم‌های ابری و استقرار سازمانی,
+
   {
     id: 'shiny-intro',
     seriesId: 'foundations',
-    title: '69. Interactive Web Apps & Reactive Programming (Shiny)',
+    title: '67. Interactive Web Apps & Reactive Programming (Shiny)',
     brief: 'Shiny builds reactive web applications in R. Model a split UI/Server architecture with reactive execution returning dynamic output renderers.',
     goal: 'app_ui <- list(type = "fluidPage", title = "Sales Dashboard", inputs = c("region_select", "date_range"))\napp_server <- function(input, output, session) {\n  filtered_data <- function() paste("Filtering data for", input$region)\n  list(render_summary = filtered_data)\n}\nis_shiny_app <- is.list(app_ui) && is.function(app_server)',
     setup: '# Shiny separates declarative UI layout from reactive server execution graph',
@@ -2500,10 +2494,11 @@ cm <- confusionMatrix(predictions, test_data$target)
 - **فراخوانی متغیر واکنشی بدون پرانتز:** یک شیء واکنشی \`data <- reactive({ ... })\` یک تابع است و باید حتماً با پرانتز فراخوانی شود (\`data()\`)؛ ارجاع به شکل \`data\` باعث خطاهای گیج‌کننده کلاسی می‌شود.
 - **تغییر حالت خارج از دامنه (Isolate Trap):** اگر می‌خواهید متغیری بدون تحریک مجدد نمودار خوانده شود، باید آن را در تابع \`isolate()\` کپسوله کنید.`,
   },
+
   {
     id: 'api-plumber',
     seriesId: 'foundations',
-    title: '70. REST APIs & Microservices (Plumber)',
+    title: '68. REST APIs & Microservices (Plumber)',
     brief: 'Plumber transforms R functions into production RESTful HTTP APIs using comment decorators. Configure health check and prediction routes with an OpenAPI/Swagger interface.',
     goal: 'api_routes <- list(\n  get_health = function() list(status = "OK", timestamp = Sys.time()),\n  post_predict = function(val) list(prediction = as.numeric(val) * 1.5)\n)\nplumber_spec <- list(routes = names(api_routes), port = 8000, swagger = TRUE)',
     setup: '# Plumber exposes analytical models to enterprise microservices and frontend clients',
@@ -2559,10 +2554,11 @@ function(amount) {
 - **تک‌تردی بودن مفسر R در ریکوئست‌های همزمان:** مفسر R به صورت پیش‌فرض تک‌ترد است. اگر یک ریکوئست سنگین پردازش شود، ریکوئست‌های دیگر در صف منتظر می‌مانند. در محیط‌های پرترافیک، از پکیج‌های \`promises\` و کلاسترهای کارگری در لایه داکر استفاده می‌شود.
 - **تبدیل رشته به نوع عددی:** پارامترهایی که از طریق کوئری URL یا بدنه فرم ارسال می‌شوند به صورت رشته کاراکتری به تابع تحویل داده می‌شوند؛ همیشه ورودی‌ها را صراحتاً با \`as.numeric()\` تبدیل کنید.`,
   },
+
   {
     id: 'scale-duckdb',
     seriesId: 'foundations',
-    title: '71. Columnar Lakehouse Analytics with DuckDB & Arrow',
+    title: '69. Columnar Lakehouse Analytics with DuckDB & Arrow',
     brief: 'DuckDB and Apache Arrow revolutionize out-of-core big data analytics in R. Query partitioned Parquet data via vectorized columnar execution without filling RAM.',
     goal: 'con <- duckdb_connect()\nduckdb_register_view(con, "sales_parquet", sample_sales)\nlake_summary <- duckdb_query(con, "SELECT region, SUM(amount) AS total_sales FROM sales_parquet GROUP BY region")\nduckdb_close(con)',
     setup: `sample_sales <- data.frame(
@@ -2633,10 +2629,11 @@ dbDisconnect(con, shutdown = TRUE)
 #### ۴. استانداردهای صنعتی و ادغام با dbplyr:
 با استفاده از پکیج \`dbplyr\`، شما می‌توانید تمام دستورات استاندارد \`dplyr\` (نظیر \`group_by\` و \`summarise\`) را روی جداول DuckDB اجرا کنید؛ پکیج به صورت خودکار کد R شما را به بهینه‌ترین SQL کامپایل کرده و آن را در موتور C++ داک‌دی‌بی اجرا می‌کند.`,
   },
+
   {
     id: 'ml-tidymodels',
     seriesId: 'foundations',
-    title: '72. Modern & Type-Safe Machine Learning with Tidymodels',
+    title: '70. Modern & Type-Safe Machine Learning with Tidymodels',
     brief: 'Tidymodels is the modern tidyverse-native successor to caret. Build an integrated workflow combining data splitting (rsample), feature engineering (recipes), and model specification (parsnip).',
     goal: 'split_spec <- list(train_prop = 0.8, seed = 42)\nfeat_recipe <- list(formula = price ~ ., steps = c("step_normalize", "step_dummy"))\nmodel_spec <- list(engine = "lm", mode = "regression")\nml_workflow <- list(recipe = feat_recipe, model = model_spec, trained = TRUE)',
     setup: '# Tidymodels decomposes the machine learning lifecycle into modular, type-safe packages',
@@ -2702,10 +2699,11 @@ final_fit <- fit(car_wflow, data = train_data)
 #### ۴. استانداردهای استقرار مدل‌ها در پروداکشن (vetiver):
 در محیط‌های ابری سازمانی، خروجی \`workflow\` نهایی با پکیج **\`vetiver\`** منجمد شده و با یک خط دستور مستقیماً به یک کانتینر داکر یا وب‌سرویس Plumber برای امتیازدهی بلادرنگ تبدیل می‌شود.`,
   },
+
   {
     id: 'interop-reticulate',
     seriesId: 'foundations',
-    title: '73. Python Interoperability & Polyglot R with reticulate',
+    title: '71. Python Interoperability & Polyglot R with reticulate',
     brief: 'reticulate seamlessly embeds Python within the R runtime. Bridge ecosystems by executing Python code, sharing memory vectors, and integrating machine learning pipelines.',
     goal: 'py_config <- list(version = "3.11", available = TRUE, numpy = TRUE)\nr_to_py_payload <- list(data = c(10, 20, 30), model_type = "transformer")\npy_result <- list(status = "SUCCESS", transformed = r_to_py_payload$data * 2)',
     setup: '# reticulate enables zero-copy memory sharing and bilingual data science pipelines',
@@ -2770,10 +2768,11 @@ py_result <- list(
 #### ۴. استانداردهای صنعتی و سناریوهای کاربردی:
 بهترین الگوی سازمانی: اجرای استخراج متون و مدل‌های بزرگ زبانی (LLM / Embeddings) با پایتون، و سپس رسم نمودارهای تحلیلی سطح انتشاراتی با \`ggplot2\` و انتشار خودکار در داشبورد تعاملی Shiny.`,
   },
+
   {
     id: 'pipeline-targets',
     seriesId: 'foundations',
-    title: '74. Reproducible Pipeline Orchestration with targets',
+    title: '72. Reproducible Pipeline Orchestration with targets',
     brief: 'The targets package is the gold standard for Make-like reproducible pipeline orchestration in R. Maintain clean DAG dependency workflows with cryptographic artifact caching.',
     goal: 'pipeline_dag <- list(\n  raw_file = "data/source.csv",\n  cleaned_data = list(depends_on = "raw_file", status = "cached"),\n  model_fit = list(depends_on = "cleaned_data", status = "cached"),\n  summary_report = list(depends_on = "model_fit", status = "cached")\n)\nis_pipeline_clean <- all(sapply(pipeline_dag[-1], function(x) x$status == "cached"))',
     setup: '# targets manages dependency tracking, caching, and deterministic execution graphs',
@@ -2830,6 +2829,79 @@ list(
 
 #### ۴. استانداردهای صنعتی و اجرای موازی در مقیاس کلاستر:
 پکیج \`targets\` با اتصال به فریم‌ورک‌های پردازش موازی نظیر **\`crew\`** یا سامانه‌های خوشه‌ای نظیر Slurm و AWS Batch، گره‌هایی از DAG را که به هم وابستگی ندارند به صورت خودکار روی هسته‌های مختلف CPU یا سرورهای مختلف کلاستر به صورت موازی اجرا می‌کند.`,
+  },
+
+  {
+    id: "capstone-dirty-data",
+    seriesId: 'foundations',
+    title: "73. Capstone I: Dirty Real-World Data Cleansing",
+    brief: "Real datasets have mixed formats, sentinel missing values, whitespace, and improper types. Clean and normalize the messy raw transaction log.",
+    goal: "clean_tx <- raw_tx |>\n  dplyr::mutate(\n    tx_id = stringr::str_trim(tx_id),\n    customer_code = stringr::str_to_lower(stringr::str_trim(customer_code)),\n    clean_price = suppressWarnings(as.numeric(stringr::str_replace_all(raw_price, \"[\\\\$,]\", \"\")))\n  ) |>\n  dplyr::mutate(\n    clean_price = dplyr::if_else(is.na(clean_price) | clean_price < 0, NA_real_, clean_price)\n  ) |>\n  dplyr::filter(!is.na(clean_price))",
+    setup: "library(tibble)\nlibrary(dplyr)\nlibrary(stringr)\n\nraw_tx <- tibble(\n  tx_id = c(\" TX-101 \", \"TX-102\", \" TX-103 \", \"TX-104 \"),\n  raw_price = c(\"$1,250.00\", \"N/A\", \"$350.50\", \"-999.00\"),\n  customer_code = c(\"  c_alpha \", \"C_BETA\", \"c_alpha\", \"  c_gamma  \")\n)",
+    par: 1,
+    difficulty: 4,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"clean_tx\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Dataset clean_tx exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "nrow(clean_tx) == 2 && all(clean_tx$clean_price > 0)",
+        label: "clean_tx isolates the 2 valid transactions with cleaned positive numeric prices",
+      },
+      {
+        type: "eval",
+        expr: "identical(clean_tx$customer_code, c(\"c_alpha\", \"c_alpha\"))",
+        label: "customer_code is trimmed and normalized to lowercase",
+      },
+    ],
+    hint: "Use stringr::str_trim(), stringr::str_to_lower(), stringr::str_replace_all() to strip $, replace negative values with NA_real_, and filter(!is.na(clean_price)).",
+    lesson: `### فصل ۶۴ — پروژه جامع اول: تمیزکاری داده‌های کثیف دنیای واقعی
+
+در کتاب‌های آموزشی، دیتاست‌ها همیشه مرتب و آماده تحلیل هستند. اما در دنیای واقعی، بیش از ۸۰٪ وقت یک متخصص داده صرف مقابله با موارد زیر می‌شود:
+1. **مقادیر گمشده پنهان (Sentinel Values):** سیستم‌های قدیمی داده‌های ناموجود را با \`-999\`، \`"N/A"\` یا \`"UNKNOWN"\` ثبت می‌کنند.
+2. **علائم پولی و هزارگان:** اعداد به فرمت متنی مانند \`"$1,250.00"\` ذخیره شده‌اند و تبدیل مستقیم آن‌ها با شکست مواجه می‌شود.
+3. **فضاهای خالی ناخواسته و حروف کوچک/بزرگ:** \`"  c_alpha "\` با \`"c_alpha"\` در گروه‌بندی یکسان در نظر گرفته نمی‌شوند مگر آنکه نرمال‌سازی شوند.
+
+در این مرحله جامع، شما با ترکیب \`stringr::str_trim\`، \`stringr::str_replace_all\`، \`dplyr::mutate\`، و گزاره‌های شرطی دفاعی، داده‌های خام را به یک تیبل تمیز و استاندارد تبدیل می‌کنید.`,
+  },
+
+  {
+    id: "capstone-pipeline",
+    seriesId: 'foundations',
+    title: "74. Capstone II: Production Analytical Pipeline",
+    brief: "Execute an end-to-end analytical pipeline: join transaction logs with product metadata, compute business KPIs, and validate data invariants.",
+    goal: "kpi_summary <- orders |>\n  dplyr::inner_join(products, by = \"product_id\") |>\n  dplyr::mutate(revenue = quantity * unit_price) |>\n  dplyr::group_by(category) |>\n  dplyr::summarise(\n    total_orders = dplyr::n(),\n    total_revenue = sum(revenue),\n    avg_order_value = mean(revenue),\n    .groups = \"drop\"\n  )\nstopifnot(nrow(kpi_summary) == 2, all(kpi_summary$total_revenue > 0))",
+    setup: "library(tibble)\nlibrary(dplyr)\n\norders <- tibble(\n  order_id = 1:5,\n  product_id = c(\"P1\", \"P2\", \"P1\", \"P3\", \"P2\"),\n  quantity = c(2, 1, 4, 3, 5)\n)\n\nproducts <- tibble(\n  product_id = c(\"P1\", \"P2\", \"P3\"),\n  category = c(\"Hardware\", \"Software\", \"Hardware\"),\n  unit_price = c(50.0, 120.0, 30.0)\n)",
+    par: 2,
+    difficulty: 4,
+    checks: [
+      {
+        type: "eval",
+        expr: "exists(\"kpi_summary\", envir = .GlobalEnv, inherits = FALSE)",
+        label: "Dataset kpi_summary exists in the workspace",
+      },
+      {
+        type: "eval",
+        expr: "identical(sort(kpi_summary$category), c(\"Hardware\", \"Software\"))",
+        label: "kpi_summary contains aggregated metrics for Hardware and Software categories",
+      },
+      {
+        type: "eval",
+        expr: "isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Hardware\"], 390)) && isTRUE(all.equal(kpi_summary$total_revenue[kpi_summary$category == \"Software\"], 720))",
+        label: "Total revenue accurately aggregates to $390 (Hardware) and $720 (Software)",
+      },
+    ],
+    hint: "Join orders with products via inner_join, compute revenue = quantity * unit_price, group_by(category) and summarise with .groups = 'drop', then assert with stopifnot().",
+    lesson: `### فصل ۶۵ — پروژه جامع دوم: خط لوله تحلیل داده و اعتبارسنجی پروداکشن
+
+یک خط لوله تحلیلی سازمانی (Production Analytical Pipeline) شامل ۴ گام اساسی است:
+1. **اتصال داده‌های رابطه‌ای (Relational Joins):** ترکیب جدول رویدادها (Orders) با جدول ابعادی کاتالوگ (Products) بر اساس کلید واحد \`product_id\`.
+2. **مهندسی ویژگی و محاسبات درآمد:** محاسبه ارزش هر سفارش به صورت برداری (\`quantity * unit_price\`).
+3. **تجمیع شاخص‌های کلیدی عملکرد (KPIs):** محاسبه تعداد سفارشات، مجموع فروش، و میانگین ارزش سبد خرید به تفکیک دسته‌بندی با پارامتر امن \`.groups = "drop"\` برای جلوگیری از باگ‌های گروه‌بندی پایدار.
+4. **قراردادهای داده و آزمون‌های دفاعی (Invariants Contract):** بررسی عدم وجود رکوردهای منفی یا تهی با تابع \`stopifnot()\` تا تضمین شود دیتای معیوب هرگز به دشبورد مدیران یا سرورهای گزارش‌گیری راه پیدا نمی‌کند.`,
   },
 ];
 
@@ -2988,15 +3060,6 @@ export function seriesOf(): SeriesGroup[] {
       ],
     },
     {
-      id: 'capstones',
-      title: 'REAL-WORLD END-TO-END CAPSTONES',
-      prefix: 'cap',
-      ids: [
-        'capstone-dirty-data',
-        'capstone-pipeline',
-      ],
-    },
-    {
       id: 'modern-ecosystem',
       title: 'MODERN ECOSYSTEM, DUCKDB & INTEROP',
       prefix: 'modern',
@@ -3007,6 +3070,15 @@ export function seriesOf(): SeriesGroup[] {
         'ml-tidymodels',
         'interop-reticulate',
         'pipeline-targets',
+      ],
+    },
+    {
+      id: 'capstones',
+      title: 'REAL-WORLD END-TO-END CAPSTONES',
+      prefix: 'cap',
+      ids: [
+        'capstone-dirty-data',
+        'capstone-pipeline',
       ],
     },
   ];

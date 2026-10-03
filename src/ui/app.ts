@@ -457,10 +457,10 @@ export class App {
     });
     const total = allLevels.length;
     const solvedCount = curriculum.solvedCount;
-    const underPar = strokes <= level.par;
-    const golfLine = underPar
+    const underIdeal = strokes <= level.par;
+    const golfLine = underIdeal
       ? `**${strokes}** ${u.idealForLevelShort(level.par)}`
-      : `**${strokes}** strokes. Ideal is ${level.par}. Still counts — you got there.`;
+      : `**${strokes}** ${getLocale() === 'fa' ? `فرمان. ایده‌آل ${level.par} بود، ولی مهم تکمیل تمیز گام‌هاست.` : `commands. Ideal was ${level.par}. Steps cleanly completed.`}`;
 
     const cheers = u.cheers;
     const cheer = cheers[Math.floor(Math.random() * cheers.length)]!;
@@ -650,14 +650,15 @@ export class App {
         </div>`;
 
     const prog = this.progress[level.id];
-    const golfNote =
-      prog?.bestStrokes !== undefined
-        ? u.bestSoFar(prog.bestStrokes, level.par)
-        : u.idealSolution(level.par);
+    const unmetChecks = steps.filter((s) => !s.done);
+    const golfNote = solved
+      ? (prog?.bestStrokes !== undefined
+          ? u.bestSoFar(prog.bestStrokes, level.par)
+          : u.idealSolution(level.par))
+      : u.commandsRemaining(unmetChecks.length, level.par);
 
     const learning = level.learning ?? getLevelLearning(level.id);
     const fieldNotes = level.fieldNotes ?? getLevelFieldNotes(level.id);
-    const unmetChecks = steps.filter((s) => !s.done);
 
     this.dockEl.innerHTML = `
       <h2>${escapeHtml(level.title)}</h2>
@@ -808,7 +809,7 @@ export class App {
             return `<button type="button" class="level-row ${solved ? 'solved' : ''}${active ? ' active' : ''}" data-level="${l.id}">
               <span class="id">${item.displayId}</span>
               <span class="name">${escapeHtml(l.title)}</span>
-              <span class="par-note">ideal ${l.par} cmd${l.par === 1 ? '' : 's'}</span>
+              <span class="par-note">${escapeHtml(u.idealCommands(l.par))}</span>
               <span class="chip ${solved ? 'ok' : ''}" title="${escapeHtml(u.difficultyOf(l.difficulty))}">
                 ${
                   solved
@@ -833,13 +834,18 @@ export class App {
               <span class="diff-dots" aria-hidden="true">${renderDiffDots(3)}</span>
               ${renderMarkdown(u.difficultyLegend)}
             </li>
-            <li><span class="par-note">ideal 3 cmds</span> ${renderMarkdown(u.idealLegend)}</li>
+            <li><span class="par-note">${escapeHtml(u.idealCommands(3))}</span> ${renderMarkdown(u.idealLegend)}</li>
             <li><span class="chip ok">${escapeHtml(u.solvedLabel)} 3</span> ${renderMarkdown(u.solvedLegend)}</li>
           </ul>
         </div>
         ${body}`,
       actions: [{ label: u.closeBtn, className: 'ghost', onClick: () => modal.close() }],
     });
+
+    const modalBox = modal.el.querySelector<HTMLElement>('.modal');
+    if (modalBox) {
+      modalBox.scrollTop = 0;
+    }
 
     modal.el.querySelectorAll<HTMLButtonElement>('[data-level]').forEach((btn) => {
       btn.addEventListener('click', () => {

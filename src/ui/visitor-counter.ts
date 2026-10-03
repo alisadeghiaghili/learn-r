@@ -1,10 +1,14 @@
 /**
- * Visitor counter client with local deduplication.
+ * Visitor counter client with local deduplication & stale-while-revalidate.
  * Fetches page visitor count and renders a clean numeric stat in the toolbar.
  */
 
 const STORAGE_KEY = 'learn-r:visitor-count-cache';
-const BADGE_URL = 'https://api.visitorbadge.io/api/combined?path=learn-r';
+const LAST_VISIT_KEY = 'learn-r:last-visit-date';
+const COUNT_API_BASE = 'https://countapi.mileshilliard.com/api/v1';
+const COUNT_KEY = 'alisadeghiaghili-learn-r';
+const BADGE_URL = 'https://api.visitorbadge.io/api/visitors?path=alisadeghiaghili.learn-r';
+export const BASELINE_FALLBACK = 2400;
 
 export interface CachedCount {
   count: number;
@@ -27,54 +31,111 @@ export function parseVisitorBadgeSvg(svg: string): number | null {
 }
 
 /**
- * Retrieves the visitor count, incrementing on the first visit per browser,
- * while returning cached count on subsequent visits to count unique visitors.
+ * Synchronously retrieves cached count for instant zero-latency UI rendering.
  */
-export async function getVisitorCount(): Promise<number | null> {
-  // Check local cache first
+export function getCachedVisitorCount(): number | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const cached = JSON.parse(raw) as CachedCount;
-      if (typeof cached.count === 'number' && Number.isFinite(cached.count)) {
+      if (typeof cached.count === 'number' && Number.isFinite(cached.count) && cached.count > 0) {
         return cached.count;
       }
     }
   } catch {
-    // LocalStorage may fail in restricted private browsing
+    // restricted storage
   }
+  return null;
+}
 
+/**
+ * Saves count to local cache.
+ */
+function cacheCount(count: number): void {
   try {
-    const res = await fetch(badgeUrlWithLocale(), {
-      cache: 'no-store',
-      headers: {
-        'Accept': 'image/svg+xml, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    });
-
-    if (!res.ok) return null;
-
-    const svg = await res.text();
-    const count = parseVisitorBadgeSvg(svg);
-
-    if (count !== null) {
-      try {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ count, at: Date.now() }),
-        );
-      } catch {
-        // quota or private mode
-      }
-    }
-
-    return count;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ count, at: Date.now() }));
   } catch {
-    return null;
+    // ignore
   }
 }
 
-function badgeUrlWithLocale(): string {
-  return BADGE_URL;
+/**
+ * Checks if the user already visited today (UTC day string).
+ */
+function isNewDailyVisit(): boolean {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    if (lastVisit === today) {
+      return false;
+    }
+    localStorage.setItem(LAST_VISIT_KEY, today);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Fetches with an explicit timeout to prevent hanging when APIs are slow or blocked.
+ */
+async function fetchWithTimeout(url: string, ms = 4000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json, image/svg+xml, */*',
+      },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Retrieves the fresh visitor count from the primary API, with fallback to secondary SVG badge API,
+ * updating local cache. If offline or blocked by adblockers, falls back to cached count or baseline.
+ */
+export async function getVisitorCount(): Promise<number | null> {
+  const isNew = isNewDailyVisit();
+  const action = isNew ? 'hit' : 'get';
+
+  // 1. Try CountAPI (JSON, CORS enabled, fast)
+  try {
+    const res = await fetchWithTimeout(`${COUNT_API_BASE}/${action}/${COUNT_KEY}`, 3500);
+    if (res.ok) {
+      const data = (await res.json()) as { value?: number };
+      if (typeof data.value === 'number' && Number.isFinite(data.value) && data.value > 0) {
+        cacheCount(data.value);
+        return data.value;
+      }
+    }
+  } catch {
+    // CountAPI network error or timeout, proceed to fallback
+  }
+
+  // 2. Try SVG Badge Provider fallback
+  try {
+    const res = await fetchWithTimeout(BADGE_URL, 3500);
+    if (res.ok) {
+      const svg = await res.text();
+      const count = parseVisitorBadgeSvg(svg);
+      if (count !== null && count > 0) {
+        cacheCount(count);
+        return count;
+      }
+    }
+  } catch {
+    // Proceed to cache fallback
+  }
+
+  // 3. Fallback to cached count or baseline
+  const cached = getCachedVisitorCount();
+  if (cached !== null) {
+    return cached;
+  }
+
+  return BASELINE_FALLBACK;
 }

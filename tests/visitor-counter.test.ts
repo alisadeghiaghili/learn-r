@@ -25,3 +25,30 @@ describe('parseVisitorBadgeSvg', () => {
     expect(parseVisitorBadgeSvg(svg)).toBeNull();
   });
 });
+
+describe('getCachedVisitorCount', () => {
+  const store = new Map<string, string>();
+  (globalThis as unknown as { localStorage: Storage }).localStorage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => store.set(k, String(v)),
+    removeItem: (k: string) => void store.delete(k),
+    clear: () => store.clear(),
+    key: (i: number) => Array.from(store.keys())[i] ?? null,
+    length: store.size,
+  };
+
+  it('reads cached value from storage when present', async () => {
+    const { getCachedVisitorCount } = await import('../src/ui/visitor-counter');
+    localStorage.setItem('learn-r:visitor-count-cache', JSON.stringify({ count: 2450, at: Date.now() }));
+    expect(getCachedVisitorCount()).toBe(2450);
+  });
+
+  it('returns null when storage is empty or invalid', async () => {
+    const { getCachedVisitorCount } = await import('../src/ui/visitor-counter');
+    localStorage.removeItem('learn-r:visitor-count-cache');
+    expect(getCachedVisitorCount()).toBeNull();
+
+    localStorage.setItem('learn-r:visitor-count-cache', 'invalid-json');
+    expect(getCachedVisitorCount()).toBeNull();
+  });
+});

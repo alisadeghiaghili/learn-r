@@ -760,6 +760,72 @@ export const LEVEL_GUIDANCE: Record<string, LevelGuidance> = {
       'On imbalanced classification datasets, prioritize Balanced Accuracy and ROC-AUC over raw Accuracy.',
     ],
   },
+  'shiny-intro': {
+    learning: [
+      'fluidPage() and sidebarLayout() define reactive web application UI structure',
+      'renderPlot() and renderTable() wrap dynamic server-side output calculations',
+      'shinyApp(ui, server) binds frontend inputs to backend reactive computations',
+    ],
+    fieldNotes: [
+      'Break complex Shiny applications into modular Shiny modules for testability and maintainability.',
+      'Deploy enterprise Shiny applications with Shiny Server, Posit Connect, or containerized Docker clusters.',
+    ],
+  },
+  'api-plumber': {
+    learning: [
+      '#* @get and #* @post annotations turn standard R functions into HTTP REST endpoints',
+      'pr() compiles decorated R scripts into runnable Plumber router instances',
+      'pr_run() launches high-throughput microservices listening on specified network ports',
+    ],
+    fieldNotes: [
+      'Plumber runs single-threaded by default; use promises, future, or multiple container replicas behind Nginx for concurrency.',
+      'Always validate input payloads with checkmate or assertthat before executing analytical models in APIs.',
+    ],
+  },
+  'scale-duckdb': {
+    learning: [
+      'duckdb::duckdb() creates high-performance embedded in-process columnar SQL engines',
+      'dbWriteTable() and dbGetQuery() execute vectorized analytical queries directly on disk/RAM',
+      'duckdb_register() allows zero-copy SQL queries over in-memory Arrow datasets and Parquet files',
+    ],
+    fieldNotes: [
+      'DuckDB excels at single-node analytical queries on datasets larger than RAM with disk spilling.',
+      'Combine DuckDB with Apache Arrow for zero-copy memory transfers between R and Python analytical engines.',
+    ],
+  },
+  'ml-tidymodels': {
+    learning: [
+      'recipe() defines standardized preprocessing pipelines (normalization, dummy encoding, imputation)',
+      'linear_reg() and rand_forest() specify model architectures independently of backend computational engines',
+      'workflow() binds preprocessing recipes and model specifications into unified, leak-free pipelines',
+    ],
+    fieldNotes: [
+      'Tidymodels prevents data leakage by fitting recipe transformations solely on training split partitions.',
+      'Use workflows and parsnip to easily swap model backends (e.g. glmnet vs ranger vs xgboost) with zero pipeline rewrites.',
+    ],
+  },
+  'interop-reticulate': {
+    learning: [
+      'use_virtualenv() and use_condaenv() bind R sessions to dedicated Python virtual environments',
+      'import() loads native Python modules (numpy, pandas, scikit-learn, pytorch) directly into R',
+      'r_to_py() and py_to_r() manage seamless zero-copy bidirectional object conversion',
+    ],
+    fieldNotes: [
+      'In production, specify RETICULATE_PYTHON environment variable to lock the exact runtime Python interpreter.',
+      'Use py$obj to access Python module attributes and methods with standard R dollar syntax.',
+    ],
+  },
+  'pipeline-targets': {
+    learning: [
+      'tar_target() declares pipeline calculation nodes with automatic upstream dependency tracking',
+      'tar_make() executes only outdated pipeline steps, skipping unchanged upstream targets',
+      'tar_read() and tar_load() retrieve cached artifact targets safely into interactive memory',
+    ],
+    fieldNotes: [
+      'targets replaces fragile Makefiles and manual script chains with pure R dependency graphs.',
+      'In high-throughput environments, combine targets with future to run independent targets in parallel on cluster nodes.',
+    ],
+  },
 };
 
 LEVEL_GUIDANCE['appendix'] = LEVEL_GUIDANCE['capstone'];

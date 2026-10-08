@@ -8,6 +8,7 @@ const LAST_VISIT_KEY = 'learn-r:last-visit-date';
 const COUNT_API_BASE = 'https://countapi.mileshilliard.com/api/v1';
 const COUNT_KEY = 'alisadeghiaghili-learn-r';
 const BADGE_URL = 'https://api.visitorbadge.io/api/visitors?path=alisadeghiaghili.learn-r';
+export const HISTORICAL_OFFSET = 18;
 export const BASELINE_FALLBACK = 45;
 
 export interface CachedCount {
@@ -95,57 +96,45 @@ async function fetchWithTimeout(url: string, ms = 4000): Promise<Response> {
 }
 
 /**
- * Retrieves the fresh visitor count from the primary API, with fallback to secondary SVG badge API,
+ * Retrieves the fresh visitor count from the primary API with deduplication,
  * updating local cache. If offline or blocked by adblockers, falls back to cached count or baseline.
  */
 export async function getVisitorCount(): Promise<number | null> {
   const isNew = isNewDailyVisit();
   const action = isNew ? 'hit' : 'get';
 
-  const [countApiRes, badgeRes] = await Promise.allSettled([
-    // 1. Try CountAPI (JSON, CORS enabled, fast)
-    (async () => {
-      try {
-        const res = await fetchWithTimeout(`${COUNT_API_BASE}/${action}/${COUNT_KEY}`, 3500);
-        if (res.ok) {
-          const data = (await res.json()) as { value?: number };
-          if (typeof data.value === 'number' && Number.isFinite(data.value) && data.value > 0) {
-            return data.value;
-          }
-        }
-      } catch {}
-      return null;
-    })(),
-    // 2. Try SVG Badge Provider fallback
-    (async () => {
-      try {
-        const res = await fetchWithTimeout(BADGE_URL, 3500);
-        if (res.ok) {
-          const svg = await res.text();
-          const count = parseVisitorBadgeSvg(svg);
-          if (count !== null && count > 0) {
-            return count;
-          }
-        }
-      } catch {}
-      return null;
-    })(),
-  ]);
-
-  const countApiVal = countApiRes.status === 'fulfilled' ? countApiRes.value : null;
-  const badgeVal = badgeRes.status === 'fulfilled' ? badgeRes.value : null;
-
-  const validCounts = [countApiVal, badgeVal].filter(
-    (v): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0
-  );
-
-  if (validCounts.length > 0) {
-    const highest = Math.max(...validCounts, BASELINE_FALLBACK);
-    cacheCount(highest);
-    return highest;
+  // 1. Try CountAPI (JSON, CORS enabled, fast, distinct get vs hit without uncontrolled increments)
+  try {
+    const res = await fetchWithTimeout(`${COUNT_API_BASE}/${action}/${COUNT_KEY}`, 3500);
+    if (res.ok) {
+      const data = (await res.json()) as { value?: number };
+      if (typeof data.value === 'number' && Number.isFinite(data.value) && data.value > 0) {
+        const total = Math.max(BASELINE_FALLBACK, data.value + HISTORICAL_OFFSET);
+        cacheCount(total);
+        return total;
+      }
+    }
+  } catch {
+    // CountAPI network error or timeout, proceed to fallback
   }
 
-  // 3. Fallback to cached count or baseline
+  // 2. Try SVG Badge Provider fallback ONLY if CountAPI failed on a genuine new visit
+  if (isNew) {
+    try {
+      const res = await fetchWithTimeout(BADGE_URL, 3500);
+      if (res.ok) {
+        const svg = await res.text();
+        const count = parseVisitorBadgeSvg(svg);
+        if (count !== null && count > 0) {
+          const total = Math.max(BASELINE_FALLBACK, count);
+          cacheCount(total);
+          return total;
+        }
+      }
+    } catch {}
+  }
+
+  // 3. Fallback to cached count or baseline (never unconditionally hit BADGE_URL on repeat visits)
   const cached = getCachedVisitorCount();
   if (cached !== null) {
     return Math.max(cached, BASELINE_FALLBACK);
